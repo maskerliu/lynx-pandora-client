@@ -1,40 +1,43 @@
 <template>
   <van-col style="overflow-y: auto">
     <van-cell-group :title="$t('settings.sys.title')">
-      <van-cell :title="$t('settings.sys.mqttBroker')" :value="commonStore.appConfig.broker" size="large" />
-      <van-cell :title="$t('settings.sys.about')" center size="large" is-link to="about" />
-      <van-cell :title="$t('settings.sys.help')" center size="large" is-link to="about" />
+      <van-cell :title="$t('settings.sys.mqttBroker')" :value="commonStore.appConfig.broker" />
+      <van-cell :title="$t('settings.sys.about')" center is-link to="about" />
+      <van-cell :title="$t('settings.sys.help')" center is-link to="help" />
     </van-cell-group>
 
     <van-cell-group :title="$t('settings.notify.title')">
-      <van-cell :title="$t('settings.notify.sound')" center size="large">
+      <van-cell :title="$t('settings.notify.sound')" center>
         <template #value>
-          <van-switch></van-switch>
+          <van-switch size="20px"></van-switch>
         </template>
       </van-cell>
-      <van-cell :title="$t('settings.notify.vibrate')" center size="large">
+      <van-cell :title="$t('settings.notify.vibrate')" >
         <template #value>
-          <van-switch></van-switch>
+          <van-switch size="20px"></van-switch>
         </template>
       </van-cell>
     </van-cell-group>
 
     <van-cell-group :title="$t('settings.fontlang.title')">
-      <van-cell :title="$t('settings.fontlang.fontSize')" center size="large" is-link to="fontSize" />
-      <van-cell :title="$t('settings.fontlang.multiLang')" center size="large" is-link to="multiLang" />
+      <van-cell :title="$t('settings.fontlang.fontSize')" center is-link to="fontSize" />
+      <van-cell :title="$t('settings.fontlang.multiLang')" center is-link to="multiLang" />
     </van-cell-group>
 
-    <van-button plain type="danger" style="width: calc(100% - 30px); margin: 15px;">
-      {{ $t('settings.logout') }}
-    </van-button>
+    <van-button plain type="danger" @click="logout" style="width: calc(100% - 30px); margin: 15px;"
+      :text="$t('settings.logout')" />
   </van-col>
 </template>
 
 <script lang="ts" setup>
 import { onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRoute, useRouter } from 'vue-router';
 import { useCommonStore } from '../../store';
 
 const commonStore = useCommonStore()
+const i18n = useI18n()
+const router = useRouter()
 
 class Test {
   name: string
@@ -55,6 +58,13 @@ class Hello {
 }
 
 onMounted(() => {
+  commonStore.navbar.title = i18n.t('settings.title')
+  commonStore.navbar.leftArrow = true
+
+  let a = { id: '1111' }
+  let b = { id: '22222' }
+  console.log(Object.assign(a, b))
+
   let test = new Test('chris', 'xxxxx')
   let test2 = new Test('tom', 'ooooo')
   Reflect.set(Test.prototype, 'test', new Hello('test'))
@@ -72,6 +82,12 @@ onMounted(() => {
   let regArr = ua.match(/[0-9A-Za-z\/.\ :]+/g)
   console.log(regArr)
 })
+
+function logout() {
+  commonStore.logout()
+  router.replace('/iot')
+}
+
 
 </script>
 <style scoped>

@@ -1,18 +1,16 @@
 <template>
-  <van-row justify="center" align="center">
-    <van-search v-model="searchKey" style="width: 100%" :placeholder="$t('common.searchPlaceholder')"
-      background="#4fc08d" />
-    <van-pull-refresh v-model="refreshing" @refresh="onRefresh" style="width: 100%; height: calc(100% - 54px);">
-      <van-list clickable style=" width: 100%; height: 100%; overflow-y: auto; overflow-x: hidden;">
+  <van-col justify="center" align="center" style="background-color: white;">
+    <van-search v-model="searchKey" :placeholder="$t('common.searchPlaceholder')" style="margin: 0 15px;" />
+    <van-pull-refresh v-model="refreshing" @refresh="onRefresh" style="height: calc(100% - 54px);">
+      <van-list clickable style="height: 100%; overflow-y: auto; overflow-x: hidden;">
         <van-cell v-for="item in devices" is-link center :to="`/iot/device/${item.deviceId}`">
           <template #title>
-            <div class="single-line">{{ item.deviceId }}</div>
+            <div class="single-line" style="font-size: 1rem; color: #555;">{{ item.deviceId }}</div>
           </template>
           <template #label>
-            <div class="single-line" style="font-size: 0.8rem; margin-top: 15px;">地址: item.address item.address
-              item.address}</div>
+            <div class="single-line" style="font-size: 0.7rem; margin-top: 15px;">地址:{{ item.address }}</div>
           </template>
-          <template #value style="max-width: 100px;">
+          <template #value style="width: 100px;">
             <div>
               <van-button type="warning" plain size="small"
                 @click.stop.prevent="commonStore.rebootDevice(item.deviceId)">
@@ -37,23 +35,21 @@
 
     <van-dialog v-model:show="removeConfirmDialog" :title="$t('iot.device.delete.title')" show-cancel-button
       :cancel-button-text="$t('common.cancel')" :confirmButtonText="$t('common.delete')" confirmButtonColor="#ee0a24"
-      @confirm="deleteDevice">
+      @confirm="removeDevice">
       <div style="font-size: 0.8rem; padding: 15px;">
         <p>{{ $t('iot.device.delete.confirm', { deviceId: curDevice!.deviceId }) }}</p>
         <p>{{ $t('iot.device.delete.confirm1') }}</p>
       </div>
     </van-dialog>
 
-  </van-row>
+  </van-col>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, watch } from 'vue'
-
-import { Notify } from 'vant'
-import { removeDevice, searchDevices } from '../../models/iot.api'
-import { IOT } from '../../models/iot.model'
-import { useCommonStore } from '../../store'
+import { Notify } from 'vant';
+import { onMounted, ref, watch } from 'vue';
+import { IOT, IOTApi } from '../../models';
+import { useCommonStore } from '../../store';
 
 const searchKey = ref('')
 const removeConfirmDialog = ref(false)
@@ -76,7 +72,7 @@ watch(searchKey, () => {
 async function onRefresh() {
   loading.value = true
   refreshing.value = true
-  devices.value = await searchDevices(searchKey.value)
+  devices.value = await IOTApi.searchDevices(searchKey.value)
   loading.value = false
   refreshing.value = false
 }
@@ -86,9 +82,9 @@ function showRemoveConfirm(device: IOT.Device) {
   curDevice.value = device
 }
 
-async function deleteDevice() {
+async function removeDevice() {
   try {
-    let result = await removeDevice(curDevice.value!.deviceId)
+    let result = await IOTApi.removeDevice(curDevice.value!.deviceId)
     curDevice.value = undefined
     Notify({ type: 'success', message: result, duration: 500 })
   } catch (err) {
@@ -107,13 +103,13 @@ async function deleteDevice() {
 }
 
 .single-line {
-  font-size: 1rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: calc(100vw - 210px);
+  width: calc(100vw - 210px);
   display: block;
-  /* direction: rtl; */
+  direction: ltr;
+  text-align: start;
 }
 
 .icon-wrapper {

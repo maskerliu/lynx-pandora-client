@@ -1,7 +1,7 @@
 <template>
   <van-radio-group v-model="checked">
     <van-cell-group>
-      <van-cell :title="local" size="large" v-for="local in i18n.availableLocales" clickable @click="checked = local">
+      <van-cell :title="local" v-for="local in i18n.availableLocales" clickable @click="checked = local">
         <template #right-icon>
           <van-radio :name="local" />
         </template>
@@ -13,15 +13,14 @@
 
 import { onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-
 import { useCommonStore } from '../../store';
 
 const i18n = useI18n()
 const checked = ref(null)
 const commonStore = useCommonStore()
 
-
 onMounted(() => {
+  commonStore.navbar.title = i18n.t('settings.fontlang.multiLang')
   checked.value = commonStore.locale
 })
 

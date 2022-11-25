@@ -1,6 +1,6 @@
 <template>
-  <van-row style="overflow-y: auto;" justify="center" align="center">
-    <van-cell-group v-if="curDevice != null" style="margin-top: 5px; width: 100%">
+  <van-col style="overflow-y: auto; overflow-x: hidden;" justify="center" align="center">
+    <van-cell-group v-if="curDevice != null" style="margin-top: 5px;">
       <van-cell :title="$t('iot.device.name')" :title-style="{ maxWidth: '100px' }" center>
         <template #value>
           <div class="single-line">{{ curDevice.deviceId }}</div>
@@ -16,29 +16,26 @@
           </van-switch>
         </template>
       </van-cell>
-      <van-cell :title="$t('iot.device.company')" :title-style="{ maxWidth: '100px' }" center is-link
-        :to="`/company/${curDevice.company}`">
+      <van-cell :title="$t('iot.device.company')" :title-style="{ maxWidth: '100px' }" center is-link to="/company">
         <template #value>
-          <div class="single-line">{{ curDevice.address }}</div>
+          <div class="single-line">{{ commonStore.company.name }}</div>
         </template>
       </van-cell>
 
       <van-collapse v-model="showMap" accordion>
         <van-collapse-item name="1" center>
           <template #title>
-            <van-cell :title="$t('iot.device.address')" :title-style="{ maxWidth: '100px' }" center clickable
-              style="padding: 0">
+            <van-cell :title="$t('iot.device.address')" :title-style="{ maxWidth: '80px' }" center clickable
+              style="padding: 0; width: calc(100vw - 80px);">
               <template #value>
-                <div class="single-line">{{ curDevice.address }}</div>
+                <div class="single-line" style="max-width: calc(100vw - 120px);">{{ curDevice.address }}</div>
               </template>
             </van-cell>
           </template>
-          <amap-viewer style="width: calc(100vw - 32px); height: 300px;" v-model:lng="curDevice.lng"
+          <amap-viewer style="width: calc(100vw - 36px); height: 300px;" v-model:lng="curDevice.lng"
             v-model:lat="curDevice.lat" v-model:address="curDevice.address" />
-          <van-button plain block type="primary" size="small" :loading="updating" @click="updateDeviceInfo"
-            style="width: calc(100% - 40px); margin: 20px;">
-            {{ $t('common.done') }}
-          </van-button>
+          <van-button type="success" :loading="updating" @click="updateDeviceInfo"
+            :text="$t('common.done')" style="width: 100%; margin: 15px 0;" />
         </van-collapse-item>
       </van-collapse>
     </van-cell-group>
@@ -56,12 +53,10 @@
       </div>
     </van-dialog>
 
-  </van-row>
+  </van-col>
 </template>
 
 <script lang="ts" setup>
-import { defineAsyncComponent, onMounted, ref, watch } from 'vue'
-
 import { BarChart, BarSeriesOption, GaugeChart, GaugeSeriesOption, LineChart, LineSeriesOption } from 'echarts/charts'
 import {
   DatasetComponent, DatasetComponentOption,
@@ -75,9 +70,10 @@ import * as echarts from 'echarts/core'
 import { LabelLayout, UniversalTransition } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
 import { Notify } from 'vant'
+import { onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { deviceInfo, removeDevice, updateDevice } from '../../models/iot.api'
-import { IOT } from '../../models/iot.model'
+import { IOT, IOTApi } from '../../models'
 import { useCommonStore } from '../../store'
 import { useIOTDeviceStore } from '../../store/IOTDevices'
 import AmapViewer from '../components/AmapViewer.vue'
@@ -126,15 +122,17 @@ let humidityChart: echarts.ECharts = null
 
 const deviceStore = useIOTDeviceStore()
 const commonStore = useCommonStore()
+const i18n = useI18n()
 
 onMounted(async () => {
 
-  console.log(commonStore.navbar)
+  commonStore.navbar.title = i18n.t('iot.device.title')
+
   initElectric()
   initTemperature()
   initHumidity()
 
-  curDevice.value = await deviceInfo(route.params['did'] as string)
+  curDevice.value = await IOTApi.deviceInfo(route.params['did'] as string)
 })
 
 watch(() => isSubscribe.value, () => {
@@ -372,7 +370,7 @@ async function onDeviceSelected(device: IOT.Device) {
 async function updateDeviceInfo() {
   updating.value = true
   try {
-    await updateDevice(curDevice.value)
+    await IOTApi.updateDevice(curDevice.value)
   } catch (err) {
 
   } finally {
@@ -389,7 +387,7 @@ function showRemoveConfirm(device: IOT.Device) {
 
 async function deleteDevice() {
   try {
-    let result = await removeDevice(curDevice.value.deviceId)
+    let result = await IOTApi.removeDevice(curDevice.value.deviceId)
     curDevice.value = null
     isSubscribe.value = false
     Notify({ type: 'success', message: result, duration: 500 })

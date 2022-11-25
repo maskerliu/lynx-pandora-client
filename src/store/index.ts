@@ -1,24 +1,27 @@
 
 
 import { defineStore } from 'pinia'
+import { NavBarProps } from 'vant'
 import { useI18n } from 'vue-i18n'
 import MsgClient from '../common/MsgClient'
 import PahoMsgClient from '../common/PahoMsgClient'
-import { updateBaseDomain } from '../models/base.api'
-import { LocalServerConfig } from '../models/base.models'
-import { getAppConfig } from '../models/common.api'
-import { Common } from '../models/common.models'
-import { IOT } from '../models/iot.model'
+import { Common, CommonApi, IOT, IOTApi, updateAccessToken, updateBaseDomain, User } from '../models'
 
 let msgClient: MsgClient = null
+
+// const i18n = useI18n()
 
 export const useCommonStore = defineStore('Common', {
   state: () => {
     return {
-      navbar: null,
+      navbar: {} as NavBarProps,
       needLogin: false,
       appConfig: {} as Common.AppConfig,
       locale: null,
+      accessToken: null,
+      profile: null as User.Account & User.Profile,
+      operator: null as IOT.Operator,
+      company: {} as IOT.Company
     }
   },
   actions: {
@@ -27,6 +30,8 @@ export const useCommonStore = defineStore('Common', {
         updateBaseDomain(SERVER_BASE_URL)
       }
 
+      this.updateUserInfo()
+
       if (this.locale == null) {
         this.locale = useI18n().locale.value
       } else {
@@ -34,17 +39,29 @@ export const useCommonStore = defineStore('Common', {
       }
 
       try {
-        this.appConfig = await getAppConfig()
+        this.appConfig = await CommonApi.getAppConfig()
         msgClient = new PahoMsgClient(this.appConfig.broker)
       } catch (err) {
         console.error(err)
       }
     },
-    async saveLocalServerConfig(config: LocalServerConfig) {
-      let newConfig: LocalServerConfig = Object.assign(this.serverConfig, config)
-      delete newConfig.ip
-      delete newConfig.port
-      delete newConfig.ips
+    async updateUserInfo() {
+      this.needLogin = this.accessToken == null
+      if (this.needLogin) return
+
+      updateAccessToken(this.accessToken)
+      this.profile = await CommonApi.getMyProfile()
+      this.operator = await IOTApi.getMyOperatorInfo()
+      if (this.operator) this.company = await IOTApi.getCompany(this.operator.cid)
+    },
+    async logout() {
+      this.accessToken = null
+      this.profile = null
+      this.operator = null
+      this.company = {}
+    },
+    async updateCompanyInfo() {
+      this.company = await IOTApi.getCompany(this.operator.cid)
     },
     publishMessage(message: string) {
       // here just mock a device to send a fake monitor data for test
@@ -93,7 +110,7 @@ export const useCommonStore = defineStore('Common', {
       {
         key: 'common',
         storage: localStorage,
-        paths: ['locale']
+        paths: ['locale', 'accessToken']
       },
     ],
   }

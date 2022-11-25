@@ -1,10 +1,9 @@
 <template>
-  <div id="map_container" class="full-row"></div>
+  <div id="map_container"></div>
 </template>
 
 <script lang="ts" setup>
 import { load } from '@amap/amap-jsapi-loader';
-import { AddressEdit } from 'vant';
 import { onMounted, shallowRef, watch } from 'vue';
 
 let AMap: any = null
@@ -55,8 +54,6 @@ async function initMap() {
       emits('update:address', location.address)
       emits('update:lat', location.position.lat)
       emits('update:lng', location.position.lng)
-
-      console.log(location.address)
     })
     positionPicker.on('fail', (result: any) => {
       console.log(result)

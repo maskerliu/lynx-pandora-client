@@ -30,7 +30,7 @@ export default createRouter({
           meta: { navBar: true }
         },
         {
-          path: 'bind/:cid',
+          path: 'bind',
           name: 'BindDevice',
           component: require('../pages/iot/BindDevice.vue').default,
           meta: { navBar: true }
@@ -44,7 +44,7 @@ export default createRouter({
       meta: { navBar: true, tabBar: true }
     },
     {
-      path: '/company/:cid',
+      path: '/company',
       name: 'Company',
       component: require('../pages/iot/Company.vue').default,
       meta: { navBar: true }
@@ -58,7 +58,7 @@ export default createRouter({
           path: 'my',
           name: 'Mine',
           component: require('../pages/user/Mine.vue').default,
-          meta: { tabBar: true }
+          meta: { tabBar: true, needAuth: true }
         },
         {
           path: 'profile/:uid',
@@ -77,6 +77,18 @@ export default createRouter({
           path: 'main',
           name: 'Settings',
           component: require('../pages/settings/Settings.vue').default,
+          meta: { navBar: true },
+        },
+        {
+          path: 'about',
+          name: 'About',
+          component: require('../pages/settings/About.vue').default,
+          meta: { navBar: true },
+        },
+        {
+          path: 'help',
+          name: 'Help',
+          component: require('../pages/settings/Help.vue').default,
           meta: { navBar: true },
         },
         {
