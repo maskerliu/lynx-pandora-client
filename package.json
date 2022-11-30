@@ -7,8 +7,8 @@
   "license": "UNLICENSED",
   "homepage": "https://maskerliu.github.io/lynx-iot-mgr",
   "scripts": {
-    "build": "node --loader ts-node/esm --experimental-json-modules --max_old_space_size=3500 builder.ts",
-    "dev": "node --loader ts-node/esm --experimental-worker --experimental-json-modules runner.dev.ts",
+    "build": "node --loader ts-node/esm --experimental-json-modules --max_old_space_size=3500 scripts/builder.ts",
+    "dev": "node --loader ts-node/esm --experimental-worker --experimental-json-modules scripts/runner.dev.ts",
     "pub": "yarn build && electron-builder"
   },
   "dependencies": {

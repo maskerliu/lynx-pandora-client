@@ -21,7 +21,7 @@ export default class WebConfig implements Configuration {
   devtool: Configuration['devtool'] = 'eval-cheap-module-source-map'
   name: Configuration['name'] = 'web'
   target: Configuration['target'] = 'web'
-  entry: Configuration['entry'] = { web: path.join(dirname, './src/index.ts') }
+  entry: Configuration['entry'] = { web: path.join(dirname, '../src/index.ts') }
   // externals: Configuration['externals'] = [...Object.keys(pkg.dependencies).filter(d => !whiteListedModules.includes(d))]
 
   module: Configuration['module'] = {
@@ -90,7 +90,7 @@ export default class WebConfig implements Configuration {
 
   output: Configuration['output'] = {
     filename: '[name].js',
-    path: path.join(dirname, './dist/web'),
+    path: path.join(dirname, '../dist/web'),
   }
 
   resolve: Configuration['resolve'] = {
@@ -129,13 +129,13 @@ export default class WebConfig implements Configuration {
     this.plugins?.push(
       new HtmlWebpackPlugin({
         filename: 'index.html',
-        template: path.resolve(dirname, './src/index.ejs'),
+        template: path.resolve(dirname, '../src/index.ejs'),
         minify: {
           collapseWhitespace: true,
           removeAttributeQuotes: true,
           removeComments: true
         },
-        nodeModules: process.env.NODE_ENV !== 'production' ? path.resolve(dirname, './node_modules') : false
+        nodeModules: process.env.NODE_ENV !== 'production' ? path.resolve(dirname, '../node_modules') : false
       }),
       new DefinePlugin({ PROTOCOL: `'${config.protocol}'` })
     )
@@ -156,8 +156,8 @@ export default class WebConfig implements Configuration {
         }),
         new CopyWebpackPlugin({
           patterns: [{
-            from: path.join(dirname, 'static/favicon.ico'),
-            to: path.join(dirname, 'dist/web/static/favicon.ico'),
+            from: path.join(dirname, '../static/favicon.ico'),
+            to: path.join(dirname, '../dist/web/static/favicon.ico'),
           },]
         }),
         new LoaderOptionsPlugin({ minimize: true }),
@@ -174,7 +174,7 @@ export default class WebConfig implements Configuration {
         //   logLevel: 'info'
         // }),
       )
-      this.output!.publicPath = './'
+      this.output!.publicPath = '../'
     }
 
     return this

@@ -1,5 +1,5 @@
 {
   "port": 8884,
-  "protocol": "http",
+  "protocol": "https",
   "domain": null
 }

@@ -18,16 +18,14 @@ process.env.BUILD_CONFIG = JSON.stringify(buildConfig)
 
 function startDevServer(config: Configuration, port: number): Promise<void> {
   return new Promise<void>((resolve, reject) => {
-    config.mode = Run_Mode_DEV
     const compiler = webpack(config)
-
     let serverConfig: WebpackDevServer.Configuration = {
       port: port,
       hot: true,
       liveReload: true,
       allowedHosts: "all",
       client: { logging: 'none' },
-      static: { directory: path.join(dirname, './src/'), },
+      static: { directory: path.join(dirname, '../src/'), },
       setupMiddlewares(middlewares, devServer) {
         devServer.app?.use('/node_modules/', express.static(path.resolve(dirname, '../node_modules')))
         devServer.app?.use(cors({
@@ -47,9 +45,12 @@ function startDevServer(config: Configuration, port: number): Promise<void> {
     }
 
     if (buildConfig.protocol == 'https') {
-      serverConfig.https = {
-        key: fs.readFileSync('cert/private.key'),
-        cert: fs.readFileSync('cert/mydomain.crt')
+      serverConfig.server = {
+        type: buildConfig.protocol,
+        options: {
+          key: fs.readFileSync('./cert/private.key'),
+          cert: fs.readFileSync('./cert/mydomain.crt')
+        }
       }
     }
 
@@ -74,7 +75,10 @@ async function start() {
 
   try {
     let localIPv4 = await WebpackDevServer.internalIP('v4')
-    await Promise.all([startDevServer(new WebConfig().init(localIPv4), 9081),])
+    let config = new WebConfig()
+    config.mode = Run_Mode_DEV
+    config.init(localIPv4)
+    await Promise.all([startDevServer(config, 9081),])
   } catch (err) {
     console.error(err)
   }
