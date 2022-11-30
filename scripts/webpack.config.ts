@@ -174,7 +174,7 @@ export default class WebConfig implements Configuration {
         //   logLevel: 'info'
         // }),
       )
-      this.output!.publicPath = '../'
+      this.output!.publicPath = './'
     }
 
     return this
