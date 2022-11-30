@@ -4,12 +4,16 @@
       <van-form label-align="right" label-width="5.8rem" colon>
         <van-field :label="$t('company.base.name')" v-model="commonStore.company.name" center clearable>
           <template #button>
-            <van-tag plain type="danger" size="large">{{ commonStore.company.status }}</van-tag>
+            <van-tag plain
+              :type="commonStore.company.status == IOT.CompanyStatus.Verified ? 'primary' : commonStore.company.status == 1 ? 'success' : 'danger'"
+              size="large">
+              {{ CompanyStatus[commonStore.company.status] }}
+            </van-tag>
           </template>
         </van-field>
         <van-field :label="$t('company.base.owner')" v-model="commonStore.company.ownerName" center disabled />
-        <van-field :label="$t('company.base.tel')" v-model="commonStore.company.tel" center  clearable/>
-        <van-field :label="$t('company.base.address')" v-model="commonStore.company.address" center clearable/>
+        <van-field :label="$t('company.base.tel')" v-model="commonStore.company.tel" center clearable />
+        <van-field :label="$t('company.base.address')" v-model="commonStore.company.address" center clearable />
 
         <van-button type="primary" @click="saveCompany"
           :text="commonStore.company._id == null ? $t('company.base.submit') : $t('common.save')"
@@ -21,7 +25,8 @@
       <van-cell v-for="role in commonStore.company.roles" :title="role.name" :label="role.desc" clickable center
         @click="editRole(role)">
         <template #value>
-          <van-tag plain type="primary" v-for="privilege in role.privileges" style="margin: 0 0 10px 10px;">
+          <van-tag plain type="primary" size="large" v-for="privilege in role.privileges"
+            style="margin: 0 0 10px 10px;">
             {{ AllPrivileges.get(privilege)?.name }}
           </van-tag>
         </template>
@@ -35,7 +40,7 @@
         <van-cell :title="operator.name">
           <template #value>
             <div style="flex: 1;">
-              <van-tag plain type="primary" v-for="rid in operator.roles" style="margin: 0 0 10px 10px;">
+              <van-tag plain type="primary" size="large" v-for="rid in operator.roles" style="margin: 0 0 10px 10px;">
                 {{ AllRoles.get(rid).name }}
               </van-tag>
             </div>
@@ -140,6 +145,12 @@ const operators = ref<Array<IOT.Operator>>()
 const curRole = ref<IOT.Role>(null)
 const curOperator = ref<IOT.Operator>(null)
 const searchPhone = ref<string>('')
+
+const CompanyStatus = [
+  '认证中',
+  '通过认证',
+  '注销'
+]
 
 const AllPrivileges = ref<Map<string, IOT.Privilege>>(new Map())
 const AllRoles = ref<Map<string, IOT.Role>>(new Map())

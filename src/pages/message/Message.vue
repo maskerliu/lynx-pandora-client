@@ -27,15 +27,21 @@
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useCommonStore } from '../../store';
+import dingdong from '../../../static/dingdong.m4a'
 
 const i18n = useI18n()
 const commonStore = useCommonStore()
 const loading = ref(false)
 const refreshing = ref(false)
+const notifyAudio = new Audio()
 
 onMounted(() => {
   commonStore.navbar.title = i18n.t('message.title')
   commonStore.navbar.leftArrow = false
+
+  notifyAudio.src = dingdong
+  notifyAudio.play()
+
 })
 
 async function onRefresh() {

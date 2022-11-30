@@ -9,15 +9,13 @@ import { VueLoaderPlugin } from 'vue-loader'
 import webpack, { Configuration } from 'webpack'
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import config from './build.config.json' assert { type: "json" }
-import pkg from './package.json' assert { type: "json" }
 
 const { DefinePlugin, LoaderOptionsPlugin, NoEmitOnErrorsPlugin } = webpack
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
-let whiteListedModules = ['axios']
 
-export class WebConfig implements Configuration {
+export default class WebConfig implements Configuration {
 
   mode: Configuration['mode'] = 'development'
   devtool: Configuration['devtool'] = 'eval-cheap-module-source-map'
@@ -52,8 +50,8 @@ export class WebConfig implements Configuration {
         }
       },
       {
-        test: /\.wasm$/,
-        type: "asset/inline",
+        test: /\.(mp3|aac|ogg|m4a)$/,
+        loader: 'file-loader'
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
@@ -148,20 +146,9 @@ export class WebConfig implements Configuration {
           SERVER_BASE_URL: config.domain ? `'${config.domain}'` : `'${config.protocol}://${localServer}:${config.port}'`,
           __DEV__: true
         }),
-        // new BundleAnalyzerPlugin({
-        //   analyzerMode: 'server',
-        //   analyzerHost: '127.0.0.1',
-        //   analyzerPort: 9088,
-        //   reportFilename: 'report.html',
-        //   defaultSizes: 'parsed',
-        //   openAnalyzer: true,
-        //   generateStatsFile: false,
-        //   statsFilename: 'stats.json',
-        //   statsOptions: null,
-        //   logLevel: 'info'
-        // }),
       )
     } else {
+      this.devtool = false
       this.plugins?.push(
         new CopyWebpackPlugin({
           patterns: [{
@@ -170,6 +157,18 @@ export class WebConfig implements Configuration {
           },]
         }),
         new LoaderOptionsPlugin({ minimize: true }),
+        new BundleAnalyzerPlugin({
+          analyzerMode: 'server',
+          analyzerHost: '127.0.0.1',
+          analyzerPort: 9088,
+          reportFilename: 'report.html',
+          defaultSizes: 'parsed',
+          openAnalyzer: true,
+          generateStatsFile: false,
+          statsFilename: 'stats.json',
+          statsOptions: null,
+          logLevel: 'info'
+        }),
       )
       this.output!.publicPath = './'
     }
@@ -177,5 +176,3 @@ export class WebConfig implements Configuration {
     return this
   }
 }
-
-export default new WebConfig()

@@ -8,7 +8,7 @@
       </van-field>
       <van-cell :title="$t('iot.device.address')" :title-style="{ maxWidth: '100px' }" center clickable>
         <template #value>
-          <div class="single-line">{{ device.address }}</div>
+          <div class="van-ellipsis" style="width: 100%;">{{ device.address }}</div>
         </template>
       </van-cell>
       <amap-viewer style="width: 100%; height: 300px; margin: 15px 0;" v-model:lng="device.lng" v-model:lat="device.lat"
@@ -22,7 +22,7 @@
 <script lang="ts" setup>
 
 import AmapViewer from '../components/AmapViewer.vue'
-import { onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 import { IOT, IOTApi } from '../../models'
 import { useCommonStore } from '../../store'
@@ -34,13 +34,22 @@ const i18n = useI18n()
 const device = ref<IOT.Device>({})
 
 onMounted(() => {
-
   commonStore.navbar.title = i18n.t('mine.bindDevice')
   device.value = { lat: 32.1323, lng: 121.4232 }
+
+  window.webApp.register(onScanResult)
+})
+
+onBeforeUnmount(() => {
+  window.webApp.unRegister(onScanResult.name)
 })
 
 function scan() {
+  window.argus?.scan()
+}
 
+function onScanResult(result: string) {
+  device.value.deviceId = result
 }
 
 async function bind() {

@@ -3,7 +3,7 @@
 import chalk from 'chalk'
 import { deleteSync } from 'del'
 import webpack from 'webpack'
-import webConfig, { WebConfig } from './webpack.web.config.js'
+import Config from './webpack.config.js'
 
 const Run_Mode_PROD = 'production'
 const doneLog = chalk.bgGreen.white(' DONE ') + ' '
@@ -13,7 +13,9 @@ process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
 
 function run() {
   if (process.env.BUILD_TARGET === 'clean') clean()
-  web()
+
+  deleteSync(['dist/web/*', '!.gitkeep'])
+  pack(new Config())
 }
 
 function clean() {
@@ -22,7 +24,7 @@ function clean() {
   process.exit()
 }
 
-function pack(config: WebConfig): Promise<string> {
+function pack(config: Config): Promise<string> {
   return new Promise((resolve, reject) => {
     config.init().mode = Run_Mode_PROD
     webpack(config, (err, stats) => {
@@ -39,12 +41,6 @@ function pack(config: WebConfig): Promise<string> {
       }
     })
   })
-}
-
-function web() {
-  deleteSync(['dist/web/*', '!.gitkeep'])
-  webConfig.init().mode = Run_Mode_PROD
-  pack(webConfig)
 }
 
 run()

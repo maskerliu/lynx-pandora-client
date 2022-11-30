@@ -9,12 +9,12 @@
     <van-cell-group :title="$t('settings.notify.title')">
       <van-cell :title="$t('settings.notify.sound')" center>
         <template #value>
-          <van-switch size="20px"></van-switch>
+          <van-switch size="20px" v-model="commonStore.sharePrefs.sound" />
         </template>
       </van-cell>
-      <van-cell :title="$t('settings.notify.vibrate')" >
+      <van-cell :title="$t('settings.notify.vibrate')">
         <template #value>
-          <van-switch size="20px"></van-switch>
+          <van-switch size="20px" v-model="commonStore.sharePrefs.vibrate" />
         </template>
       </van-cell>
     </van-cell-group>
@@ -24,13 +24,13 @@
       <van-cell :title="$t('settings.fontlang.multiLang')" center is-link to="multiLang" />
     </van-cell-group>
 
-    <van-button plain type="danger" @click="logout" style="width: calc(100% - 30px); margin: 15px;"
+    <van-button type="danger" @click="logout" style="width: calc(100% - 30px); margin: 15px;"
       :text="$t('settings.logout')" />
   </van-col>
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { useCommonStore } from '../../store';
@@ -38,6 +38,9 @@ import { useCommonStore } from '../../store';
 const commonStore = useCommonStore()
 const i18n = useI18n()
 const router = useRouter()
+
+const sound = ref(false)
+const vibrate = ref(false)
 
 class Test {
   name: string
@@ -59,7 +62,6 @@ class Hello {
 
 onMounted(() => {
   commonStore.navbar.title = i18n.t('settings.title')
-  commonStore.navbar.leftArrow = true
 
   let a = { id: '1111' }
   let b = { id: '22222' }
@@ -91,14 +93,5 @@ function logout() {
 
 </script>
 <style scoped>
-.single-line {
-  max-width: 80px;
-  font-size: 0.7rem;
-  color: #34495e;
-  padding: 5px;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+
 </style>

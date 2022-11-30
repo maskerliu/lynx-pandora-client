@@ -1,7 +1,7 @@
 export default {
   login: {
     phone: 'please enter your phone number',
-    sendMsg: 'Verify Msg',
+    sendVerifyCode: 'Verify Code',
     done: 'Login'
   },
   common: {
@@ -12,6 +12,7 @@ export default {
     edit: 'Edit',
     save: 'Save',
     upload: 'Upload',
+    submit: 'Submit',
     bind: 'Bind',
     searchPlaceholder: 'please enter whatever your want'
   },
@@ -55,8 +56,9 @@ export default {
     }
   },
   mine: {
+    needUpdateProfile: 'Please Update Your Profile First',
     company: 'Company',
-    createCompany: '',
+    createCompany: 'Create Your Company',
     bindDevice: 'Bind Device',
     settings: 'Settings',
     profile: {
@@ -82,6 +84,19 @@ export default {
       title: 'Font & Language',
       fontSize: 'Font Size',
       multiLang: 'Multi Lang'
+    },
+    about: {
+      privacy: 'Privacy Policy',
+      sdks: 'Third Part SDK List',
+      privacySummary: 'Privacy Summary',
+      customerService: 'Customer Service'
+    },
+    help: {
+      feedback: 'Feedback',
+      feedbackTitle: 'Question Or Suggestion',
+      feedbackPlaceholder: 'please give us your valuable question or suggestion',
+      feedbackSnaps: 'Snaps(optional)',
+      onlineHelp: 'Online Help'
     },
     logout: 'Logout'
   },

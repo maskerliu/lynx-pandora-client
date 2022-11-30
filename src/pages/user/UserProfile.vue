@@ -8,27 +8,32 @@
           </template>
         </van-field>
         <van-field :label="$t('mine.profile.name')" v-model="commonStore.profile.name" input-align="right" />
-        <van-field :label="$t('mine.profile.phone')" v-model="commonStore.profile.phone" input-align="right" />
+        <van-field :label="$t('mine.profile.phone')" :maxlength="11" v-model="commonStore.profile.phone"
+          input-align="right" />
       </van-form>
 
-      <van-button plain type="primary" @click="saveProfile" :text="$t('common.save')"
+      <van-button type="primary" @click="saveProfile" :text="$t('common.save')"
         style="width: calc(100% - 30px); margin: 15px;" />
     </van-cell-group>
   </van-col>
 </template>
 <script lang="ts" setup>
 
-import { UploaderFileListItem } from 'vant';
-import { onMounted, ref } from 'vue';
-import { CommonApi } from '../../models';
-import { useCommonStore } from '../../store';
+import { UploaderFileListItem } from 'vant'
+import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { CommonApi } from '../../models'
+import { useCommonStore } from '../../store'
 
+const i18n = useI18n()
 const commonStore = useCommonStore()
 const avatar = ref<Array<UploaderFileListItem>>([])
 
 onMounted(async () => {
+  commonStore.navbar.title = i18n.t('mine.profile.title')
+
   if (commonStore.profile.avatar) {
-    avatar.value.push({url: commonStore.profile.avatar})
+    avatar.value.push({ url: commonStore.profile.avatar })
   }
 })
 

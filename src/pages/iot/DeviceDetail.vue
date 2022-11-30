@@ -3,7 +3,7 @@
     <van-cell-group v-if="curDevice != null" style="margin-top: 5px;">
       <van-cell :title="$t('iot.device.name')" :title-style="{ maxWidth: '100px' }" center>
         <template #value>
-          <div class="single-line">{{ curDevice.deviceId }}</div>
+          <div class="van-ellipsis">{{ curDevice.deviceId }}</div>
         </template>
         <template #right-icon>
           <van-switch v-model="isSubscribe" size="24px">
@@ -16,9 +16,9 @@
           </van-switch>
         </template>
       </van-cell>
-      <van-cell :title="$t('iot.device.company')" :title-style="{ maxWidth: '100px' }" center is-link to="/company">
+      <van-cell :title="$t('iot.device.company')" :title-style="{ maxWidth: '100px' }" center is-link to="/iot/company">
         <template #value>
-          <div class="single-line">{{ commonStore.company.name }}</div>
+          <div class="van-ellipsis" style="max-width: calc(100vw - 100px);">{{ commonStore.company.name }}</div>
         </template>
       </van-cell>
 
@@ -28,7 +28,7 @@
             <van-cell :title="$t('iot.device.address')" :title-style="{ maxWidth: '80px' }" center clickable
               style="padding: 0; width: calc(100vw - 80px);">
               <template #value>
-                <div class="single-line" style="max-width: calc(100vw - 120px);">{{ curDevice.address }}</div>
+                <div class="van-ellipsis" style="width: 100%; text-align: right;">{{ curDevice.address }}</div>
               </template>
             </van-cell>
           </template>
@@ -424,17 +424,6 @@ function updateData() {
   height: 10px;
   border-radius: 5px;
   background-color: green;
-}
-
-.single-line {
-  max-width: calc(100vw - 100px);
-  /* font-size: 0.7rem; */
-  /* color: #34495e; */
-  padding: 5px;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .chart-container {

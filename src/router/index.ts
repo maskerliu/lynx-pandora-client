@@ -35,6 +35,12 @@ export default createRouter({
           component: require('../pages/iot/BindDevice.vue').default,
           meta: { navBar: true }
         },
+        {
+          path: 'company',
+          name: 'Company',
+          component: require('../pages/iot/Company.vue').default,
+          meta: { navBar: true }
+        },
       ]
     },
     {
@@ -42,12 +48,6 @@ export default createRouter({
       name: 'Message',
       component: require('../pages/message/Message.vue').default,
       meta: { navBar: true, tabBar: true }
-    },
-    {
-      path: '/company',
-      name: 'Company',
-      component: require('../pages/iot/Company.vue').default,
-      meta: { navBar: true }
     },
     {
       path: '/mine',
@@ -83,6 +83,12 @@ export default createRouter({
           path: 'about',
           name: 'About',
           component: require('../pages/settings/About.vue').default,
+          meta: { navBar: true },
+        },
+        {
+          path: 'privacyAgreement/:url',
+          name: 'PrivacyAgreement',
+          component: require('../pages/settings/PrivacyAgreement.vue').default,
           meta: { navBar: true },
         },
         {

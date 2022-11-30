@@ -1,7 +1,7 @@
 export default {
   login: {
     phone: '请输入您的手机号',
-    sendMsg: '发送验证码',
+    sendVerifyCode: '发送验证码',
     done: '登录',
   },
   common: {
@@ -12,6 +12,7 @@ export default {
     edit: '编辑',
     save: '保存',
     upload: '上传',
+    submit: '提交',
     bind: '绑定',
     searchPlaceholder: '请输入搜索关键词',
   },
@@ -55,11 +56,13 @@ export default {
     },
   },
   mine: {
+    needUpdateProfile: '请先更新您的个人资料',
     company: '公司',
     createCompany: '尚未绑定公司，请去创建或联系管理员',
     bindDevice: '绑定设备',
     settings: '设置',
     profile: {
+      title: '个人资料',
       avatar: '头像',
       name: '姓名',
       phone: '手机号',
@@ -82,6 +85,19 @@ export default {
       title: '字体与多语言',
       fontSize: '字体大小',
       multiLang: '多语言',
+    },
+    about: {
+      privacy: '隐私政策',
+      sdks: '三方SDK目录',
+      privacySummary: '隐私政策摘要',
+      customerService: '客服电话',
+    },
+    help: {
+      feedback: '问题反馈',
+      feedbackTitle: '问题描述',
+      feedbackPlaceholder: '请留下您的宝贵意见，我们将努力改进',
+      feedbackSnaps: '截图（可选）',
+      onlineHelp: '在线客服'
     },
     logout: '退出登录',
   },

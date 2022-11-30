@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url'
 import webpack, { Configuration } from 'webpack'
 import WebpackDevServer from 'webpack-dev-server'
 import buildConfig from './build.config.json' assert { type: 'json' }
-import webConfig from './webpack.web.config.js'
+import WebConfig from './webpack.config.js'
 
 const Run_Mode_DEV = 'development'
 const dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -74,7 +74,7 @@ async function start() {
 
   try {
     let localIPv4 = await WebpackDevServer.internalIP('v4')
-    await Promise.all([startDevServer(webConfig.init(localIPv4), 9081),])
+    await Promise.all([startDevServer(new WebConfig().init(localIPv4), 9081),])
   } catch (err) {
     console.error(err)
   }

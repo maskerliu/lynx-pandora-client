@@ -16,13 +16,36 @@ onMounted(async () => {
   canRender.value = true
   await commonStore.init()
 
+
+  window.webApp.methods = new Map()
+
+  window.webApp.register = (func: Function, thiz: any) => {
+    window.webApp.methods.set(func.name, { func, thiz })
+  }
+
+  window.webApp.unRegister = (func: string) => {
+    window.webApp.methods.delete(func)
+  }
+
   window.webApp.back = () => {
     router.back()
   }
 
   window.webApp.initEnv = (token: string, ua: string, did: string) => {
-
+    console.log(token, ua)
   }
+
+  window.webApp.onCallback = (method: string, ...args: any) => {
+    let localFunc = window.webApp.methods.get(method)
+    Reflect.apply(localFunc.func, localFunc.thiz, args)
+  }
+
+  window.argus?.init()
+
+  let ua = 'mapi/1.0(Android 12;com.github.lynxchina.argus-hello 1.0.1;vivo:V2171A;huaiwei)'
+  let regArr = ua.match(/[0-9A-Za-z\/\.\s:-]+/g)
+  let [os, version] = regArr[1].split(' ')
+  console.log(os, 'hello', version)
 })
 </script>
 
@@ -47,7 +70,6 @@ onMounted(async () => {
 }
 
 #app {
-  font-family: Tahoma;
   background: transparent;
   letter-spacing: 1px;
   -moz-user-select: none;
@@ -62,7 +84,7 @@ onMounted(async () => {
 :root {
   --van-nav-bar-height: 55px;
   --van-nav-bar-arrow-size: 1.5rem;
-  --van-nav-bar-icon-color: rgb(176, 176, 176);
+  --van-nav-bar-icon-color: rgb(159, 159, 159);
   --van-nav-bar-title-font-size: 1.0rem;
   --van-tabbar-height: 55px;
   --van-tabbar-background-color: rgb(240, 240, 240);

@@ -21,7 +21,8 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "types": [
-      "reflect-metadata"
+      "reflect-metadata",
+      "node"
     ],
     "lib": [
       "ESNext",

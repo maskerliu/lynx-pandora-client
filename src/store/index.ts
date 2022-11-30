@@ -9,6 +9,10 @@ import { Common, CommonApi, IOT, IOTApi, updateAccessToken, updateBaseDomain, Us
 
 let msgClient: MsgClient = null
 
+export type SharePref = {
+  sound: boolean,
+  vibrate: boolean
+}
 // const i18n = useI18n()
 
 export const useCommonStore = defineStore('Common', {
@@ -19,9 +23,10 @@ export const useCommonStore = defineStore('Common', {
       appConfig: {} as Common.AppConfig,
       locale: null,
       accessToken: null,
-      profile: null as User.Account & User.Profile,
-      operator: null as IOT.Operator,
-      company: {} as IOT.Company
+      profile: {} as User.Account & User.Profile,
+      operator: {} as IOT.Operator,
+      company: {} as IOT.Company,
+      sharePrefs: {} as SharePref
     }
   },
   actions: {
@@ -56,8 +61,8 @@ export const useCommonStore = defineStore('Common', {
     },
     async logout() {
       this.accessToken = null
-      this.profile = null
-      this.operator = null
+      this.profile = {}
+      this.operator = {}
       this.company = {}
     },
     async updateCompanyInfo() {
@@ -110,7 +115,7 @@ export const useCommonStore = defineStore('Common', {
       {
         key: 'common',
         storage: localStorage,
-        paths: ['locale', 'accessToken']
+        paths: ['locale', 'accessToken', 'sharePrefs']
       },
     ],
   }
