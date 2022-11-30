@@ -20,7 +20,7 @@ async function run() {
   let localIPv4 = await WebpackDevServer.internalIP('v4')
   let config = new Config()
   config.mode = Run_Mode_PROD
-  config.init(localIPv4)
+  config.init('192.168.25.16')
   pack(config)
 }
 

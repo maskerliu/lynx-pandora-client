@@ -26,7 +26,7 @@
 
 import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { CommonApi, updateAccessToken } from '../../models';
+import { CommonApi } from '../../models';
 import { useCommonStore } from '../../store';
 
 
@@ -47,12 +47,7 @@ const route = useRoute()
 const phoneReg = /^1(3\d|4[5-9]|5[0-35-9]|6[567]|7[0-8]|8\d|9[0-35-9])\d{8}$/
 
 onMounted(() => {
-  let test = '13651952745'
-  let reg: RegExp = /^(\d{3})(\d{4})(\d{4})$/
-  let arr = test.match(reg)
-  console.log(formatter(test))
-  let str = 'food'
-  console.log(str.match(/^(o)*$/g))
+  
 })
 
 watch(input, () => {
