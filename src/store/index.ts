@@ -31,10 +31,8 @@ export const useCommonStore = defineStore('Common', {
   },
   actions: {
     async init() {
-      if (__DEV__ || !__IS_WEB__) { // dev mode 
-        updateBaseDomain(SERVER_BASE_URL)
-      }
-
+      updateBaseDomain(SERVER_BASE_URL)
+      
       this.updateUserInfo()
 
       if (this.locale == null) {

@@ -149,7 +149,11 @@ export default class WebConfig implements Configuration {
       )
     } else {
       this.devtool = false
+      
       this.plugins?.push(
+        new DefinePlugin({
+          SERVER_BASE_URL: config.domain ? `'${config.domain}'` : `'${config.protocol}://${localServer}:${config.port}'`,
+        }),
         new CopyWebpackPlugin({
           patterns: [{
             from: path.join(dirname, 'static/favicon.ico'),
@@ -157,18 +161,18 @@ export default class WebConfig implements Configuration {
           },]
         }),
         new LoaderOptionsPlugin({ minimize: true }),
-        new BundleAnalyzerPlugin({
-          analyzerMode: 'server',
-          analyzerHost: '127.0.0.1',
-          analyzerPort: 9088,
-          reportFilename: 'report.html',
-          defaultSizes: 'parsed',
-          openAnalyzer: true,
-          generateStatsFile: false,
-          statsFilename: 'stats.json',
-          statsOptions: null,
-          logLevel: 'info'
-        }),
+        // new BundleAnalyzerPlugin({
+        //   analyzerMode: 'server',
+        //   analyzerHost: '127.0.0.1',
+        //   analyzerPort: 9088,
+        //   reportFilename: 'report.html',
+        //   defaultSizes: 'parsed',
+        //   openAnalyzer: true,
+        //   generateStatsFile: false,
+        //   statsFilename: 'stats.json',
+        //   statsOptions: null,
+        //   logLevel: 'info'
+        // }),
       )
       this.output!.publicPath = './'
     }

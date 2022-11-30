@@ -3,6 +3,7 @@
 import chalk from 'chalk'
 import { deleteSync } from 'del'
 import webpack from 'webpack'
+import WebpackDevServer from 'webpack-dev-server'
 import Config from './webpack.config.js'
 
 const Run_Mode_PROD = 'production'
@@ -11,11 +12,16 @@ const doneLog = chalk.bgGreen.white(' DONE ') + ' '
 process.env.NODE_ENV = Run_Mode_PROD
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
 
-function run() {
+async function run() {
   if (process.env.BUILD_TARGET === 'clean') clean()
 
   deleteSync(['dist/web/*', '!.gitkeep'])
-  pack(new Config())
+
+  let localIPv4 = await WebpackDevServer.internalIP('v4')
+  let config = new Config()
+  config.mode = Run_Mode_PROD
+  config.init(localIPv4)
+  pack(config)
 }
 
 function clean() {
@@ -26,7 +32,6 @@ function clean() {
 
 function pack(config: Config): Promise<string> {
   return new Promise((resolve, reject) => {
-    config.init().mode = Run_Mode_PROD
     webpack(config, (err, stats) => {
       if (err) {
         reject(err.stack || err)
