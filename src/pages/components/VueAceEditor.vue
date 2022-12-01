@@ -5,27 +5,17 @@
 import ace from 'brace'
 import 'brace/mode/javascript'
 import 'brace/mode/json'
+import 'brace/theme/chrome'
 import 'brace/theme/monokai'
 import { nextTick, onMounted, ref, watch } from 'vue'
 
 
 const props = defineProps({
-  width: {
-    type: String,
-    default: '100%'
-  },
-  height: {
-    type: String,
-    default: '300px'
-  },
-  theme: {
-    type: String,
-    default: 'monokai'
-  },
-  lang: {
-    type: String,
-    default: 'javascript'
-  },
+  width: { type: String, default: '100%' },
+  height: { type: String, default: '100%' },
+  theme: { type: String, default: 'chrome' },
+  lang: { type: String, default: 'javascript' },
+  disable: { type: Boolean, default: false },
   options: Object,
   content: String,
   editor: Object
@@ -42,7 +32,7 @@ onMounted(() => {
     */
   _editor = ace.edit(aceEditor.value)
   _editor.$blockScrolling = Infinity
-  // _editor.setTheme(`ace/theme/${props.theme}`)
+  _editor.setTheme(`ace/theme/${props.theme}`)
   _editor.session.setMode(`ace/mode/${props.lang}`)
   _editor.setOptions(props.options)
   _editor.setFontSize('12px')
@@ -61,6 +51,7 @@ onMounted(() => {
 watch(() => props.content, () => {
   if (props.content != _editor.getValue()) {
     _editor.setValue(props.content)
+    _editor.setReadOnly(props.disable)
     nextTick(() => _editor.navigateFileEnd())
   }
 

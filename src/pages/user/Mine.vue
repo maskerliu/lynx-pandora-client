@@ -1,5 +1,5 @@
 <template>
-  <van-col style="width: 100%">
+  <van-col style="width: 100%; position: absolute;">
     <van-cell-group>
       <van-cell ref="userProfile" class="animate__animated" v-bind:class="doShake ? 'animate__headShake' : null"
         v-bind:style="{backgroundColor: doShake? '#d6303188': 'white'}" style="padding-top: 15px;" center is-link

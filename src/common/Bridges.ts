@@ -1,10 +1,10 @@
-import { init } from "echarts/core"
 
 export interface BizBridge4Web {
   init(): void
   show(msg: string): void
   setStatusBarColor(color: string): void
   scan(): void
+  fileSelect(type: number, maxSize: number): void
 }
 
 type LocalFunction = { func: Function, thiz?: any }

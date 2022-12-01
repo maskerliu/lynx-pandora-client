@@ -28,5 +28,6 @@ declare module 'vue-router' {
     navBar?: boolean
     tabBar?: boolean
     needAuth?: boolean
+    animate?: string
   }
 }

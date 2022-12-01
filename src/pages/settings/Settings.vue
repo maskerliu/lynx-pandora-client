@@ -63,26 +63,26 @@ class Hello {
 onMounted(() => {
   commonStore.navbar.title = i18n.t('settings.title')
 
-  let a = { id: '1111' }
-  let b = { id: '22222' }
-  console.log(Object.assign(a, b))
+  // let a = { id: '1111' }
+  // let b = { id: '22222' }
+  // console.log(Object.assign(a, b))
 
-  let test = new Test('chris', 'xxxxx')
-  let test2 = new Test('tom', 'ooooo')
-  Reflect.set(Test.prototype, 'test', new Hello('test'))
-  Reflect.set(Test.prototype, 'print', function () {
-    console.log(this.name)
-  })
-  console.log(test['test'])
-  test['test'].test = 'world'
-  Reflect.apply(Reflect.get(Test.prototype, 'print'), test, [])
-  console.log(test2['test'])
-  Reflect.apply(Reflect.get(Test.prototype, 'print'), test2, [])
+  // let test = new Test('chris', 'xxxxx')
+  // let test2 = new Test('tom', 'ooooo')
+  // Reflect.set(Test.prototype, 'test', new Hello('test'))
+  // Reflect.set(Test.prototype, 'print', function () {
+  //   console.log(this.name)
+  // })
+  // console.log(test['test'])
+  // test['test'].test = 'world'
+  // Reflect.apply(Reflect.get(Test.prototype, 'print'), test, [])
+  // console.log(test2['test'])
+  // Reflect.apply(Reflect.get(Test.prototype, 'print'), test2, [])
 
 
-  let ua = 'mapi/1.0(Android 12;com.github.lynxchina.argus 1.0.1;vivo:V2171A;huaiwei)'
-  let regArr = ua.match(/[0-9A-Za-z\/.\ :]+/g)
-  console.log(regArr)
+  // let ua = 'mapi/1.0(Android 12;com.github.lynxchina.argus 1.0.1;vivo:V2171A;huaiwei)'
+  // let regArr = ua.match(/[0-9A-Za-z\/.\ :]+/g)
+  // console.log(regArr)
 })
 
 function logout() {

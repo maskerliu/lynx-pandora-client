@@ -103,7 +103,7 @@
             <template #input>
               <div style="flex: 1;">
                 <van-tag plain type="success" size="large" v-for="role in curOperator.roles"
-                  style="margin: 10px 0 0 10px;" closeable @close="removeOperatorRole(role)">
+                  style="margin: 0 0 10px 10px;" closeable @close="removeOperatorRole(role)">
                   {{ AllRoles.get(role)?.name }}
                 </van-tag>
               </div>

@@ -2,7 +2,11 @@ export namespace RemoteAPI {
 
   export const Common ={
     BasePath: '/common',
-    AppConfig: '/appConfig'
+    AppConfig: '/appConfig',
+    DBMgrDBs: '/dbmgr/dbs',
+    DBMgrDBDocs: '/dbmgr/doc/all',
+    DBMgrDBDocUpdate: '/dbmgr/doc/update',
+    DBMgrDBDocDelete: '/dbmgr/doc/delete',
   }
 
   export const User = {

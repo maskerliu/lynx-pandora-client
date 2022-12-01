@@ -8,15 +8,10 @@ import { useRouter } from 'vue-router';
 import BizMain from './pages/BizMain.vue';
 import { useCommonStore } from './store';
 
-const canRender = ref(true)
+const canRender = ref(false)
 const commonStore = useCommonStore()
-const router = useRouter()
 
 onMounted(async () => {
-  canRender.value = true
-  await commonStore.init()
-
-
   window.webApp.methods = new Map()
 
   window.webApp.register = (func: Function, thiz: any) => {
@@ -25,10 +20,6 @@ onMounted(async () => {
 
   window.webApp.unRegister = (func: string) => {
     window.webApp.methods.delete(func)
-  }
-
-  window.webApp.back = () => {
-    router.back()
   }
 
   window.webApp.initEnv = (token: string, ua: string, did: string) => {
@@ -41,11 +32,8 @@ onMounted(async () => {
   }
 
   window.argus?.init()
-
-  let ua = 'mapi/1.0(Android 12;com.github.lynxchina.argus-hello 1.0.1;vivo:V2171A;huaiwei)'
-  let regArr = ua.match(/[0-9A-Za-z\/\.\s:-]+/g)
-  let [os, version] = regArr[1].split(' ')
-  console.log(os, 'hello', version)
+  await commonStore.init()  
+  canRender.value = true
 })
 </script>
 
@@ -96,6 +84,7 @@ onMounted(async () => {
   --van-cell-font-size: 1rem;
   --van-cell-vertical-padding: 15px;
   --van-cell-horizontal-padding: 15px;
+  --van-uploader-delete-icon-size: 1.3rem;
 }
 
 .full-row {

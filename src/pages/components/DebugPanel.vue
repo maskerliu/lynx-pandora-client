@@ -1,13 +1,16 @@
 <template>
-  <div class="drag-ball" ref="dragBall" @touchstart.stop.prevent="touchStart" @touchmove.stop.prevent="touchMove"
-    @touchend.stop.prevent="touchEnd">
+  <div class="drag-ball" ref="dragBall" @touchstart.stop="touchStart" @touchmove.prevent="touchMove"
+    @touchend.stop="touchEnd" @mousedown.prevent="touchStart" @mousemove.prevent="touchMove"
+    @mouseup.prevent="touchEnd">
     <van-popover v-model:show="showPopover" theme="light" placement="left">
       <template #reference>
-        <van-button plain hairline round>
-          <van-icon class="iconfont icon-debug" name="bug" size="22" color="red" />
+        <van-button plain hairline round @click="showPopover = true" style="width: 60px; height: 60px;">
+          <van-icon class="iconfont icon-debug" name="bug" size="30" color="#e17055" />
         </van-button>
       </template>
-      <div style="width: calc(100vw - 100px); height: 300px"></div>
+      <van-col style="width: calc(100vw - 100px); height: 300px; padding: 10px;">
+        <van-button plain type="primary" text="DB Mgr" @click="$router.push('/dbmgr'); showPopover = false;" />
+      </van-col>
     </van-popover>
   </div>
 </template>
@@ -17,10 +20,8 @@ import { ref } from 'vue'
 
 const dragBall = ref()
 const showPopover = ref(false)
-const canDrag = ref(false)
 
-const emit = defineEmits(['click'])
-
+let canDrag = false
 let inset = { left: 0, top: 0, }
 let move = { x: 0, y: 0 } // 移动
 let position = { left: 0, top: 0, } // 位置
@@ -28,48 +29,71 @@ let positionOld = { left: 0, top: 0 } // 初始位置
 let startTime = 0
 let endTime = 0
 
-function toNew() {
-  alert('去新版')
-}
 
-function touchStart(e: any) {
-  if (!canDrag.value) {
-    startTime = e.timeStamp
-    positionOld = getPosition(dragBall.value)
-    position = { ...positionOld }
+function touchStart(event: any) {
+  if (canDrag) return
+
+  startTime = event.timeStamp
+  positionOld = getPosition(dragBall.value)
+  position = { ...positionOld }
+  canDrag = true
+
+  if (event.type == 'touchstart') {
+    let e: TouchEvent = event
     inset = {
       left: e.targetTouches[0].clientX - positionOld.left,
       top: e.targetTouches[0].clientY - positionOld.top,
     }
-    canDrag.value = true
+  }
+
+  if (event.type == 'mousestart') {
+    let e: MouseEvent = event
+    inset = {
+      left: e.clientX - positionOld.left,
+      top: e.clientY - positionOld.top,
+    }
   }
 }
 
-function touchMove(e: any) {
-  if (canDrag.value) {
-    let left = e.targetTouches[0].clientX - inset.left
-    let top = e.targetTouches[0].clientY - inset.top
-    if (left < 0) {
-      left = 0
-    } else if (left > window.innerWidth - dragBall.value.offsetWidth) {
-      left = window.innerWidth - dragBall.value.offsetWidth
-    }
-    if (top < 0) {
-      top = 0
-    } else if (top > window.innerHeight - dragBall.value.offsetHeight) {
-      top = window.innerHeight - dragBall.value.offsetHeight
-    }
-    dragBall.value.style.left = left + 'px'
-    dragBall.value.style.top = top + 'px'
-    move = {
-      x: left - positionOld.left,
-      y: top - positionOld.top,
-    }
-    position = { left, top }
+function touchMove(event: any) {
+  if (!canDrag) return
+
+  let left = 0
+  let top = 0
+
+  if (event.type == 'touchmove') {
+    let e = event as TouchEvent
+    left = e.targetTouches[0].clientX - inset.left
+    top = e.targetTouches[0].clientY - inset.top
   }
+
+  if (event.type == 'mousemove') {
+    let e = event as MouseEvent
+    left = e.clientX - inset.left
+    top = e.clientY - inset.top
+  }
+
+  if (left < 0) {
+    left = 0
+  } else if (left > window.innerWidth - dragBall.value.offsetWidth) {
+    left = window.innerWidth - dragBall.value.offsetWidth
+  }
+  if (top < 0) {
+    top = 0
+  } else if (top > window.innerHeight - dragBall.value.offsetHeight) {
+    top = window.innerHeight - dragBall.value.offsetHeight
+  }
+  dragBall.value.style.left = left + 'px'
+  dragBall.value.style.top = top + 'px'
+  move = {
+    x: left - positionOld.left,
+    y: top - positionOld.top,
+  }
+  position = { left, top }
 }
-function touchEnd(e: TouchEvent) {
-  if (canDrag.value) {
+
+function touchEnd(e: any) {
+  if (canDrag) {
     endTime = e.timeStamp
     if (
       endTime - startTime > 400 ||
@@ -83,14 +107,12 @@ function touchEnd(e: TouchEvent) {
       } else {
         dragBall.value.style.left = 0 + 'px'
       }
-    } else {
-      emit('click')
     }
 
     inset = { left: 0, top: 0 }
     move = { x: 0, y: 0 }
     position = { left: 0, top: 0 }
-    canDrag.value = false
+    canDrag = false
   }
 }
 
@@ -114,8 +136,8 @@ function getPosition(source: any) {
   z-index: 10003;
   right: 0;
   top: 70%;
-  width: 2.5em;
-  height: 2.5em;
+  width: 60px;
+  height: 60px;
   background: #e1e1e188;
   border-radius: 50%;
   overflow: hidden;

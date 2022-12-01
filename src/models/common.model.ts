@@ -10,4 +10,9 @@ export namespace Common {
     broker: string
   }
 
+  export interface DBInfo {
+    name: string
+    path?: string
+    size: number
+  }
 }

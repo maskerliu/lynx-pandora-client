@@ -110,6 +110,18 @@ export default createRouter({
           meta: { navBar: true },
         }
       ]
+    },
+    {
+      path: '/dbmgr',
+      name: 'DBMgr',
+      component: require('../pages/settings/DBMgr.vue').default,
+      meta: { navBar: true }
+    },
+    {
+      path: '/dbdoc/:db',
+      name: 'DBDoc',
+      component: require('../pages/settings/DBDocMgr.vue').default,
+      meta: { navBar: true }
     }
   ],
 })

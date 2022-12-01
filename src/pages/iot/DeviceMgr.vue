@@ -5,12 +5,15 @@
       <van-list clickable style="height: 100%; overflow-y: auto; overflow-x: hidden;">
         <van-cell v-for="item in devices" is-link center :to="`/iot/device/${item.deviceId}`">
           <template #title>
-            <div class="van-ellipsis" style="max-width: calc(100vw - 200px); font-size: 1rem; color: #2d3436; text-align: left;">
+            <div class="van-ellipsis"
+              style="max-width: calc(100vw - 200px); font-size: 1rem;  text-align: left;">
               {{ item.deviceId }}
             </div>
           </template>
           <template #label>
-            <div class="van-ellipsis" style="max-width: calc(100vw - 200px); font-size: 0.7rem; margin-top: 15px;">地址:{{ item.address }}</div>
+            <div class="van-ellipsis" style="max-width: calc(100vw - 200px); font-size: 0.7rem; ">
+              地址:{{ item.address }}
+            </div>
           </template>
           <template #value style="width: 100px;">
             <div>
