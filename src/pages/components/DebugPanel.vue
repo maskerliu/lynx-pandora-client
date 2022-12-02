@@ -1,10 +1,9 @@
 <template>
-  <div class="drag-ball" ref="dragBall" @touchstart.stop="touchStart" @touchmove.prevent="touchMove"
-    @touchend.stop="touchEnd" @mousedown.prevent="touchStart" @mousemove.prevent="touchMove"
-    @mouseup.prevent="touchEnd">
+  <div class="drag-ball" ref="dragBall" @touchstart.stop="touchStart" @touchmove.stop="touchMove"
+    @touchend.stop="touchEnd" @mousedown.stop="touchStart" @mousemove.stop="touchMove" @mouseup.stop="touchEnd">
     <van-popover v-model:show="showPopover" theme="light" placement="left">
       <template #reference>
-        <van-button plain hairline round @click="showPopover = true" style="width: 60px; height: 60px;">
+        <van-button plain hairline round style="width: 60px; height: 60px;">
           <van-icon class="iconfont icon-debug" name="bug" size="30" color="#e17055" />
         </van-button>
       </template>
@@ -16,7 +15,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 
 const dragBall = ref()
 const showPopover = ref(false)
@@ -28,7 +27,6 @@ let position = { left: 0, top: 0, } // 位置
 let positionOld = { left: 0, top: 0 } // 初始位置 
 let startTime = 0
 let endTime = 0
-
 
 function touchStart(event: any) {
   if (canDrag) return
@@ -104,8 +102,11 @@ function touchEnd(e: any) {
       if (position.left + dragBall.value.offsetWidth / 2 > window.innerWidth / 2) {
         dragBall.value.style.left =
           window.innerWidth - dragBall.value.offsetWidth + 'px'
+
+        showPopover.value = false
       } else {
         dragBall.value.style.left = 0 + 'px'
+        showPopover.value = true
       }
     }
 
@@ -117,9 +118,9 @@ function touchEnd(e: any) {
 }
 
 function getPosition(source: any) {
-  let left = source.offsetLeft //获取元素相对于其父元素的left值var left
+  let left = source.offsetLeft
   let top = source.offsetTop
-  let current = source.offsetParent // 取得元素的offsetParent // 一直循环直到根元素
+  let current = source.offsetParent
   while (current != null) {
     left += current.offsetLeft
     top += current.offsetTop
@@ -136,8 +137,8 @@ function getPosition(source: any) {
   z-index: 10003;
   right: 0;
   top: 70%;
-  width: 60px;
-  height: 60px;
+  width: 45px;
+  height: 45px;
   background: #e1e1e188;
   border-radius: 50%;
   overflow: hidden;

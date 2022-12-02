@@ -89,7 +89,7 @@ export default class WebConfig implements Configuration {
   ]
 
   output: Configuration['output'] = {
-    filename: '[name].js',
+    filename: '[name].[chunkhash].js',
     path: path.join(dirname, '../dist/web'),
   }
 
@@ -116,9 +116,19 @@ export default class WebConfig implements Configuration {
           priority: 20,
           test: /[\\/]node_modules[\\/]vant[\\/]/
         },
+        vue: {
+          name: "vue",
+          priority: 20,
+          test: /[\\/]node_modules[\\/]vue[\\/]/
+        },
+        brace: {
+          name: "brace",
+          priority: 20,
+          test: /[\\/]node_modules[\\/]brace[\\/]/
+        },
         echarts: {
           name: 'echarts',
-          test: /[\\/]node_modules[\\/]echarts[\\/]/,
+          test: /[\\/]node_modules[\\/]echarts|zrender[\\/]/,
           priority: 20,
         }
       }
@@ -161,18 +171,18 @@ export default class WebConfig implements Configuration {
           },]
         }),
         new LoaderOptionsPlugin({ minimize: true }),
-        // new BundleAnalyzerPlugin({
-        //   analyzerMode: 'server',
-        //   analyzerHost: '127.0.0.1',
-        //   analyzerPort: 9088,
-        //   reportFilename: 'report.html',
-        //   defaultSizes: 'parsed',
-        //   openAnalyzer: true,
-        //   generateStatsFile: false,
-        //   statsFilename: 'stats.json',
-        //   statsOptions: null,
-        //   logLevel: 'info'
-        // }),
+        new BundleAnalyzerPlugin({
+          analyzerMode: 'server',
+          analyzerHost: '127.0.0.1',
+          analyzerPort: 9088,
+          reportFilename: 'report.html',
+          defaultSizes: 'parsed',
+          openAnalyzer: true,
+          generateStatsFile: false,
+          statsFilename: 'stats.json',
+          statsOptions: null,
+          logLevel: 'info'
+        }),
       )
       this.output!.publicPath = './'
     }

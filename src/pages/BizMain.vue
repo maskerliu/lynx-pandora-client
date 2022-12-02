@@ -1,9 +1,9 @@
 <template>
   <van-col>
-    <van-nav-bar v-show="showNavbar" :title="commonStore.navbar.title" :left-arrow="commonStore.navbar.leftArrow"
-      @click-left="back">
+    <van-nav-bar v-show="showNavbar" class="animate__animated"
+      v-bind:class="showNavbar ? 'animate__fadeInDown' : 'animate__fadeOutUp'" :title="commonStore.navbar.title"
+      :left-arrow="commonStore.navbar.leftArrow" @click-left="back">
     </van-nav-bar>
-
     <router-view class="biz-content" v-bind:style="{ height: `calc(100vh - ${height}px)` }"
       v-slot="{ Component, route }">
       <transition :name="route.meta.animate">
@@ -13,7 +13,8 @@
       </transition>
     </router-view>
 
-    <van-tabbar route v-model="active" v-show="showTabbar" :fixed="false" style="position: absolute; bottom: 0;">
+    <van-tabbar route v-model="active" v-show="showTabbar" class="animate__animated"
+      v-bind:class="showTabbar ? 'animate__fadeInUp' : 'animate__fadeOutDown'">
       <van-tabbar-item replace to="/iot">
         <template #icon>
           <van-icon class="iconfont icon-device" size="26" />
@@ -47,7 +48,7 @@ import Login from './user/Login.vue'
 
 const commonStore = useCommonStore()
 const active = ref(0)
-const showTabbar = ref(false)
+const showTabbar = ref(true)
 const showNavbar = ref(false)
 const router = useRouter()
 const height = ref(0)
@@ -56,12 +57,12 @@ let animate = null
 
 onMounted(() => {
   window.webApp.back = back
-  router.replace("/iot")
+  router.replace("/mine")
   active.value = 1
 })
 
 onUnmounted(() => {
-  
+
 })
 
 window.addEventListener('popstate', (event) => {

@@ -4,7 +4,6 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
 import BizMain from './pages/BizMain.vue';
 import { useCommonStore } from './store';
 
@@ -32,7 +31,7 @@ onMounted(async () => {
   }
 
   window.argus?.init()
-  await commonStore.init()  
+  await commonStore.init()
   canRender.value = true
 })
 </script>
@@ -58,7 +57,7 @@ onMounted(async () => {
 }
 
 #app {
-  background: transparent;
+  background: #f6f6f6;
   letter-spacing: 1px;
   -moz-user-select: none;
   -webkit-user-select: none;
@@ -74,6 +73,7 @@ onMounted(async () => {
   --van-nav-bar-arrow-size: 1.5rem;
   --van-nav-bar-icon-color: rgb(159, 159, 159);
   --van-nav-bar-title-font-size: 1.0rem;
+  --van-nav-bar-background: rgb(218, 44, 44);
   --van-tabbar-height: 55px;
   --van-tabbar-background-color: rgb(240, 240, 240);
   --van-tabbar-item-active-background-color: rgb(240, 240, 240);
