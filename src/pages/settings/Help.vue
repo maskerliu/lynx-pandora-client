@@ -11,7 +11,7 @@
       <p style="font-size: 1rem; color: #2d3436">{{ $t('settings.help.feedbackSnaps') }}</p>
       <van-uploader v-model="images" :max-count="3" @click-upload="openFileSelector" />
 
-      <van-button block style="" :text="$t('common.submit')" />
+      <van-button block style="" :text="$t('common.submit')" @click="submit" />
     </van-tab>
     <van-tab>
       <template #title>
@@ -21,7 +21,6 @@
   </van-tabs>
 </template>
 <script lang="ts" setup>
-
 import { UploaderFileListItem } from 'vant';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -38,8 +37,6 @@ const images = ref<Array<UploaderFileListItem>>([])
 onMounted(() => {
   commonStore.navbar.title = i18n.t('settings.sys.help')
 
-  console.log(window.argus)
-  
   if (window.argus) {
     window.webApp.register(onFileSelect)
   }
@@ -62,8 +59,11 @@ async function onFileSelect(...args: string[]) {
     let resp = await fetch(item)
     let blob = await resp.blob()
     let file = new File([blob], 'test.jpeg', { type: blob.type })
-    images.value.push({ file })
+    images.value.push({ file, content: item })
   })
+}
+
+async function submit() {
   console.log(images.value)
 }
 

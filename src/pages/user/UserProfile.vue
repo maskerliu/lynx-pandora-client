@@ -1,5 +1,5 @@
 <template>
-  <van-col >
+  <van-col>
     <van-cell-group title=" ">
       <van-form label-align="right" label-width="5.5rem" colon>
         <van-field :label="$t('mine.profile.avatar')" v-model="commonStore.profile.name" input-align="right">
@@ -59,7 +59,7 @@ async function onFileSelect(...args: string[]) {
   let resp = await fetch(args[0])
   let blob = await resp.blob()
   let file = new File([blob], 'test.jpeg', { type: blob.type })
-  avatar.value.push({ file })
+  avatar.value.push({ file, content: args[0] })
   await uploadAvatar()
 }
 
