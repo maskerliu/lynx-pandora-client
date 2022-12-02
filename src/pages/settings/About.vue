@@ -1,6 +1,5 @@
 <template>
   <van-col>
-
     <van-cell-group>
       <div style="text-align: center;">
         <van-icon class="iconfont icon-iot" size="50" color="green" style="margin: 20px auto;" />

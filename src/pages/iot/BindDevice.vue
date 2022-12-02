@@ -1,6 +1,5 @@
 <template>
-  <van-col>
-    <van-form>
+  <van-form>
       <van-field :label="$t('iot.device.name')" v-model="device.deviceId">
         <template #button>
           <van-icon class="iconfont icon-scan" size="20" @click="scan" />
@@ -17,7 +16,6 @@
       <van-button type="primary" :text="$t('common.bind')" @click="bind"
         style="width: calc(100% - 30px); margin: 15px;" />
     </van-form>
-  </van-col>
 </template>
 <script lang="ts" setup>
 

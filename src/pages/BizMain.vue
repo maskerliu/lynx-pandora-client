@@ -1,11 +1,10 @@
 <template>
   <van-col>
-    <van-nav-bar v-show="showNavbar" class="animate__animated"
-      v-bind:class="showNavbar ? 'animate__fadeInDown' : 'animate__fadeOutUp'" :title="commonStore.navbar.title"
-      :left-arrow="commonStore.navbar.leftArrow" @click-left="back">
+    <van-nav-bar class="animate__animated" v-bind:class="showNavbar ? 'animate__fadeInDown' : 'animate__fadeOutUp'"
+      :title="commonStore.navbar.title" :left-arrow="commonStore.navbar.leftArrow" @click-left="back">
     </van-nav-bar>
-    <router-view class="biz-content" v-bind:style="{ height: `calc(100vh - ${height}px)` }"
-      v-slot="{ Component, route }">
+    <router-view class="biz-content" v-bind:class="showNavbar ? 'move-down' : 'move-up'"
+      v-bind:style="{ height: `calc(100vh - ${height}px)` }" v-slot="{ Component, route }">
       <transition :name="route.meta.animate">
         <keep-alive :include="['DeviceMgr', 'Mine']">
           <component :is="Component" :key="route.path" />
@@ -13,7 +12,7 @@
       </transition>
     </router-view>
 
-    <van-tabbar route v-model="active" v-show="showTabbar" class="animate__animated"
+    <van-tabbar route v-model="active" class="animate__animated"
       v-bind:class="showTabbar ? 'animate__fadeInUp' : 'animate__fadeOutDown'">
       <van-tabbar-item replace to="/iot">
         <template #icon>
@@ -158,12 +157,16 @@ function back() {
   right: 0;
 }
 
-.fade-enter-active {
-  animation: bounce-in 0.5s ease-in;
+.move-up {
+  transition: all 0.5s ease-in-out;
+  position: absolute;
+  top: 0;
 }
 
-.fade-leave-active {
-  animation: bounce-out 0.5s ease-out;
+.move-down {
+  transition: all 0.5s ease-in-out;
+  position: absolute;
+  top: 55px;
 }
 
 @keyframes bounce-in {
