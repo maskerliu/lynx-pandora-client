@@ -35,15 +35,13 @@ const verifyCode = ref('')
 const input = ref('')
 const enterVerifyCode = ref(false)
 const phoneVaildate = ref(false)
-const showKeyboard = ref(true)
+const showKeyboard = ref(false)
 const showLoginBtn = ref(false)
 const isLogining = ref(false)
 
 const formatter = (value: string) => value.replace(/^(.{3})(.{4})?(.*)$/, '$1 $2 $3')
 
 const commonStore = useCommonStore()
-const router = useRouter()
-const route = useRoute()
 const phoneReg = /^1(3\d|4[5-9]|5[0-35-9]|6[567]|7[0-8]|8\d|9[0-35-9])\d{8}$/
 
 onMounted(() => {

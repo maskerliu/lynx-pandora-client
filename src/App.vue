@@ -14,11 +14,11 @@ onMounted(async () => {
   window.webApp.methods = new Map()
 
   window.webApp.register = (func: Function, thiz: any) => {
-    window.webApp.methods.set(func.name, { func, thiz })
+    window.webApp.methods.set(Symbol.for(func.name), { func, thiz })
   }
 
   window.webApp.unRegister = (func: string) => {
-    window.webApp.methods.delete(func)
+    window.webApp.methods.delete(Symbol.for(func))
   }
 
   window.webApp.initEnv = (token: string, ua: string, did: string) => {
@@ -26,7 +26,13 @@ onMounted(async () => {
   }
 
   window.webApp.onCallback = (method: string, ...args: any) => {
-    let localFunc = window.webApp.methods.get(method)
+    console.log('onCallback:', method)
+
+    window.webApp.methods.forEach(item => {
+      console.log(item.func.name)
+    })
+
+    let localFunc = window.webApp.methods.get(Symbol.for(method))
     Reflect.apply(localFunc.func, localFunc.thiz, args)
   }
 

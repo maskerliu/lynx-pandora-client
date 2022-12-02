@@ -20,7 +20,9 @@ import { onMounted, ref } from 'vue'
 import { CommonApi } from '../../models'
 import { useRoute } from 'vue-router'
 import AceEditor from '../components/VueAceEditor.vue'
+import { useCommonStore } from '../../store'
 
+const commonStore = useCommonStore()
 const route = useRoute()
 const docs = ref([])
 const showDetail = ref(false)
@@ -28,6 +30,8 @@ const disable = ref(false)
 const content = ref<string>('')
 
 onMounted(async () => {
+  commonStore.navbar.title = 'DB Doc Manage'
+  
   let result = await CommonApi.getAllDocs(route.params['db'] as string)
 
   docs.value = result.rows

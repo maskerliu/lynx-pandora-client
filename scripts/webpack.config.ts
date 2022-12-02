@@ -6,7 +6,8 @@ import NodePolyfillPlugin from 'node-polyfill-webpack-plugin'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { VueLoaderPlugin } from 'vue-loader'
-import webpack, { Configuration } from 'webpack'
+import webpack, { Configuration, } from 'webpack'
+import TerserPlugin from 'terser-webpack-plugin'
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import config from './build.config.json' assert { type: "json" }
 
@@ -131,8 +132,10 @@ export default class WebConfig implements Configuration {
           test: /[\\/]node_modules[\\/]echarts|zrender[\\/]/,
           priority: 20,
         }
-      }
+      },
     },
+    minimize: true,
+    minimizer: []
   }
 
   init(localServer?: String) {
@@ -159,7 +162,7 @@ export default class WebConfig implements Configuration {
       )
     } else {
       this.devtool = false
-      
+
       this.plugins?.push(
         new DefinePlugin({
           SERVER_BASE_URL: config.domain ? `'${config.domain}'` : `'${config.protocol}://${localServer}:${config.port}'`,
@@ -185,6 +188,18 @@ export default class WebConfig implements Configuration {
         // }),
       )
       this.output!.publicPath = './'
+
+      this.optimization?.minimizer?.push(
+        new TerserPlugin({
+          terserOptions: {
+            format: {
+              comments: false,
+            },
+            keep_fnames: true,
+          },
+          extractComments: false,
+        })
+      )
     }
 
     return this

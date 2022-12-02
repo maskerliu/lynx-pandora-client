@@ -11,7 +11,7 @@ type LocalFunction = { func: Function, thiz?: any }
 
 export interface BizBridge4App {
 
-  methods: Map<string, LocalFunction>
+  methods: Map<Symbol, LocalFunction>
 
   back(): void
 

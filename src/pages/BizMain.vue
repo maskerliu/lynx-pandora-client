@@ -56,7 +56,7 @@ let animate = null
 
 onMounted(() => {
   window.webApp.back = back
-  router.replace("/mine")
+  router.replace("/settings/help")
   active.value = 1
 })
 

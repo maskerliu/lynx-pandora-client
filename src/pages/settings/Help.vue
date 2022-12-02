@@ -38,6 +38,8 @@ const images = ref<Array<UploaderFileListItem>>([])
 onMounted(() => {
   commonStore.navbar.title = i18n.t('settings.sys.help')
 
+  console.log(window.argus)
+  
   if (window.argus) {
     window.webApp.register(onFileSelect)
   }
