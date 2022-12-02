@@ -56,7 +56,7 @@ let animate = null
 
 onMounted(() => {
   window.webApp.back = back
-  router.replace("/settings/help")
+  router.replace("/iot")
   active.value = 1
 })
 

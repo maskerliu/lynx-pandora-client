@@ -26,12 +26,6 @@ onMounted(async () => {
   }
 
   window.webApp.onCallback = (method: string, ...args: any) => {
-    console.log('onCallback:', method)
-
-    window.webApp.methods.forEach(item => {
-      console.log(item.func.name)
-    })
-
     let localFunc = window.webApp.methods.get(Symbol.for(method))
     Reflect.apply(localFunc.func, localFunc.thiz, args)
   }
