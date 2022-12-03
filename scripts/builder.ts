@@ -21,6 +21,7 @@ async function run() {
   let config = new Config()
   config.mode = Run_Mode_PROD
   config.init(localIPv4)
+  config.init('192.168.25.16')
   pack(config)
 }
 

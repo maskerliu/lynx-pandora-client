@@ -1,5 +1,5 @@
 <template>
-  <div id="map_container"></div>
+  <div id="map_container" style="width: 100%; height: 100%;"></div>
 </template>
 
 <script lang="ts" setup>

@@ -49,7 +49,7 @@ function gotoAgreementPage(url: string, title: string) {
 </script>
 <style scoped>
 a {
-  color: rgb(54, 142, 220);
+  color: #2980b9;
 }
 
 .footer {

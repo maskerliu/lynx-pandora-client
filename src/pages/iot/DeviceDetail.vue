@@ -1,12 +1,12 @@
 <template>
   <van-col style="overflow-y: auto; overflow-x: hidden;" justify="center" align="center">
-    <van-cell-group v-if="curDevice != null" style="margin-top: 5px;">
-      <van-cell :title="$t('iot.device.name')" :title-style="{ maxWidth: '100px' }" center>
+    <van-cell-group v-if="curDevice != null" style="margin-top: 2px;">
+      <van-cell :title="$t('iot.device.name')" :title-style="{ maxWidth: '80px', textAlign: 'right' }" center>
         <template #value>
-          <div class="van-ellipsis">{{ curDevice.deviceId }}</div>
+          <div class="van-ellipsis" style="margin-left: 15px;">{{ curDevice.deviceId }}</div>
         </template>
         <template #right-icon>
-          <van-switch v-model="isSubscribe" size="24px">
+          <van-switch v-model="isSubscribe" size="24px" style="margin-left: 5px;">
             <template #node>
               <div class="icon-wrapper">
                 <van-icon size="24" class="iconfont"
@@ -16,26 +16,23 @@
           </van-switch>
         </template>
       </van-cell>
-      <van-cell :title="$t('iot.device.company')" :title-style="{ maxWidth: '100px' }" center is-link to="/iot/company">
+      <van-cell :title="$t('iot.device.company')" :title-style="{ maxWidth: '80px', textAlign: 'right' }" center
+        is-link to="/iot/company">
         <template #value>
-          <div class="van-ellipsis" style="max-width: calc(100vw - 100px);">{{ commonStore.company.name }}</div>
+          <div class="van-ellipsis" style="margin-left: 15px;">{{ commonStore.company.name }}</div>
         </template>
       </van-cell>
 
       <van-collapse v-model="showMap" accordion>
-        <van-collapse-item name="1" center>
-          <template #title>
-            <van-cell :title="$t('iot.device.address')" :title-style="{ maxWidth: '80px' }" center clickable
-              style="padding: 0; width: calc(100vw - 80px);">
-              <template #value>
-                <div class="van-ellipsis" style="width: 100%; text-align: right;">{{ curDevice.address }}</div>
-              </template>
-            </van-cell>
+        <van-collapse-item name="1" center :title="$t('iot.device.address')"
+          :title-style="{ maxWidth: '80px', textAlign: 'right' }">
+          <template #value>
+            <div class="van-ellipsis" style="margin-left: 15px; text-align: right;">{{ curDevice.address }}</div>
           </template>
-          <amap-viewer style="width: calc(100vw - 36px); height: 300px;" v-model:lng="curDevice.lng"
-            v-model:lat="curDevice.lat" v-model:address="curDevice.address" />
-          <van-button type="success" :loading="updating" @click="updateDeviceInfo"
-            :text="$t('common.done')" style="width: 100%; margin: 15px 0;" />
+          <amap-viewer style="height: 300px;" v-model:lng="curDevice.lng" v-model:lat="curDevice.lat"
+            v-model:address="curDevice.address" />
+          <van-button type="success" :loading="updating" @click="updateDeviceInfo" :text="$t('common.done')"
+            style="width: 100%; margin: 15px 0;" />
         </van-collapse-item>
       </van-collapse>
     </van-cell-group>

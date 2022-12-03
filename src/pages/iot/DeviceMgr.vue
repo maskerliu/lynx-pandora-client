@@ -1,17 +1,17 @@
 <template>
-  <van-col justify="center" align="center" style="background-color: white;">
+  <van-col justify="center" style="background-color: white;">
     <van-search v-model="searchKey" :placeholder="$t('common.searchPlaceholder')" style="margin: 0 15px;" />
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh" style="height: calc(100% - 54px);">
       <van-list clickable style="height: 100%; overflow-y: auto; overflow-x: hidden;">
-        <van-cell v-for="item in devices" is-link center :to="`/iot/device/${item.deviceId}`">
+        <van-cell v-for="item in devices" is-link center :to="`/iot/device/${item.deviceId}`"
+          :title-style="{ maxWidth: 'calc(100vw - 200px)', }">
           <template #title>
-            <div class="van-ellipsis"
-              style="max-width: calc(100vw - 200px); font-size: 1rem;  text-align: left;">
+            <div class="van-ellipsis">
               {{ item.deviceId }}
             </div>
           </template>
           <template #label>
-            <div class="van-ellipsis" style="max-width: calc(100vw - 200px); font-size: 0.7rem; ">
+            <div class="van-ellipsis" style="font-size: 0.7rem; ">
               地址:{{ item.address }}
             </div>
           </template>
