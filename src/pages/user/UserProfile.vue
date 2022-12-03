@@ -68,7 +68,6 @@ async function saveProfile() {
 }
 
 async function uploadAvatar() {
-  console.log(avatar.value[0].file)
   if (avatar.value[0] != null && avatar.value[0].file != null) {
     await CommonApi.uploadAvatar(avatar.value[0].file)
     commonStore.profile = await CommonApi.getMyProfile()

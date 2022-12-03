@@ -54,10 +54,11 @@ const height = ref(0)
 
 let animate = null
 
-onMounted(() => {
+onMounted(async () => {
   window.webApp.back = back
   router.replace("/iot")
   active.value = 1
+  await commonStore.init()
 })
 
 onUnmounted(() => {
@@ -75,6 +76,7 @@ router.beforeEach((to, from) => {
   commonStore.navbar.title = null
   commonStore.navbar.leftArrow = true
   commonStore.navbar.rightText = null
+
   commonStore.needLogin = to.meta.needAuth == true && commonStore.accessToken == null
 
   height.value = showNavbar.value ? 55 : 0

@@ -4,7 +4,7 @@ import { useIOTDeviceStore } from '../store/IOTDevices'
 export default abstract class MsgClient {
 
   protected deviceStore: any
-  protected client: any
+  protected client: Paho.MQTT.Client
   protected curTopic: string
   protected curSubDevice: string
 
@@ -12,10 +12,6 @@ export default abstract class MsgClient {
   constructor() {
     this.deviceStore = useIOTDeviceStore()
   }
-
-  // abstract subscribe(deviceId: string): void
-  // abstract unsubscribe(deviceId: string): void
-  // abstract sendMsg(deviceId: string, message: IOT.IOTMsg): void
 
   public subscribe(deviceId: string) {
 
@@ -48,8 +44,7 @@ export default abstract class MsgClient {
   }
 
   public sendMsg(deviceId: string, message: IOT.IOTMsg) {
-    this.client.publish(deviceId, JSON.stringify(message))
-    this.client.publish(`tmp/${deviceId}`, JSON.stringify(message))
+    this.client.send(`tmp/${deviceId}`, JSON.stringify(message))
   }
 
   protected handleMsg(topic: string, message: string) {
@@ -67,4 +62,6 @@ export default abstract class MsgClient {
       console.log(err)
     }
   }
+
+  abstract close(): void
 }

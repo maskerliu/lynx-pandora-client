@@ -13,10 +13,10 @@ export default class PahoMsgClient extends MsgClient {
     timeout: 5000,
   }
 
-  constructor(host: string) {
+  constructor(host: string, clientId?: string) {
     super()
 
-    this.client = new Paho.Client(host, this.option.port, 'lynx-iot-nodered-00003')
+    this.client = new Paho.Client(host, this.option.port, clientId == null ? 'lynx-iot-nodered-00003' : clientId)
 
     // set callback handlers
     this.client.onConnectionLost = this.onConnectionLost
@@ -39,6 +39,10 @@ export default class PahoMsgClient extends MsgClient {
       console.log('[onConnectionLost]:', response)
       console.log(response.errorMessage)
     }
+  }
+
+  close() {
+    this.client.disconnect()
   }
 
 }

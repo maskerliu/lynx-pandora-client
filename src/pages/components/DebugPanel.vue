@@ -1,6 +1,6 @@
 <template>
-  <div class="drag-ball" ref="dragBall" @touchstart.stop="touchStart" @touchmove.stop="touchMove"
-    @touchend.stop="touchEnd" @mousedown.stop="touchStart" @mousemove.stop="touchMove" @mouseup.stop="touchEnd">
+  <div class="drag-ball" ref="dragBall" @touchstart.stop="touchStart" @touchmove.prevent.stop="touchMove"
+    @touchend.stop="touchEnd" @mousedown.prevent.stop="touchStart" @mousemove.prevent.stop="touchMove" @mouseup.prevent.stop="touchEnd">
     <van-popover v-model:show="showPopover" theme="light" placement="left">
       <template #reference>
         <van-button plain hairline round style="width: 60px; height: 60px;">

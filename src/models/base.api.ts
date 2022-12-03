@@ -3,7 +3,7 @@ import { BizCode, BizResponse } from './base.model'
 
 import { Notify } from 'vant'
 
-axios.defaults.timeout = 10000
+axios.defaults.timeout = 5000
 axios.defaults.withCredentials = true
 axios.defaults.headers.common = {
   'X-UA': 'mapi/1.0(Electron 12;com.github.lynxchina.argusIOT 1.0.1;macbook pro:V2171A;offical)',

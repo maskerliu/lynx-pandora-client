@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url'
 import { VueLoaderPlugin } from 'vue-loader'
 import webpack, { Configuration, } from 'webpack'
 import TerserPlugin from 'terser-webpack-plugin'
+import CompressionPlugin from 'compression-webpack-plugin'
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import config from './build.config.json' assert { type: "json" }
 
@@ -172,6 +173,14 @@ export default class WebConfig implements Configuration {
             from: path.join(dirname, '../static/favicon.ico'),
             to: path.join(dirname, '../dist/web/static/favicon.ico'),
           },]
+        }),
+        new CompressionPlugin({
+          // filename: '[path].gz[query]',
+          algorithm: 'gzip',
+          test: new RegExp(`.(${['html', 'css', 'js'].join('|')})$`),
+          threshold: 10240,
+          minRatio: 0.8,
+          deleteOriginalAssets: false
         }),
         new LoaderOptionsPlugin({ minimize: true }),
         // new BundleAnalyzerPlugin({

@@ -31,7 +31,7 @@ onMounted(async () => {
   }
 
   window.argus?.init()
-  await commonStore.init()
+  
   canRender.value = true
 })
 </script>

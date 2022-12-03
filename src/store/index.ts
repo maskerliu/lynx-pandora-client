@@ -13,7 +13,6 @@ export type SharePref = {
   sound: boolean,
   vibrate: boolean
 }
-// const i18n = useI18n()
 
 export const useCommonStore = defineStore('Common', {
   state: () => {
@@ -32,7 +31,7 @@ export const useCommonStore = defineStore('Common', {
   actions: {
     async init() {
       updateBaseDomain(SERVER_BASE_URL)
-      
+
       this.updateUserInfo()
 
       if (this.locale == null) {
@@ -40,20 +39,15 @@ export const useCommonStore = defineStore('Common', {
       } else {
         useI18n().locale.value = this.locale
       }
-
-      try {
-        this.appConfig = await CommonApi.getAppConfig()
-        msgClient = new PahoMsgClient(this.appConfig.broker)
-      } catch (err) {
-        console.error(err)
-      }
     },
     async updateUserInfo() {
-      this.needLogin = this.accessToken == null
-      if (this.needLogin) return
+      if (this.accessToken == null) return
 
       updateAccessToken(this.accessToken)
       this.profile = await CommonApi.getMyProfile()
+      this.appConfig = await CommonApi.getAppConfig()
+      if (msgClient) { msgClient.close() }
+      msgClient = new PahoMsgClient(this.appConfig.broker, this.profile.uid)
       this.operator = await IOTApi.getMyOperatorInfo()
       if (this.operator) this.company = await IOTApi.getCompany(this.operator.cid)
     },
@@ -62,6 +56,7 @@ export const useCommonStore = defineStore('Common', {
       this.profile = {}
       this.operator = {}
       this.company = {}
+      msgClient.close()
     },
     async updateCompanyInfo() {
       this.company = await IOTApi.getCompany(this.operator.cid)
