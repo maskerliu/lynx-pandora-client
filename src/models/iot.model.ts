@@ -1,5 +1,4 @@
-import { Common } from "./common.model"
-
+import { Common } from "."
 
 export namespace IOT {
   export const TOPICS = {

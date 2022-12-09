@@ -4,10 +4,9 @@
       <van-form label-align="right" label-width="5.8rem" colon>
         <van-field :label="$t('company.base.name')" v-model="commonStore.company.name" center clearable>
           <template #button>
-            <van-tag plain
-              :type="commonStore.company.status == IOT.CompanyStatus.Verified ? 'primary' : commonStore.company.status == 1 ? 'success' : 'danger'"
+            <van-tag plain :color="CompanyStatus[commonStore.company.status ? commonStore.company.status : 0].color"
               size="large">
-              {{ CompanyStatus[commonStore.company.status] }}
+              {{ CompanyStatus[commonStore.company.status ? commonStore.company.status : 0].title }}
             </van-tag>
           </template>
         </van-field>
@@ -47,7 +46,8 @@
           </template>
         </van-cell>
         <template #right>
-          <van-button square type="danger" style="height: 100%;" :text="$t('common.delete')" @click="" />
+          <van-button square type="danger" style="height: 100%;" :text="$t('common.delete')"
+            @click="unbindOperator(operator.uid)" />
           <van-button square type="primary" style="height: 100%;" :text="$t('common.edit')"
             @click="editOperator(operator)" />
         </template>
@@ -146,10 +146,12 @@ const curRole = ref<IOT.Role>(null)
 const curOperator = ref<IOT.Operator>(null)
 const searchPhone = ref<string>('')
 
+
 const CompanyStatus = [
-  '认证中',
-  '通过认证',
-  '注销'
+  { title: '创建中', color: '#3498db' },
+  { title: '认证中', color: '#e67e22' },
+  { title: '通过认证', color: '#2ecc71' },
+  { title: '注销', color: '#bdc3c7' }
 ]
 
 const AllPrivileges = ref<Map<string, IOT.Privilege>>(new Map())
@@ -177,6 +179,7 @@ async function saveCompany() {
   delete data.ownerName
   commonStore.company.status = 1
   await IOTApi.saveCompany(data)
+  await commonStore.updateUserInfo()
   await commonStore.updateCompanyInfo()
 }
 
@@ -240,7 +243,13 @@ async function saveOperator() {
     Notify({ type: 'warning', message: '员工信息未正确设置' })
   } else {
     await IOTApi.saveOperator(curOperator.value)
+    showOperatorInfo.value = false
   }
+}
+
+async function unbindOperator(uid: string) {
+  await IOTApi.removeOperator(uid)
+  operators.value = await IOTApi.getOperators(commonStore.company._id)
 }
 
 async function onSearchUser() {
@@ -254,7 +263,6 @@ async function onSearchUser() {
     Notify({ type: 'warning', message: '请输入正确的手机号', duration: 800 })
   }
 }
-
 
 </script>
 <style scoped>

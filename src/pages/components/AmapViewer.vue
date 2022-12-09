@@ -6,13 +6,13 @@
 import { load } from '@amap/amap-jsapi-loader';
 import { onMounted, shallowRef, watch } from 'vue';
 
-let AMap: any = null
 const map = shallowRef(null)
-const props = defineProps({
+
+const props = defineProps<{
   lat: Number,
   lng: Number,
   address: String,
-})
+}>()
 
 const emits = defineEmits(['update:lat', 'update:lng', 'update:address'])
 

@@ -1,7 +1,6 @@
 import axios from 'axios'
-import { BizCode, BizResponse } from './base.model'
+import { BizCode, BizResponse } from '.'
 
-import { Notify } from 'vant'
 
 axios.defaults.timeout = 5000
 axios.defaults.withCredentials = true

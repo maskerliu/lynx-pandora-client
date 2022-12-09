@@ -13,6 +13,8 @@ export namespace RemoteAPI {
     BasePath: '/user',
     Login: '/login',
     Register: '/register',
+    Contact: '/contact',
+    Search: '/search',
     ProfileAvatar: '/uploadAvatar',
     ProfileSave: '/profile/save',
     ProfileMyself: '/profile/myself',
@@ -35,5 +37,12 @@ export namespace RemoteAPI {
     OperatorMyself: '/company/operator/myself',
     OperatorSave: '/company/operator/save',
     OperatorDelete: '/company/operator/delete',
+  }
+
+  export const IM = {
+    BasePath: '/im',
+    SyncFrom: '/sync/get',
+    SyncTo: '/sync/save',
+    SendMsg: '/sendMsg',
   }
 }

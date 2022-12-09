@@ -4,6 +4,7 @@
       <van-cell :title="$t('settings.sys.mqttBroker')" :value="commonStore.appConfig.broker" />
       <van-cell :title="$t('settings.sys.about')" center is-link to="about" />
       <van-cell :title="$t('settings.sys.help')" center is-link to="help" />
+      <van-cell :title="$t('settings.sys.cleanCache')" center clickable value="5M" @click="showCleanCahe = true" />
     </van-cell-group>
 
     <van-cell-group :title="$t('settings.notify.title')">
@@ -26,21 +27,22 @@
 
     <van-button type="danger" @click="logout" style="width: calc(100% - 30px); margin: 15px;"
       :text="$t('settings.logout')" />
+
+    <van-dialog v-bind:show="showCleanCahe" title="" message="清理缓存可能需要一些时间，清理过程中请耐心等候" show-cancel-button
+      @cancel="showCleanCahe = false" @confirm="cleanCache" />
   </van-col>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useRoute, useRouter } from 'vue-router';
-import { useCommonStore } from '../../store';
+import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+import { useCommonStore } from '../../store'
 
 const commonStore = useCommonStore()
 const i18n = useI18n()
 const router = useRouter()
-
-const sound = ref(false)
-const vibrate = ref(false)
+const showCleanCahe = ref(false)
 
 class Test {
   name: string
@@ -84,6 +86,11 @@ onMounted(() => {
   // let regArr = ua.match(/[0-9A-Za-z\/.\ :]+/g)
   // console.log(regArr)
 })
+
+function cleanCache() {
+
+  showCleanCahe.value = false
+}
 
 function logout() {
   commonStore.logout()

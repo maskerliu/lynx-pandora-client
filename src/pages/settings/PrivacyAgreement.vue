@@ -2,7 +2,6 @@
   <iframe :src="url" width="100%" height="100%"></iframe>
 </template>
 <script lang="ts" setup>
-
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useCommonStore } from '../../store';

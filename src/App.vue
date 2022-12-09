@@ -3,14 +3,15 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
-import BizMain from './pages/BizMain.vue';
-import { useCommonStore } from './store';
+import { onMounted, ref } from 'vue'
+import BizMain from './pages/BizMain.vue'
+import { useCommonStore } from './store'
 
 const canRender = ref(false)
 const commonStore = useCommonStore()
 
 onMounted(async () => {
+  
   window.webApp.methods = new Map()
 
   window.webApp.register = (func: Function, thiz: any) => {
@@ -31,7 +32,7 @@ onMounted(async () => {
   }
 
   window.argus?.init()
-  
+
   canRender.value = true
 })
 </script>
@@ -82,10 +83,16 @@ onMounted(async () => {
   --van-tag-padding: 2px 5px;
   --van-tag-border-radius: 5px;
   --van-cell-font-size: 1rem;
-  --van-cell-vertical-padding: 15px;
+  --van-cell-vertical-padding: 12px;
   --van-cell-horizontal-padding: 15px;
   --van-uploader-delete-icon-size: 1.3rem;
 }
+
+/* .van-field__body {
+  border: solid 1px lightgray;
+  border-radius: 5px;
+  padding: 5px;
+} */
 
 .full-row {
   width: 100%;

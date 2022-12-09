@@ -1,7 +1,6 @@
-import { formPost, get, post } from './base.api'
-import { IOT } from './iot.model'
-
+import { IOT } from '.'
 import { RemoteAPI } from './api.const'
+import { formPost, get, post } from './base.api'
 
 export namespace IOTApi {
 
@@ -59,8 +58,10 @@ export namespace IOTApi {
     return post<string>(RemoteAPI.IOT.BasePath + RemoteAPI.IOT.OperatorSave, operator)
   }
 
-  export function removeOperator(opId: string) {
-    return post<string>(RemoteAPI.IOT.BasePath + RemoteAPI.IOT.OperatorDelete, null, { opId })
+  export function removeOperator(uid: string) {
+    let data = new FormData()
+    data.append('uid', uid)
+    return formPost<string>(RemoteAPI.IOT.BasePath + RemoteAPI.IOT.OperatorDelete, data)
   }
 }
 

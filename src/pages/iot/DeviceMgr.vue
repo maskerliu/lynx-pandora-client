@@ -1,6 +1,6 @@
 <template>
   <van-col justify="center" style="background-color: white;">
-    <van-search v-model="searchKey" :placeholder="$t('common.searchPlaceholder')" style="margin: 0 15px;" />
+    <van-search v-model="searchKey" :placeholder="$t('common.searchPlaceholder')" />
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh" style="height: calc(100% - 54px);">
       <van-list clickable style="height: 100%; overflow-y: auto; overflow-x: hidden;">
         <van-cell v-for="item in devices" is-link center :to="`/iot/device/${item.deviceId}`"
@@ -89,7 +89,7 @@ function showRemoveConfirm(device: IOT.Device) {
 
 async function removeDevice() {
   try {
-    let result = await IOTApi.removeDevice(curDevice.value!.deviceId)
+    let result = await IOTApi.removeDevice(curDevice.value!._id)
     curDevice.value = undefined
     Notify({ type: 'success', message: result, duration: 500 })
   } catch (err) {

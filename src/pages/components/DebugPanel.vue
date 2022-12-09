@@ -1,6 +1,7 @@
 <template>
   <div class="drag-ball" ref="dragBall" @touchstart.stop="touchStart" @touchmove.prevent.stop="touchMove"
-    @touchend.stop="touchEnd" @mousedown.prevent.stop="touchStart" @mousemove.prevent.stop="touchMove" @mouseup.prevent.stop="touchEnd">
+    @touchend.stop="touchEnd" @mousedown.prevent.stop="touchStart" @mousemove.prevent.stop="touchMove"
+    @mouseup.prevent.stop="touchEnd">
     <van-popover v-model:show="showPopover" theme="light" placement="left">
       <template #reference>
         <van-button plain hairline round style="width: 60px; height: 60px;">
@@ -8,14 +9,17 @@
         </van-button>
       </template>
       <van-col style="width: calc(100vw - 100px); height: 300px; padding: 10px;">
-        <van-button plain type="primary" text="DB Mgr" @click="$router.push('/dbmgr'); showPopover = false;" />
+        <van-button plain block type="primary" text="DB Mgr" @click="$router.push('/dbmgr'); showPopover = false;" />
+
+        <van-button plain block type="primary" text="Clear Local DB" @click="cleanLocalDB" style="margin-top: 15px;" />
       </van-col>
     </van-popover>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref } from 'vue'
+import PouchDB from 'pouchdb'
 
 const dragBall = ref()
 const showPopover = ref(false)
@@ -127,6 +131,16 @@ function getPosition(source: any) {
     current = current.offsetParent
   }
   return { left: left, top: top }
+}
+
+async function cleanLocalDB() {
+
+  let db = new PouchDB('im-sessions.db')
+  await db.destroy()
+
+  db = new PouchDB('im-messages.db')
+  await db.destroy()
+
 }
 
 </script>

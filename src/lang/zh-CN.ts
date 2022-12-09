@@ -14,6 +14,7 @@ export default {
     upload: '上传',
     submit: '提交',
     bind: '绑定',
+    pin: '置顶',
     searchPlaceholder: '请输入搜索关键词',
   },
   iot: {
@@ -75,6 +76,7 @@ export default {
       mqttBroker: 'MQTT服务',
       about: '关于',
       help: '帮助与反馈',
+      cleanCache: '清除缓存',
     },
     notify: {
       title: '消息通知',
@@ -102,6 +104,21 @@ export default {
     logout: '退出登录',
   },
   message: {
-    title: '消息中心'
+    title: '消息中心',
+    session: {
+
+    },
+    sys: {
+      title: '系统消息',
+    },
+    contact: {
+      title: '通讯录',
+    },
+    setting: {
+      title: '聊天消息',
+      mute: '消息免打扰',
+      pin: '消息置顶',
+      complain: '投诉',
+    }
   }
 }

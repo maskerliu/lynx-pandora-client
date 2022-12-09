@@ -9,8 +9,11 @@ import App from './App.vue'
 // import 'default-passive-events'
 import piniaPersist from 'pinia-plugin-persist'
 
+
+
 const pinia = createPinia()
 const app = createApp(App)
+
 
 pinia.use(piniaPersist)
 
@@ -19,3 +22,15 @@ app.use(router)
 app.use(pinia)
 app.use(vant)
 app.mount('#app')
+
+useVConsole()
+
+async function useVConsole() {
+  if (__DEV__) {
+    try {
+      const VConsole = await import('vconsole')
+      let vconsole = new VConsole.default()
+      console.log()
+    } catch (err) { console.log(err) }
+  }
+}

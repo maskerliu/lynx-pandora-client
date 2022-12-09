@@ -1,4 +1,4 @@
-import { Common } from './common.model'
+import { Common } from '.'
 
 
 export namespace User {

@@ -3,6 +3,7 @@ export * from './iot.api'
 export * from './common.api'
 export * from './common.model'
 export * from './user.model'
+export * from './im.model'
 
 export * from './base.model'
 

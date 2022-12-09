@@ -16,8 +16,8 @@
           </van-switch>
         </template>
       </van-cell>
-      <van-cell :title="$t('iot.device.company')" :title-style="{ maxWidth: '80px', textAlign: 'right' }" center
-        is-link to="/iot/company">
+      <van-cell :title="$t('iot.device.company')" :title-style="{ maxWidth: '80px', textAlign: 'right' }" center is-link
+        to="/iot/company">
         <template #value>
           <div class="van-ellipsis" style="margin-left: 15px;">{{ commonStore.company.name }}</div>
         </template>
@@ -41,15 +41,6 @@
     <div ref="echartsTemperature" class="chart-container" />
     <div ref="echartsHumidity" class="chart-container" />
 
-    <van-dialog v-model:show="removeConfirmDialog" :title="$t('iot.device.delete.title')" show-cancel-button
-      :cancel-button-text="$t('common.cancel')" :confirmButtonText="$t('common.delete')" confirmButtonColor="#ee0a24"
-      @confirm="deleteDevice">
-      <div style="font-size: 0.8rem; padding: 15px;">
-        <p>{{ $t('iot.device.delete.confirm', { deviceId: curDevice.deviceId }) }}</p>
-        <p>{{ $t('iot.device.delete.confirm1') }}</p>
-      </div>
-    </van-dialog>
-
   </van-col>
 </template>
 
@@ -71,8 +62,7 @@ import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { IOT, IOTApi } from '../../models'
-import { useCommonStore } from '../../store'
-import { useIOTDeviceStore } from '../../store/IOTDevices'
+import { useCommonStore, useIOTDeviceStore } from '../../store'
 import AmapViewer from '../components/AmapViewer.vue'
 
 
@@ -132,13 +122,19 @@ onMounted(async () => {
   curDevice.value = await IOTApi.deviceInfo(route.params['did'] as string)
 })
 
-watch(() => isSubscribe.value, () => {
-  if (curDevice.value != null) {
-    if (isSubscribe.value) {
+watch(isSubscribe, (val, oldVal) => {
+
+  if (curDevice == null) return
+
+  try {
+    if (val) {
       commonStore.deviceTmpSubscribe(curDevice.value.deviceId)
     } else {
       commonStore.deviceTmpUnsubscribe(curDevice.value.deviceId)
     }
+  } catch (err) {
+    isSubscribe.value = oldVal
+    Notify({ type: 'danger', message: '未能链接该设备', duration: 500 })
   }
 })
 
@@ -354,16 +350,6 @@ function initHumidity() {
   humidityChart.setOption(humidityOpts)
 }
 
-async function onDeviceSelected(device: IOT.Device) {
-  if (curDevice.value == null || curDevice.value.deviceId != device.deviceId) {
-    // this.curDevice = await deviceInfo(deviceId)
-    curDevice.value = device
-    deviceStore.updateDevice(curDevice.value.deviceId)
-    isSubscribe.value = true
-    commonStore.deviceTmpSubscribe(curDevice.value.deviceId)
-  }
-}
-
 async function updateDeviceInfo() {
   updating.value = true
   try {
@@ -374,24 +360,6 @@ async function updateDeviceInfo() {
     updating.value = false
     showMap.value = null
   }
-}
-
-function showRemoveConfirm(device: IOT.Device) {
-  removeConfirmDialog.value = true
-  curDevice.value = device
-  deviceStore.updateDevice(curDevice.value.deviceId)
-}
-
-async function deleteDevice() {
-  try {
-    let result = await IOTApi.removeDevice(curDevice.value.deviceId)
-    curDevice.value = null
-    isSubscribe.value = false
-    Notify({ type: 'success', message: result, duration: 500 })
-  } catch (err) {
-    Notify({ type: 'warning', message: err as string, duration: 500 })
-  }
-  removeConfirmDialog.value = false
 }
 
 function updateData() {

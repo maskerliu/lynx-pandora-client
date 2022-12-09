@@ -13,6 +13,7 @@ declare global {
   let PROTOCOL: string
   let SERVER_BASE_URL: string
 
+  let AMap: any
   let AMapUI: any
 }
 

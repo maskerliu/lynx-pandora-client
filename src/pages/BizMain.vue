@@ -2,11 +2,17 @@
   <van-col>
     <van-nav-bar class="animate__animated" v-bind:class="showNavbar ? 'animate__fadeInDown' : 'animate__fadeOutUp'"
       :title="commonStore.navbar.title" :left-arrow="commonStore.navbar.leftArrow" @click-left="back">
+
+      <template #right>
+        <van-icon size="26" class="iconfont" v-bind:class="commonStore.navbar.rightText"
+          @click="commonStore.rightAction" />
+      </template>
+
     </van-nav-bar>
     <router-view class="biz-content" v-bind:class="showNavbar ? 'move-down' : 'move-up'"
       v-bind:style="{ height: `calc(100vh - ${height}px)` }" v-slot="{ Component, route }">
       <transition :name="route.meta.animate">
-        <keep-alive :include="['DeviceMgr', 'Mine']">
+        <keep-alive :include="['DeviceMgr']">
           <component :is="Component" :key="route.path" />
         </keep-alive>
       </transition>
@@ -40,11 +46,13 @@
 
 <script lang="ts" setup>
 import { onMounted, onUnmounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { useCommonStore } from '../store'
+import { useCommonStore, useIMStore } from '../store'
 import DebugPanel from './components/DebugPanel.vue'
 import Login from './user/Login.vue'
 
+const i18n = useI18n()
 const commonStore = useCommonStore()
 const active = ref(0)
 const showTabbar = ref(true)
@@ -56,9 +64,16 @@ let animate = null
 
 onMounted(async () => {
   window.webApp.back = back
-  router.replace("/iot")
-  active.value = 1
+
+  if (commonStore.locale == null) {
+    commonStore.locale = i18n.locale.value
+  } else {
+    i18n.locale.value = commonStore.locale
+  }
+  await useIMStore().init()
   await commonStore.init()
+  router.replace("/message")
+  active.value = 1
 })
 
 onUnmounted(() => {
@@ -76,6 +91,7 @@ router.beforeEach((to, from) => {
   commonStore.navbar.title = null
   commonStore.navbar.leftArrow = true
   commonStore.navbar.rightText = null
+  commonStore.rightAction = null
 
   commonStore.needLogin = to.meta.needAuth == true && commonStore.accessToken == null
 
@@ -136,7 +152,7 @@ function back() {
 
 .slide-out-enter-active,
 .slide-out-leave-active {
-  transition: all 0.5s ease-in-out;
+  transition: all 0.3s ease-in-out;
 }
 
 .slide-out-enter-to {
@@ -160,13 +176,13 @@ function back() {
 }
 
 .move-up {
-  transition: all 0.5s ease-in-out;
+  transition: all 0.3s ease-in-out;
   position: absolute;
   top: 0;
 }
 
 .move-down {
-  transition: all 0.5s ease-in-out;
+  transition: all 0.3s ease-in-out;
   position: absolute;
   top: 55px;
 }

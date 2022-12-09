@@ -1,7 +1,6 @@
+import { Common, User } from '.'
 import { RemoteAPI } from './api.const'
 import { formPost, get, post } from './base.api'
-import { Common } from './common.model'
-import { User } from './user.model'
 
 export namespace CommonApi {
 
@@ -10,10 +9,10 @@ export namespace CommonApi {
   }
 
   export function login(phone: string, verifyCode: string) {
-    let formData = new FormData()
-    formData.append('phone', phone)
-    formData.append('verifyCode', verifyCode)
-    return formPost<string>(RemoteAPI.User.BasePath + RemoteAPI.User.Login, formData)
+    let data = new FormData()
+    data.append('phone', phone)
+    data.append('verifyCode', verifyCode)
+    return formPost<string>(RemoteAPI.User.BasePath + RemoteAPI.User.Login, data)
   }
 
   export function getMyProfile() {
@@ -41,6 +40,10 @@ export namespace CommonApi {
     let data = new FormData()
     data.append('phone', phone)
     return formPost<User.Profile>(RemoteAPI.User.BasePath + RemoteAPI.User.ProfileSearch, data)
+  }
+
+  export function getContact() {
+    return get<Array<User.Profile & User.Account>>(RemoteAPI.User.BasePath + RemoteAPI.User.Contact)
   }
 
   export function getAllDBs() {

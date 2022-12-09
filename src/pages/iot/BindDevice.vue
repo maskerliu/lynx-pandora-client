@@ -1,21 +1,21 @@
 <template>
-  <van-form>
-      <van-field :label="$t('iot.device.name')" v-model="device.deviceId">
-        <template #button>
-          <van-icon class="iconfont icon-scan" size="20" @click="scan" />
-        </template>
-      </van-field>
-      <van-cell :title="$t('iot.device.address')" :title-style="{ maxWidth: '100px' }" center clickable>
-        <template #value>
-          <div class="van-ellipsis" style="width: 100%;">{{ device.address }}</div>
-        </template>
-      </van-cell>
-      <amap-viewer style="width: 100%; height: 300px; margin: 15px 0;" v-model:lng="device.lng" v-model:lat="device.lat"
-        v-model:address="device.address" />
+  <van-form label-align="right" label-width="4.5rem" colon>
+    <van-field :label="$t('iot.device.name')" v-model="device.deviceId" center clearable>
+      <template #button>
+        <van-icon class="iconfont icon-scan" size="20" @click="scan" />
+      </template>
+    </van-field>
+    <van-field :label="$t('iot.device.address')" center clickable>
+      <template #input>
+        <div class="van-ellipsis" style="max-width: calc(100vw - 140px);">{{ device.address }}</div>
+      </template>
+    </van-field>
+    <amap-viewer style="width: 100%; height: 300px; margin: 15px 0;" v-model:lng="device.lng" v-model:lat="device.lat"
+      v-model:address="device.address" />
 
-      <van-button type="primary" :text="$t('common.bind')" @click="bind"
-        style="width: calc(100% - 30px); margin: 15px;" />
-    </van-form>
+    <van-button type="primary" :text="$t('common.bind')" @click="bind"
+      style="width: calc(100% - 30px); margin: 15px;" />
+  </van-form>
 </template>
 <script lang="ts" setup>
 

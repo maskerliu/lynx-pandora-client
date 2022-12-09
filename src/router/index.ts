@@ -45,9 +45,39 @@ export default createRouter({
     },
     {
       path: '/message',
-      name: 'Message',
-      component: require('../pages/message/Message.vue').default,
-      meta: { navBar: true, tabBar: true }
+      redirect: '/message/sessions',
+      children: [
+        {
+          path: 'sessions',
+          name: 'Sessions',
+          component: require('../pages/message/Sessions.vue').default,
+          meta: { navBar: true, tabBar: true },
+        },
+        {
+          path: 'session/:sid',
+          name: 'Session',
+          component: require('../pages/message/Session.vue').default,
+          meta: { navBar: true, tabBar: false },
+        },
+        {
+          path: 'setting/:sid',
+          name: 'SessionSetting',
+          component: require('../pages/message/SessionSetting.vue').default,
+          meta: { navBar: true, tabBar: false },
+        },
+        {
+          path: 'contact',
+          name: 'Contact',
+          component: require('../pages/message/Contact.vue').default,
+          meta: { navBar: true, tabBar: false },
+        },
+        {
+          path: 'sysMessages',
+          name: 'SysMessages',
+          component: require('../pages/message/SysMessages.vue').default,
+          meta: { navBar: true, tabBar: false },
+        },
+      ]
     },
     {
       path: '/mine',
