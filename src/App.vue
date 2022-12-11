@@ -5,10 +5,9 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
 import BizMain from './pages/BizMain.vue'
-import { useCommonStore } from './store'
+
 
 const canRender = ref(false)
-const commonStore = useCommonStore()
 
 onMounted(async () => {
   

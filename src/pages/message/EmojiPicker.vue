@@ -12,8 +12,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import emojis from './emojis'
-import { ref } from 'vue'
+import emojis from './emojis';
 
 withDefaults(defineProps<{
   emoji: String

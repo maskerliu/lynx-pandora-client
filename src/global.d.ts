@@ -17,6 +17,12 @@ declare global {
   let AMapUI: any
 }
 
+declare module '*.png'
+declare module '*.svg'
+declare module '*.jpeg'
+declare module '*.jpg'
+declare module '*.m4a'
+
 declare module 'vue-router' {
   interface RouteMeta {
     navBar?: boolean
@@ -25,3 +31,4 @@ declare module 'vue-router' {
     animate?: string
   }
 }
+

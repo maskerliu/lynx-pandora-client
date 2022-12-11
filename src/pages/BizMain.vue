@@ -9,13 +9,16 @@
       </template>
 
     </van-nav-bar>
+
     <router-view class="biz-content" v-bind:class="showNavbar ? 'move-down' : 'move-up'"
       v-bind:style="{ height: `calc(100vh - ${height}px)` }" v-slot="{ Component, route }">
-      <transition :name="route.meta.animate">
-        <keep-alive :include="['DeviceMgr']">
-          <component :is="Component" :key="route.path" />
-        </keep-alive>
-      </transition>
+      <suspense>
+        <transition :name="route.meta.animate">
+          <keep-alive :include="['DeviceMgr']">
+            <component :is="Component" :key="route.path" />
+          </keep-alive>
+        </transition>
+      </suspense>
     </router-view>
 
     <van-tabbar route v-model="active" class="animate__animated"
@@ -45,20 +48,28 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, provide, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useCommonStore, useIMStore } from '../store'
 import DebugPanel from './components/DebugPanel.vue'
 import Login from './user/Login.vue'
+import { CommonStore, I18n, IMStore, VueRouter } from './components/misc'
 
-const i18n = useI18n()
 const commonStore = useCommonStore()
+const imStore = useIMStore()
+const i18n = useI18n()
 const active = ref(0)
 const showTabbar = ref(true)
 const showNavbar = ref(false)
 const router = useRouter()
 const height = ref(0)
+
+provide(CommonStore, commonStore)
+provide(I18n, i18n)
+provide(IMStore, imStore)
+provide(VueRouter, router)
+
 
 let animate = null
 
@@ -70,8 +81,8 @@ onMounted(async () => {
   } else {
     i18n.locale.value = commonStore.locale
   }
-  await useIMStore().init()
   await commonStore.init()
+  await imStore.init()
   router.replace("/message")
   active.value = 1
 })

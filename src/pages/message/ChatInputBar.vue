@@ -1,60 +1,57 @@
 <template>
-  <van-row style="width: 100%; position: absolute; bottom: 0;">
-    <van-field v-model="textInput" type="textarea" autosize rows="1" center clearable>
-      <template #left-icon>
-        <van-button round @click="onCall" style="width: 35px; height: 35px; margin-right: 15px;">
-          <template #icon>
-            <van-icon class="iconfont icon-voice" size="24" />
-          </template>
-        </van-button>
-      </template>
-      <template #right-icon>
-        <van-button type="success" plain @click="sendMsg" style="width: 45px; height: 30px;  margin-left: 15px;">
-          <template #icon>
-            <van-icon class="iconfont" v-bind:class="textInput?.length == 0 ? 'icon-file' : 'icon-send'" size="22" />
-          </template>
-        </van-button>
-        
-        <van-popover placement="top-end" v-model:show="showEmojiPanel"
-          style="width: calc(100% - 30px);">
-          <van-tabs v-model:active="activeTab">
-            <van-tab title="Emoji">
-              <emoji-picker class="emoji-panel" v-model:emoji="emoji" />
-            </van-tab>
-            <van-tab title="标签 3">
-              <div class="emoji-panel"></div>
-            </van-tab>
-          </van-tabs>
+  <van-field style="width: 100%; position: absolute; bottom: 0;" v-model="textInput" type="textarea" autosize rows="1"
+    center clearable>
+    <template #left-icon>
+      <van-button round @click="onCall" style="width: 35px; height: 35px; margin-right: 15px;">
+        <template #icon>
+          <van-icon class="iconfont icon-voice" size="24" />
+        </template>
+      </van-button>
+    </template>
+    <template #right-icon>
+      <van-button type="success" plain @click="sendMsg" style="width: 45px; height: 30px;  margin-left: 15px;">
+        <template #icon>
+          <van-icon class="iconfont" v-bind:class="textInput?.length == 0 ? 'icon-file' : 'icon-send'" size="22" />
+        </template>
+      </van-button>
 
-          <template #reference>
-            <van-button round style="width: 35px; height: 35px; margin-left: 10px;">
-              <template #icon>
-                <van-icon class="iconfont icon-emoji" size="24" />
-              </template>
-            </van-button>
-          </template>
-        </van-popover>
+      <van-popover placement="top-end" v-model:show="showEmojiPanel" style="width: calc(100% - 30px);">
+        <van-tabs v-model:active="activeTab">
+          <van-tab title="Emoji">
+            <emoji-picker class="emoji-panel" v-model:emoji="emoji" />
+          </van-tab>
+          <van-tab title="标签 3">
+            <div class="emoji-panel"></div>
+          </van-tab>
+        </van-tabs>
 
-        
-      </template>
-      <van-uploader ref="fileUploader" />
-    </van-field>
-  </van-row>
+        <template #reference>
+          <van-button round style="width: 35px; height: 35px; margin-left: 10px;">
+            <template #icon>
+              <van-icon class="iconfont icon-emoji" size="24" />
+            </template>
+          </van-button>
+        </template>
+      </van-popover>
+
+
+    </template>
+    <van-uploader ref="fileUploader" />
+  </van-field>
 </template>
 <script lang ="ts" setup>
-import { DateTime } from 'luxon'
-import { ref, watch } from 'vue'
-import { IM } from '../../models'
-import { useCommonStore, useIMStore } from '../../store'
-import EmojiPicker from './EmojiPicker.vue'
 import type { UploaderInstance } from 'vant'
+import { inject, ref, watch } from 'vue'
+import { IM } from '../../models'
+import { CommonStore, IMStore } from '../components/misc'
+import EmojiPicker from './EmojiPicker.vue'
 
 const props = defineProps<{
   sid: String
 }>()
 
-const commonStore = useCommonStore()
-const imStore = useIMStore()
+const commonStore = inject(CommonStore)
+const imStore = inject(IMStore)
 const showEmojiPanel = ref(false)
 const activeTab = ref(0)
 const textInput = ref(null)

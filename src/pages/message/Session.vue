@@ -11,16 +11,17 @@
 
 <script lang="ts" setup>
 import { Notify } from 'vant'
-import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { inject, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { IM } from '../../models'
-import { useCommonStore, useIMStore } from '../../store'
+import { CommonStore, IMStore, VueRouter } from '../components/misc'
 import ChatInputBar from './ChatInputBar.vue'
 import Message from './Message.vue'
 
-const router = useRouter()
-const commonStore = useCommonStore()
-const imStore = useIMStore()
+const router = inject(VueRouter)
+const commonStore = inject(CommonStore)
+const imStore = inject(IMStore)
+
 const msgContainer = ref()
 const loading = ref<boolean>(false)
 const messages = ref<Array<IM.Message>>([])
@@ -30,18 +31,15 @@ onMounted(async () => {
   commonStore.navbar.rightText = 'icon-more'
   commonStore.rightAction = gotoSessionSetting
   imStore.sid = sid
-  let session = await imStore.session(sid)
+  imStore._messages = []
 
-  session.timestamp = new Date().getTime()
+  let session = await imStore.session(sid)
   session.unread = 0
+  commonStore.navbar.title = session.title
   await imStore.updateSession(session)
 
-  commonStore.navbar.title = session.title
-  messages.value = await imStore.messages(true)
-
-  nextTick(async () => {
-    scrollToBottom()
-  })
+  loading.value = true
+  setTimeout(async () => { imStore.updateMessage++ }, 200)
 })
 
 onUnmounted(() => {
@@ -51,6 +49,7 @@ onUnmounted(() => {
 watch(() => imStore.updateMessage, async () => {
   try {
     messages.value = await imStore.messages()
+    loading.value = false
     nextTick(async () => {
       scrollToBottom()
     })
@@ -60,8 +59,8 @@ watch(() => imStore.updateMessage, async () => {
 })
 
 function scrollToBottom() {
-  // msgContainer.value.$el.scrollTo({ top: msgContainer.value.$el.scrollHeight, behavior: 'smooth' })
-  msgContainer.value.$el.scrollTo({ top: msgContainer.value.$el.scrollHeight })
+  msgContainer.value.$el.scrollTo({ top: msgContainer.value.$el.scrollHeight, behavior: 'smooth' })
+  // msgContainer.value.$el.scrollTo({ top: msgContainer.value.$el.scrollHeight })
 }
 
 function gotoSessionSetting() {
@@ -71,14 +70,12 @@ function gotoSessionSetting() {
 async function onLoadingMore() {
   try {
     loading.value = true
-    messages.value = await imStore.messages(false, true)
+    messages.value = await imStore.messages(true)
   } catch (err) {
     Notify({ type: 'danger', message: err.toString(), duration: 800 })
   } finally {
     loading.value = false
   }
-
-
 }
 
 </script>

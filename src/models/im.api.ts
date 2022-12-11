@@ -8,7 +8,7 @@ export namespace IMApi {
     return get<IM.Session>(RemoteAPI.IM.BasePath + RemoteAPI.IM.SyncFrom, { sid })
   }
 
-  export function syncTo(session: IM.Session) {
+  export async function syncTo(session: IM.Session, thumb?: File) {
     let obj = Object.assign({}, session)
     delete obj._id
     delete obj._rev
@@ -20,7 +20,8 @@ export namespace IMApi {
 
     let data = new FormData()
     data.append('session', JSON.stringify(obj))
-    return formPost<string>(RemoteAPI.IM.BasePath + RemoteAPI.IM.SyncTo, data)
+    if (thumb) data.append('thumb', thumb)
+    return formPost<IM.Session>(RemoteAPI.IM.BasePath + RemoteAPI.IM.SyncTo, data)
   }
 
   export function sendMsg(message: IM.Message) {

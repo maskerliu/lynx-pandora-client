@@ -1,17 +1,25 @@
 <template>
   <van-col style="flex: 1;">
-
     <van-cell-group title=" ">
       <van-row style="padding: 15px 0 10px 0;">
         <div v-for="user in members" style="text-align: center; width: 4rem; margin-left: 15px;">
           <van-image radius="5" fit="cover" :src="user.avatar" width="4rem" height="4rem" style="" />
           <div class="van-ellipsis" style="font-size: 0.7rem; color: grey;">{{ user.name }}</div>
         </div>
+        <div style="text-align: center; width: 4rem; margin-left: 15px;">
+          <div style="width: 3.5rem; height: 3.5rem; border-radius: 8px; border: dashed 2px #bdc3c7; margin-top: 8px;"
+            @click="gotoContact">
+            <van-icon class="iconfont icon-plus" size="30px" color="#bdc3c7" style="padding: 13px;" />
+          </div>
+          <div class="van-ellipsis" style="font-size: 0.7rem; color: #bdc3c7;"></div>
+        </div>
       </van-row>
-
     </van-cell-group>
 
     <van-cell-group title=" ">
+      <van-cell v-if="session?.type == IM.SessionType.GROUP" :title="$t('message.setting.groupName')" center
+        :value="session?.title" is-link @click="showTitleModify = true">
+      </van-cell>
       <van-cell :title="$t('message.setting.mute')" center>
         <template #value>
           <van-switch size="24px"></van-switch>
@@ -27,31 +35,65 @@
     <van-cell-group title=" ">
       <van-cell :title="$t('message.setting.complain')" is-link center />
     </van-cell-group>
+
+    <van-button v-if="session?.type == IM.SessionType.GROUP" type="danger" :text="$t('message.setting.quit')"
+      style="width: calc(100% - 30px); margin: 15px;" @click="quitSession" />
+
+    <van-popup v-model:show="showTitleModify" style="width: calc(100% - 40px);">
+      <van-cell-group :title="$t('message.setting.modifyName')" style="width: 100%;">
+        <van-field v-model="session.title" clearable />
+      </van-cell-group>
+      <van-button type="success" :text="$t('common.save')" style="width: calc(100% - 30px); margin: 15px;"
+        @click="modifyName" />
+    </van-popup>
+
   </van-col>
 
 </template>
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useRoute } from 'vue-router'
-import { User } from '../../models'
-import { useCommonStore, useIMStore } from '../../store'
+import { inject, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { IM, User } from '../../models';
+import { IMApi } from '../../models/im.api';
+import { CommonStore, I18n, IMStore, VueRouter } from '../components/misc';
 
-const commonStore = useCommonStore()
-const imStore = useIMStore()
-const i18n = useI18n()
+const commonStore = inject(CommonStore)
+const imStore = inject(IMStore)
+const i18n = inject(I18n)
+const router = inject(VueRouter)
+const session = ref<IM.Session>(null)
 const members = ref<Array<User.Profile>>([])
-
+const showTitleModify = ref(false)
 
 onMounted(async () => {
   let sid = useRoute().params['sid'] as string
   commonStore.navbar.title = i18n.t('message.setting.title')
-  let session = await imStore.session(sid)
-  for (let uid of session.members) {
+
+  session.value = await IMApi.syncFrom(sid)
+  await imStore.updateSession(session.value, null, false)
+  for (let uid of session.value.members) {
     let profile = await imStore.user(uid)
     members.value.push(profile)
   }
 })
+
+async function modifyName() {
+  await imStore.updateSession(session.value, null, true)
+  showTitleModify.value = false
+}
+
+async function quitSession() {
+  let idx = session.value.members.indexOf(commonStore.profile.uid)
+  session.value.members.splice(idx, 1)
+  await imStore.updateSession(session.value, null, true)
+  await imStore.deleteSession(session.value.sid)
+
+  router.go(-2)
+}
+
+function gotoContact() {
+  router.push({ name: 'Contact', query: { multi: 1, sid: session.value.sid } })
+}
 
 </script>
 <style scoped>

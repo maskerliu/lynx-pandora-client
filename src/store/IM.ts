@@ -1,18 +1,37 @@
 import { defineStore } from 'pinia'
 import { useCommonStore } from '.'
+import dingdong from '../asserts/dingdong.m4a'
 import { messageRepo, sessionRepo } from '../common/im.repos'
-import { CommonApi, IM } from '../models'
+import { CommonApi, IM, User } from '../models'
 import { IMApi } from '../models/im.api'
-import dingdong from '../../static/dingdong.m4a'
 
 const notifyAudio = new Audio()
 
+export type IMState = {
+  sid?: string
+  _messages: Array<IM.Message>
+  users: {},
+  updateSessions: number,
+  updateMessage: number
+}
 
-export const useIMStore = defineStore('IM', {
+export type IMAction = {
+  init(): Promise<void>
+  sessions(): Promise<Array<IM.Session>>
+  session(sid: string): Promise<IM.Session>
+  updateSession(session: IM.Session, snap?: File, sync?: boolean): Promise<void>
+  deleteSession(sid: string): Promise<void>
+  messages(loadMore?: boolean): Promise<Array<IM.Message>>
+  onMessageArrived(message: IM.Message): void
+  sendMessage(message: IM.Message): Promise<void>
+  user(uid: string): Promise<User.Profile>
+}
+
+export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
   state: () => {
     return {
-      sid: null as string,
-      _messages: [] as Array<IM.Message>,
+      sid: null,
+      _messages: [],
       users: {},
       updateSessions: 0,
       updateMessage: 0,
@@ -24,29 +43,12 @@ export const useIMStore = defineStore('IM', {
       await messageRepo.init()
 
       notifyAudio.src = dingdong
-
       this._messages = []
-    },
-    async createSession(session: IM.Session) {
-      await sessionRepo.update(session)
-      await IMApi.syncTo(session)
-      this.updateSessions++
-    },
-    async updateSession(session: IM.Session) {
-      await sessionRepo.update(session)
-      this.updateSessions++
-    },
-    async deleteSession(sid: string) {
-      await sessionRepo.delete(sid)
-      this.updateSessions++
-    },
-    async session(sid: string) {
-      return await sessionRepo.get('sid', sid)
     },
     async sessions() {
       let sessions = await sessionRepo.find({
         selector: {},
-        limit: 15,
+        limit: 50,
         sort: [{ 'timestamp': 'desc' }],
         use_index: 'idx-timestamp'
       })
@@ -61,8 +63,24 @@ export const useIMStore = defineStore('IM', {
       }
       return sessions
     },
-    async messages(init?: boolean, loadMore?: boolean) {
-
+    async session(sid: string) {
+      let session = await sessionRepo.get('sid', sid)
+      if (session == null) {
+        session = await IMApi.syncFrom(sid)
+        this.updateSession(session)
+      }
+      return session
+    },
+    async updateSession(session: IM.Session, snap?: File, sync: boolean = false) {
+      let remoteSession = sync ? await IMApi.syncTo(session, snap) : session
+      await sessionRepo.update(remoteSession)
+      this.updateSessions++
+    },
+    async deleteSession(sid: string) {
+      await sessionRepo.delete(sid)
+      this.updateSessions++
+    },
+    async messages(loadMore?: boolean) {
       let time = new Date().getTime()
       let opt: PouchDB.Find.FindRequest<any> = {
         selector: {
@@ -74,32 +92,26 @@ export const useIMStore = defineStore('IM', {
         use_index: 'idx-sid',
       }
 
-      if (init) {
-        opt.selector.timestamp = { $lt: new Date().getTime() }
+      if (loadMore) {
+        opt.selector.timestamp = { $lt: this._messages[0].timestamp }
         let msgs = await messageRepo.find(opt)
-        this._messages = msgs.reverse()
+        this._messages = msgs.reverse().concat(this._messages)
       } else {
-        if (loadMore) {
-          opt.selector.timestamp = { $lt: this._messages[0].timestamp }
+        if (this._messages.length > 0) {
+          opt.selector.timestamp = { $gt: this._messages[this._messages.length - 1].timestamp }
           let msgs = await messageRepo.find(opt)
-          this._messages = msgs.reverse().concat(this._messages)
+          this._messages = this._messages.concat(msgs.reverse())
         } else {
-          if (this._messages.length > 0) {
-            opt.selector.timestamp = { $gt: this._messages[this._messages.length - 1].timestamp }
-            let msgs = await messageRepo.find(opt)
-            this._messages = this._messages.concat(msgs.reverse())
-          } else {
-            opt.selector.timestamp = { $lt: new Date().getTime() }
-            let msgs = await messageRepo.find(opt)
-            this._messages = msgs.reverse()
-          }
+          opt.selector.timestamp = { $lt: new Date().getTime() }
+          let msgs = await messageRepo.find(opt)
+          this._messages = msgs.reverse()
         }
       }
       console.log('query cost:', new Date().getTime() - time)
       return this._messages
     },
     async onMessageArrived(message: IM.Message) {
-      notifyAudio.play()
+      // notifyAudio.play()
 
       let session = await sessionRepo.get('sid', message.sid)
       if (session == null) {
@@ -140,9 +152,7 @@ export const useIMStore = defineStore('IM', {
         session.unread += 1
       }
 
-      await sessionRepo.update(session)
-      this.updateSessions++
-
+      await this.updateSession(session)
     },
     async sendMessage(message: IM.Message) {
       await IMApi.sendMsg(message)
@@ -150,9 +160,6 @@ export const useIMStore = defineStore('IM', {
       this.updateMessage++
     },
     async syncSessionFromRemote(sid: string) {
-
-    },
-    async syncSessionToRemote() {
 
     },
     async user(uid: string) {

@@ -36,15 +36,15 @@
 
 <script lang="ts" setup>
 import { Notify } from 'vant'
-import { onMounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { inject, onMounted, ref, watch } from 'vue'
 import { IM } from '../../models'
-import router from '../../router'
-import { useCommonStore, useIMStore } from '../../store'
+import { CommonStore, I18n, IMStore, VueRouter } from '../components/misc'
 
-const i18n = useI18n()
-const commonStore = useCommonStore()
-const imStore = useIMStore()
+const commonStore = inject(CommonStore)
+const imStore = inject(IMStore)
+const i18n = inject(I18n)
+const router = inject(VueRouter)
+
 const loading = ref(false)
 const refreshing = ref(false)
 const sessions = ref<Array<IM.Session>>([])
@@ -55,6 +55,7 @@ onMounted(async () => {
   commonStore.navbar.rightText = 'icon-contacts'
   commonStore.rightAction = gotoContact
 
+  
   try {
     sessions.value = await imStore.sessions()
   } catch (err) {
@@ -76,7 +77,7 @@ async function onRefresh() {
 }
 
 function gotoContact() {
-  router.push({ name: 'Contact' })
+  router.push({ name: 'Contact', query: { multi: 0 } })
 }
 
 function gotoSession(sid: string, title: string) {

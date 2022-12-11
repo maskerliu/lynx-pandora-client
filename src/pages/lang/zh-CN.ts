@@ -113,9 +113,14 @@ export default {
     },
     contact: {
       title: '通讯录',
+      create: '创建群聊',
+      add: '添加成员',
     },
     setting: {
       title: '聊天消息',
+      groupName: '群聊名称',
+      modifyName: '修改群聊名称',
+      quit: '退出群聊',
       mute: '消息免打扰',
       pin: '消息置顶',
       complain: '投诉',

@@ -7,12 +7,35 @@ import { Common, CommonApi, IOT, IOTApi, updateAccessToken, updateBaseDomain, Us
 
 export let msgClient: PahoMsgClient = null
 
+export type CommonState = {
+  navbar: NavBarProps,
+  rightAction: Function,
+  needLogin: boolean,
+  appConfig: Common.AppConfig,
+  locale: string,
+  accessToken: string,
+  profile: User.Account & User.Profile,
+  operator: IOT.Operator,
+  company: IOT.Company,
+  sharePrefs: SharePref
+}
+
+export type CommonAction = {
+  init(): Promise<void>
+  updateUserInfo(): Promise<void>
+  logout(): Promise<void>
+  updateCompanyInfo(): Promise<void>
+  rebootDevice(deviceId: string): void
+  deviceTmpSubscribe(deviceId: string): void
+  deviceTmpUnsubscribe(deviceId: string): void
+}
+
 export type SharePref = {
   sound: boolean,
   vibrate: boolean
 }
 
-export const useCommonStore = defineStore('Common', {
+export const useCommonStore = defineStore<string, CommonState, {}, CommonAction>('Common', {
   state: () => {
     return {
       navbar: {} as NavBarProps,

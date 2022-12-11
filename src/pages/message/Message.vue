@@ -36,40 +36,21 @@
   </van-row>
 </template>
 <script lang="ts" setup>
-import { nextTick } from 'process';
+import { nextTick } from 'process'
 import { ImagePreview } from 'vant'
-import { onMounted, ref } from 'vue'
-import { DatetimeFormat } from 'vue-i18n';
-import { CommonApi, IM } from '../../models'
-import { useCommonStore, useIMStore } from '../../store'
+import { inject, onMounted, ref } from 'vue'
+import { IM } from '../../models'
+import { CommonStore, IMStore } from '../components/misc'
 
 const props = defineProps<{
   message: IM.Message,
   asyncMode?: Boolean,
 }>()
 
-const timestampConfig = {
-  format: "HH:mm",
-  relative: false
-}
-
-const commonStore = useCommonStore()
-const imStore = useIMStore()
-const msgContent = ref()
+const commonStore = inject(CommonStore)
+const imStore = inject(IMStore)
 const isFrom = ref(false)
 const avatar = ref()
-
-const linkOptions = {
-  className: "link-class",
-  events: {
-    click(e: any) {
-      alert('Link clicked!');
-    },
-    mouseover(e: any) {
-      // alert('Link hovered!');
-    }
-  }
-}
 
 onMounted(async () => {
   isFrom.value = props.message.uid != commonStore.profile.uid

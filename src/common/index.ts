@@ -1,3 +1,5 @@
+import userImg from '../asserts/user.png'
+
 export function generateUid(): string {
   let len = 8
   let res = []
@@ -63,4 +65,16 @@ export function dateformat(format: string) {
         RegExp.$1.length == 1 ? o[k] :
           ("00" + o[k]).substring(("" + o[k]).length))
   return format
+}
+
+export function loadImage(url: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image()
+    img.src = url == null ? userImg : url
+    img.crossOrigin = 'Anonymous'
+    img.addEventListener('load', () => {
+      resolve(img)
+    })
+    img.addEventListener('error', (err) => reject(err))
+  })
 }

@@ -3,12 +3,11 @@ import { createPinia } from 'pinia'
 import vant from 'vant'
 import 'vant/lib/index.css'
 import { createApp } from 'vue'
-import i18n from './lang'
+import i18n from './pages/lang'
 import router from './router'
 import App from './App.vue'
 // import 'default-passive-events'
 import piniaPersist from 'pinia-plugin-persist'
-
 
 
 const pinia = createPinia()
