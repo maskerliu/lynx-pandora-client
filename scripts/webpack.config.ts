@@ -87,6 +87,7 @@ export default class WebConfig implements Configuration {
       __IS_WEB__: true,
       __VUE_OPTIONS_API__: false,
       __VUE_PROD_DEVTOOLS__: false,
+      __VUE_I18N_LEGACY_API__: false,
     }),
   ]
 
@@ -97,8 +98,8 @@ export default class WebConfig implements Configuration {
 
   resolve: Configuration['resolve'] = {
     alias: {
-      // '@': path.join(dirname, './src/renderer'),
-      // 'vue$': 'vue/dist/vue.esm-browser.js',
+      'vue-i18n': 'vue-i18n/dist/vue-i18n.esm-browser.js',
+      // 'vue': 'vue/dist/vue.runtime.esm-browser.js'
     },
     extensions: ['.ts', '.js', '.vue', '.json', '.css', '.node']
   }
@@ -121,7 +122,7 @@ export default class WebConfig implements Configuration {
         vue: {
           name: "vue",
           priority: 20,
-          test: /[\\/]node_modules[\\/]vue[\\/]/
+          test: /[\\/]node_modules[\\/]vue|vue-router|vue-i18n|pinia[\\/]/
         },
         brace: {
           name: "brace",
@@ -167,6 +168,7 @@ export default class WebConfig implements Configuration {
       this.plugins?.push(
         new DefinePlugin({
           SERVER_BASE_URL: config.domain ? `'${config.domain}'` : `'${config.protocol}://${localServer}:${config.port}'`,
+          __DEV__: false
         }),
         new CopyWebpackPlugin({
           patterns: [{
@@ -205,10 +207,22 @@ export default class WebConfig implements Configuration {
               comments: false,
             },
             keep_fnames: true,
+            compress: {
+              dead_code: true
+            },
           },
+
           extractComments: false,
         })
       )
+
+      this.resolve = {
+        alias: {
+          'vue-i18n': 'vue-i18n/dist/vue-i18n.runtime.esm-browser.prod.js',
+          'vue': 'vue/dist/vue.runtime.esm-browser.prod.js'
+        },
+        extensions: ['.ts', '.js', '.vue', '.json', '.css']
+      }
     }
 
     return this

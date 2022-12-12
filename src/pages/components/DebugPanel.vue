@@ -9,8 +9,6 @@
         </van-button>
       </template>
       <van-col style="width: calc(100vw - 100px); height: 300px; padding: 10px;">
-        <van-button plain block type="primary" text="DB Mgr" @click="$router.push('/dbmgr'); showPopover = false;" />
-
         <van-button plain block type="primary" text="Clear Local DB" @click="cleanLocalDB" style="margin-top: 15px;" />
       </van-col>
     </van-popover>

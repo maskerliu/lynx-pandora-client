@@ -44,6 +44,8 @@ export namespace IOT {
     name?: string
     cid?: string
     roles?: Array<string>
+    fullRoles?: Array<Role>
+    privileges?: Array<string>
   }
 
   export interface Role extends Common.DBDoc {

@@ -49,19 +49,21 @@ const loading = ref(false)
 const refreshing = ref(false)
 const sessions = ref<Array<IM.Session>>([])
 
-onMounted(async () => {
+onMounted(() => {
   commonStore.navbar.title = i18n.t('message.title')
   commonStore.navbar.leftArrow = false
   commonStore.navbar.rightText = 'icon-contacts'
   commonStore.rightAction = gotoContact
 
-  
-  try {
-    sessions.value = await imStore.sessions()
-  } catch (err) {
-    console.error(err)
-    Notify({ type: 'danger', message: err.toString(), duration: 500 })
-  }
+  setTimeout(async () => {
+    try {
+      sessions.value = await imStore.sessions()
+    } catch (err) {
+      console.error(err)
+      Notify({ type: 'danger', message: err.toString(), duration: 500 })
+    }
+  }, 200)
+
 })
 
 watch(() => imStore.updateSessions, async () => {

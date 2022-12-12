@@ -13,18 +13,18 @@ export type CommonState = {
   needLogin: boolean,
   appConfig: Common.AppConfig,
   locale: string,
-  accessToken: string,
-  profile: User.Account & User.Profile,
-  operator: IOT.Operator,
-  company: IOT.Company,
-  sharePrefs: SharePref
+  accessToken?: string,
+  profile?: User.Account & User.Profile,
+  operator?: IOT.Operator,
+  company?: IOT.Company,
+  sharePrefs: SharePref,
+  forword?: any,
 }
 
 export type CommonAction = {
   init(): Promise<void>
   updateUserInfo(): Promise<void>
   logout(): Promise<void>
-  updateCompanyInfo(): Promise<void>
   rebootDevice(deviceId: string): void
   deviceTmpSubscribe(deviceId: string): void
   deviceTmpUnsubscribe(deviceId: string): void
@@ -39,21 +39,21 @@ export const useCommonStore = defineStore<string, CommonState, {}, CommonAction>
   state: () => {
     return {
       navbar: {} as NavBarProps,
-      rightAction: null as Function,
+      rightAction: null,
       needLogin: false,
       appConfig: {} as Common.AppConfig,
       locale: null,
       accessToken: null,
-      profile: {} as User.Account & User.Profile,
-      operator: {} as IOT.Operator,
-      company: {} as IOT.Company,
-      sharePrefs: {} as SharePref
+      profile: null,
+      operator: null,
+      company: {},
+      sharePrefs: {} as SharePref,
+      forword: null,
     }
   },
   actions: {
     async init() {
       updateBaseDomain(SERVER_BASE_URL)
-
       this.updateUserInfo()
     },
     async updateUserInfo() {
@@ -65,7 +65,9 @@ export const useCommonStore = defineStore<string, CommonState, {}, CommonAction>
       if (msgClient && msgClient.isConnected()) { msgClient.close() }
       msgClient = new PahoMsgClient()
       this.operator = await IOTApi.getMyOperatorInfo()
-      if (this.operator) this.company = await IOTApi.getCompany(this.operator.cid)
+      if (this.operator) {
+        this.company = await IOTApi.getCompany(this.operator.cid)
+      }
     },
     async logout() {
       this.accessToken = null
@@ -73,9 +75,6 @@ export const useCommonStore = defineStore<string, CommonState, {}, CommonAction>
       this.operator = {}
       this.company = {}
       msgClient.close()
-    },
-    async updateCompanyInfo() {
-      this.company = await IOTApi.getCompany(this.operator.cid)
     },
     publishMessage(message: string) {
       // here just mock a device to send a fake monitor data for test

@@ -20,18 +20,16 @@
   </van-col>
 </template>
 <script lang="ts" setup>
+import { UploaderFileListItem } from 'vant';
+import { inject, onMounted, onUnmounted, ref } from 'vue';
+import { CommonApi } from '../../models';
+import { CommonStore, I18n } from '../components/misc';
 
-import { UploaderFileListItem } from 'vant'
-import { onMounted, onUnmounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { CommonApi } from '../../models'
-import { useCommonStore } from '../../store'
-
-const i18n = useI18n()
-const commonStore = useCommonStore()
+const i18n = inject(I18n)
+const commonStore = inject(CommonStore)
 const avatar = ref<Array<UploaderFileListItem>>([])
 
-onMounted(async () => {
+onMounted(() => {
   commonStore.navbar.title = i18n.t('mine.profile.title')
 
   if (commonStore.profile.avatar) {

@@ -17,8 +17,9 @@ export namespace IM {
     members: Array<string>
     timestamp: number
     unread: number // 未读消息数
+    notice?: string
   }
-  
+
   export enum MessageType {
     TEXT = 1, // 文字
     EMOJI = 2, // 表情

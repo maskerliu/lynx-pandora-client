@@ -1,6 +1,6 @@
 <template>
-
-  <van-col style="background-color: #f1f1f1;">
+  <van-popup position="bottom" style="width: 100%; height: 560px; background-color: #f1f1f1;"
+    v-model:show="commonStore.needLogin">
     <van-form style="margin: 15px; text-align: center;">
       <van-icon class="iconfont icon-iot" size="40" color="green" style="margin: 20px auto;" />
       <van-field v-model="phone" type="tel" left-icon="phone-o" maxlength="13" input-align="center" clickable readonly
@@ -9,7 +9,8 @@
           <van-icon name="phone-o" size="20" style="margin-top: 5px;" />
         </template>
         <template #button>
-          <van-button size="small" :disabled="!phoneVaildate" type="primary" :text="$t('login.sendVerifyCode')" @click="sendVerifyCode"/>
+          <van-button size="small" :disabled="!phoneVaildate" type="primary" :text="$t('login.sendVerifyCode')"
+            @click="sendVerifyCode" />
         </template>
       </van-field>
       <van-password-input :disabled="!phoneVaildate" :gutter="2" :length="4" :value="verifyCode"
@@ -19,16 +20,13 @@
       <van-button type="primary" :loading="isLogining" style="width: 100%;" :disabled="!showLoginBtn || isLogining"
         @click="login" :text="$t('login.done')" />
     </van-form>
-  </van-col>
-
+  </van-popup>
 </template>
 <script lang="ts" setup>
-
-import { onMounted, ref, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { inject, onMounted, ref, watch } from 'vue';
 import { CommonApi } from '../../models';
-import { useCommonStore } from '../../store';
-
+import router from '../../router';
+import { CommonStore } from '../components/misc';
 
 const phone = ref('')
 const verifyCode = ref('')
@@ -41,11 +39,11 @@ const isLogining = ref(false)
 
 const formatter = (value: string) => value.replace(/^(.{3})(.{4})?(.*)$/, '$1 $2 $3')
 
-const commonStore = useCommonStore()
+const commonStore = inject(CommonStore)
 const phoneReg = /^1(3\d|4[5-9]|5[0-35-9]|6[567]|7[0-8]|8\d|9[0-35-9])\d{8}$/
 
 onMounted(() => {
-  
+
 })
 
 watch(input, () => {
@@ -94,6 +92,11 @@ async function login() {
   phone.value = ''
   isLogining.value = false
   commonStore.needLogin = false
+
+  if (commonStore.forword) {
+    router.push(commonStore.forword)
+    commonStore.forword = null
+  }
 }
 
 function sendVerifyCode() {

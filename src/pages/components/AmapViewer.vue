@@ -17,11 +17,7 @@ const props = defineProps<{
 const emits = defineEmits(['update:lat', 'update:lng', 'update:address'])
 
 onMounted(() => {
-  try {
-    initMap()
-  } catch (err) {
-    console.log(err)
-  }
+  setTimeout(async () => { await initMap() }, 180)
 })
 
 watch(() => props.address, () => {

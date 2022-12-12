@@ -5,17 +5,18 @@
         v-bind:style="{backgroundColor: doShake? '#d6303188': 'white'}" style="padding-top: 15px;" center is-link
         :to="`profile/uid`">
         <template #icon>
-          <van-image :radius="5" width="8rem" height="8rem" fit="cover" :src="commonStore.profile.avatar" />
+          <van-image :radius="5" width="8rem" height="8rem" fit="cover" :src="commonStore.profile?.avatar" />
         </template>
         <template #value>
-          <div style="margin-left: 15px;">
+          <div style="margin-left: 15px;" v-if="commonStore.profile">
             <h3 :style="{ color: commonStore.profile.name == null ? '#d63031' : '#2d3436' }">
-              {{ commonStore.profile?.name == null ? $t('mine.needUpdateProfile') : commonStore.profile.name }}
+              {{ commonStore.profile.name == null ? $t('mine.needUpdateProfile') : commonStore.profile.name }}
             </h3>
           </div>
           <div style="margin-left: 15px;">
-            <van-tag plain type="primary">Admin</van-tag>
-            <van-tag plain type="danger" style="margin-left: 10px;">Manager</van-tag>
+            <van-tag plain type="primary" v-for="role in commonStore.operator?.fullRoles" style="margin-right: 15px;">
+              {{ role.name }}
+            </van-tag>
           </div>
         </template>
       </van-cell>
@@ -28,7 +29,7 @@
         </template>
         <template #value>
           <div class="van-ellipsis" style="max-width: 100%; text-align: right;">
-            {{ commonStore.company.name ? commonStore.company.name : $t('mine.createCompany') }}
+            {{ commonStore.company ? commonStore.company.name : $t('mine.createCompany') }}
           </div>
         </template>
       </van-cell>
@@ -49,29 +50,28 @@
   </van-col>
 </template>
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useCommonStore } from '../../store';
-import 'animate.css'
+import 'animate.css';
+import { inject, onMounted, ref } from 'vue';
+import { CommonStore, VueRouter } from '../components/misc';
 
-const commonStore = useCommonStore()
-const router = useRouter()
+const commonStore = inject(CommonStore)
+const router = inject(VueRouter)
 
 const userProfile = ref()
 const doShake = ref(false)
 
-onMounted(async () => {
+onMounted(() => {
   userProfile.value.$el.addEventListener('animationend', () => { doShake.value = false })
 
-  await commonStore.updateUserInfo()
+  // await commonStore.updateUserInfo()
 
-  if (commonStore.profile.name == null) {
+  if (commonStore.profile == null) {
 
   }
 })
 
 function goBind() {
-  if (commonStore.profile.name == null) {
+  if (commonStore.profile == null) {
     doShake.value = true
   } else {
     router.push('/iot/bind')
@@ -79,7 +79,7 @@ function goBind() {
 }
 
 function goCompany() {
-  if (commonStore.profile.name == null) {
+  if (commonStore.profile == null) {
     doShake.value = true
   } else {
     router.push('/iot/company')

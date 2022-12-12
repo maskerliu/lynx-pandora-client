@@ -10,14 +10,12 @@
   </van-radio-group>
 </template>
 <script lang="ts" setup>
+import { inject, onMounted, ref, watch } from 'vue';
+import { CommonStore, I18n } from '../components/misc';
 
-import { onMounted, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useCommonStore } from '../../store';
-
-const i18n = useI18n()
+const commonStore = inject(CommonStore)
+const i18n = inject(I18n)
 const checked = ref(null)
-const commonStore = useCommonStore()
 
 onMounted(() => {
   commonStore.navbar.title = i18n.t('settings.fontlang.multiLang')

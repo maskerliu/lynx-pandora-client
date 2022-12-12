@@ -1,27 +1,28 @@
 <template>
   <van-col style="overflow-y: auto;">
     <van-cell-group :title="$t('company.base.title')">
-      <van-form label-align="right" label-width="5.8rem" colon>
-        <van-field :label="$t('company.base.name')" v-model="commonStore.company.name" center clearable>
+      <van-form label-align="right" label-width="5.8rem" colon
+        :disabled="commonStore.operator?.privileges.indexOf('1') == -1">
+        <van-field :label="$t('company.base.name')" v-model="company.name" center clearable>
           <template #button>
-            <van-tag plain :color="CompanyStatus[commonStore.company.status ? commonStore.company.status : 0].color"
+            <van-tag plain :color="CompanyStatus[company.status ? company.status : 0].color"
               size="large">
-              {{ CompanyStatus[commonStore.company.status ? commonStore.company.status : 0].title }}
+              {{ CompanyStatus[company.status ? company.status : 0].title }}
             </van-tag>
           </template>
         </van-field>
-        <van-field :label="$t('company.base.owner')" v-model="commonStore.company.ownerName" center disabled />
-        <van-field :label="$t('company.base.tel')" v-model="commonStore.company.tel" center clearable />
-        <van-field :label="$t('company.base.address')" v-model="commonStore.company.address" center clearable />
+        <van-field :label="$t('company.base.owner')" v-model="company.ownerName" center disabled />
+        <van-field :label="$t('company.base.tel')" v-model="company.tel" center clearable />
+        <van-field :label="$t('company.base.address')" v-model="company.address" center clearable />
 
-        <van-button type="primary" @click="saveCompany"
-          :text="commonStore.company._id == null ? $t('company.base.submit') : $t('common.save')"
+        <van-button type="primary" @click="saveCompany" v-if="commonStore.operator?.privileges.indexOf('1') != -1"
+          :text="company._id == null ? $t('company.base.submit') : $t('common.save')"
           style="width: calc(100% - 30px); margin: 15px;" />
       </van-form>
     </van-cell-group>
 
-    <van-cell-group :title="$t('company.role.title')">
-      <van-cell v-for="role in commonStore.company.roles" :title="role.name" :label="role.desc" clickable center
+    <van-cell-group :title="$t('company.role.title')" v-if="commonStore.operator?.privileges.indexOf('2') != -1">
+      <van-cell v-for="role in company.roles" :title="role.name" :label="role.desc" clickable center
         @click="editRole(role)">
         <template #value>
           <van-tag plain type="primary" size="large" v-for="privilege in role.privileges"
@@ -30,17 +31,17 @@
           </van-tag>
         </template>
       </van-cell>
-      <van-button plain type="warning" icon="plus" @click="editRole(null)" :text="$t('company.role.add')"
+      <van-button type="primary" icon="plus" @click="editRole(null)" :text="$t('company.role.add')"
         style="width: calc(100% - 30px); margin: 15px;" />
     </van-cell-group>
 
-    <van-cell-group :title="$t('company.operator.title')">
+    <van-cell-group :title="$t('company.operator.title')" v-if="commonStore.operator?.privileges.indexOf('3') != -1">
       <van-swipe-cell v-for="operator in operators">
-        <van-cell :title="operator.name">
+        <van-cell :title="operator.name" center>
           <template #value>
             <div style="flex: 1;">
-              <van-tag plain type="primary" size="large" v-for="rid in operator.roles" style="margin: 0 0 10px 10px;">
-                {{ AllRoles.get(rid).name }}
+              <van-tag plain type="primary" size="large" v-for="role in operator.roles" style="margin-right: 10px;">
+                {{ AllRoles.get(role).name }}
               </van-tag>
             </div>
           </template>
@@ -52,7 +53,7 @@
             @click="editOperator(operator)" />
         </template>
       </van-swipe-cell>
-      <van-button type="success" icon="plus" @click="editOperator()" :text="$t('company.operator.add')"
+      <van-button type="primary" icon="plus" @click="editOperator()" :text="$t('company.operator.add')"
         style="width: calc(100% - 30px); margin: 15px;" />
     </van-cell-group>
 
@@ -60,12 +61,13 @@
       <van-cell-group :title="$t('company.role.title')">
         <van-form label-align="right" label-width="5.5rem" colon>
           <van-field :label="$t('company.role.name')" v-model="curRole.name" clearable />
-          <van-field :label="$t('company.role.desc')" v-model="curRole.desc" clearable />
+          <van-field :label="$t('company.role.desc')" v-model="curRole.desc" type="textarea" maxlength="50" rows="2"
+            show-word-limit clearable />
           <van-field :label="$t('company.role.curPrivileges')">
             <template #input>
               <div style="flex: 1;">
-                <van-tag plain type="success" size="large" v-for="privilege in curRole.privileges"
-                  style="margin: 10px 0 0 10px;" closeable @close="removePrivilege(privilege)">
+                <van-tag plain type="primary" size="large" v-for="privilege in curRole.privileges"
+                  style="margin: 10px 10px 0 0;" closeable @close="removePrivilege(privilege)">
                   {{ AllPrivileges.get(privilege).name }}
                 </van-tag>
               </div>
@@ -74,16 +76,16 @@
           <van-field :label="$t('company.role.allPrivileges')">
             <template #input>
               <div style="flex: 1;">
-                <van-tag plain type="danger" size="large" v-for="privilege in commonStore.company.privileges"
-                  style="margin: 0 0 10px 10px;" @click="addPrivilege(privilege.id)">
+                <van-tag plain type="danger" size="large" v-for="privilege in company.privileges"
+                  style="margin: 10px 10px 0 0;" @click="addPrivilege(privilege.id)">
                   {{ privilege.name }}
                 </van-tag>
               </div>
             </template>
           </van-field>
-          <van-button round type="danger" @click="deleteRole" :text="$t('common.delete')" v-if="curRole._id != null"
+          <van-button type="danger" @click="deleteRole" :text="$t('common.delete')" v-if="curRole._id != null"
             style="width: calc(100% - 30px); margin: 15px;" />
-          <van-button round type="success" @click="saveRole" :text="$t('common.save')"
+          <van-button type="success" @click="saveRole" :text="$t('common.save')"
             style="width: calc(100% - 30px); margin: 0 15px 15px 15px;" />
         </van-form>
       </van-cell-group>
@@ -102,9 +104,9 @@
           <van-field :label="$t('company.operator.curRoles')">
             <template #input>
               <div style="flex: 1;">
-                <van-tag plain type="success" size="large" v-for="role in curOperator.roles"
-                  style="margin: 0 0 10px 10px;" closeable @close="removeOperatorRole(role)">
-                  {{ AllRoles.get(role)?.name }}
+                <van-tag plain type="success" size="large" v-for="role in curOperator.fullRoles"
+                  style="margin: 0 0 10px 10px;" closeable @close="removeOperatorRole(role._id)">
+                  {{ role.name }}
                 </van-tag>
               </div>
             </template>
@@ -112,7 +114,7 @@
           <van-field :label="$t('company.role.allPrivileges')">
             <template #input>
               <div style="flex: 1;">
-                <van-tag plain type="danger" size="large" v-for="role in commonStore.company.roles"
+                <van-tag plain type="danger" size="large" v-for="role in company.roles"
                   style="margin: 0 0 10px 10px;" @click="addOperatorRole(role._id)">
                   {{ role.name }}
                 </van-tag>
@@ -120,7 +122,7 @@
             </template>
           </van-field>
 
-          <van-button round type="success" :text="$t('common.save')" @click="saveOperator"
+          <van-button type="success" :text="$t('common.save')" @click="saveOperator"
             style="width: calc(100% - 30px); margin: 15px;" />
         </van-form>
       </van-cell-group>
@@ -129,15 +131,14 @@
   </van-col>
 </template>
 <script lang="ts" setup>
+import { Notify } from 'vant';
+import { inject, onMounted, ref } from 'vue';
+import { CommonApi, IOT, IOTApi } from '../../models';
+import { CommonStore, I18n } from '../components/misc';
 
-import { Notify } from 'vant'
-import { onMounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { CommonApi, IOT, IOTApi } from '../../models'
-import { useCommonStore } from '../../store'
-
-const i18n = useI18n()
-const commonStore = useCommonStore()
+const commonStore = inject(CommonStore)
+const i18n = inject(I18n)
+const company = ref<IOT.Company>({})
 const showRoleInfo = ref(false)
 const showOperatorInfo = ref(false)
 
@@ -146,6 +147,7 @@ const curRole = ref<IOT.Role>(null)
 const curOperator = ref<IOT.Operator>(null)
 const searchPhone = ref<string>('')
 
+const AllRoles = new Map()
 
 const CompanyStatus = [
   { title: '创建中', color: '#3498db' },
@@ -155,38 +157,44 @@ const CompanyStatus = [
 ]
 
 const AllPrivileges = ref<Map<string, IOT.Privilege>>(new Map())
-const AllRoles = ref<Map<string, IOT.Role>>(new Map())
 
-onMounted(async () => {
-
+onMounted(() => {
   commonStore.navbar.title = i18n.t('company.title')
 
-  if (commonStore.company._id != null) {
-    commonStore.company.roles = await IOTApi.getRoles(commonStore.company._id)
-    operators.value = await IOTApi.getOperators(commonStore.company._id)
-    commonStore.company.privileges?.forEach(it => { AllPrivileges.value.set(it.id, it) })
-    commonStore.company.roles?.forEach(it => { AllRoles.value.set(it._id, it) })
+  company.value = commonStore.company
+  if (commonStore.company != null) {
+    setTimeout(async () => {
+      if (commonStore.operator.privileges.indexOf('2') != -1) {
+        company.value.roles = await IOTApi.getRoles(company.value._id)
+      }
+
+      if (commonStore.operator.privileges.indexOf('3') != -1) {
+        operators.value = await IOTApi.getOperators(company.value._id)
+      }
+
+      company.value.privileges?.forEach(it => { AllPrivileges.value.set(it.id, it) })
+      company.value.roles.forEach(it => { AllRoles.set(it._id, it) })
+    }, 800)
   } else {
-    commonStore.company.owner = commonStore.profile.uid
-    commonStore.company.ownerName = commonStore.profile.name
-    commonStore.company.tel = commonStore.profile.phone
+    company.value.owner = commonStore.profile?.uid
+    company.value.ownerName = commonStore.profile?.name
+    company.value.tel = commonStore.profile?.phone
   }
 })
 
 async function saveCompany() {
-  let data = commonStore.company
-  delete data.privileges
-  delete data.ownerName
-  commonStore.company.status = 1
-  await IOTApi.saveCompany(data)
+  delete company.value.privileges
+  delete company.value.ownerName
+  
+  company.value.status = 1
+  await IOTApi.saveCompany(company.value)
   await commonStore.updateUserInfo()
-  await commonStore.updateCompanyInfo()
 }
 
 function editRole(role: IOT.Role) {
   showRoleInfo.value = true
   if (role == null) {
-    role = { cid: commonStore.company._id, desc: '', name: '', privileges: [] }
+    role = { cid: company.value._id, desc: '', name: '', privileges: [] }
   }
   curRole.value = role
 }
@@ -194,10 +202,10 @@ function editRole(role: IOT.Role) {
 async function deleteRole() {
   await IOTApi.deleteRole(curRole.value._id)
   Notify({ type: 'success', message: '删除成功', duration: 500 })
-  commonStore.updateCompanyInfo()
+  company.value = await IOTApi.getCompany(commonStore.operator?.cid)
+  commonStore.company = company.value
   curRole.value = {}
   showRoleInfo.value = false
-  await commonStore.updateCompanyInfo()
 }
 
 async function saveRole() {
@@ -205,7 +213,8 @@ async function saveRole() {
   Notify({ type: 'success', message: '更新功', duration: 500 })
   curRole.value = {}
   showRoleInfo.value = false
-  await commonStore.updateCompanyInfo()
+  company.value = await IOTApi.getCompany(commonStore.operator?.cid)
+  commonStore.company = company.value
 }
 
 function addPrivilege(privilege: string) {
@@ -221,7 +230,7 @@ function removePrivilege(privilege: string) {
 
 function editOperator(operator?: IOT.Operator) {
   if (operator == null) {
-    operator = { uid: '', name: '', roles: [], cid: commonStore.company._id }
+    operator = { uid: '', name: '', roles: [], cid: company.value._id }
   }
   curOperator.value = operator
   showOperatorInfo.value = true
@@ -249,12 +258,10 @@ async function saveOperator() {
 
 async function unbindOperator(uid: string) {
   await IOTApi.removeOperator(uid)
-  operators.value = await IOTApi.getOperators(commonStore.company._id)
+  operators.value = await IOTApi.getOperators(company.value._id)
 }
 
 async function onSearchUser() {
-  console.log(searchPhone.value)
-  console.log(/1\d{10}/.test(searchPhone.value))
   if (/1\d{10}/.test(searchPhone.value)) {
     let user = await CommonApi.searchUser(searchPhone.value)
     curOperator.value.name = user?.name

@@ -14,6 +14,7 @@ export default {
     upload: 'Upload',
     submit: 'Submit',
     bind: 'Bind',
+    pin: 'Pin',
     searchPlaceholder: 'please enter whatever your want'
   },
   iot: {
@@ -48,8 +49,8 @@ export default {
       add: 'Add New Role',
     },
     operator: {
-      title: 'Operator Manager',
-      add: 'Add New Operator',
+      title: 'Stuff Manager',
+      add: 'Add New Stuff',
       name: 'Name',
       curRoles: 'Current Roles',
       allRoles: 'Available Roles',
@@ -62,6 +63,7 @@ export default {
     bindDevice: 'Bind Device',
     settings: 'Settings',
     profile: {
+      title: 'Profile',
       avatar: 'Avatar',
       name: 'Name',
       phone: 'Phone',
@@ -73,7 +75,8 @@ export default {
       title: 'Sys Info',
       mqttBroker: 'MQTT Broker',
       about: 'About',
-      help: 'Help & Feedback'
+      help: 'Help & Feedback',
+      cleanCache: 'Clean Cache',
     },
     notify: {
       title: 'Notification',
@@ -101,6 +104,30 @@ export default {
     logout: 'Logout'
   },
   message: {
-    title: 'Message Center'
+    title: 'Message Center',
+    session: {
+
+    },
+    sys: {
+      title: 'System Message',
+    },
+    contact: {
+      title: 'Contact',
+      create: 'Create Group',
+      add: 'Add Member',
+    },
+    setting: {
+      title: 'Chat Setting',
+      groupName: 'Group Name',
+      modifyName: 'Modify Group Name',
+      quit: 'Quit Group',
+      mute: 'Mute',
+      pin: 'Pin',
+      notice: 'Group Notice',
+      cleanHistory: 'Clean History Message',
+      cleanTips: 'Are you sure to clean this chat\'s history messages?',
+      cleanConfirm: 'Clean',
+      complain: 'Complain',
+    }
   }
 }

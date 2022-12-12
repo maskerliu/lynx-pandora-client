@@ -4,6 +4,7 @@ import { useCommonStore, useIMStore, useIOTDeviceStore } from '../store'
 
 export default class PahoMsgClient {
 
+  private retry = 0
   private option = {
     port: 8884,
     protocol: 'mqtts',
@@ -26,15 +27,26 @@ export default class PahoMsgClient {
       this.commonStore.profile.uid == null ? 'lynx-iot-nodered-00003' : this.commonStore.profile.uid)
 
     // set callback handlers
-    this.client.onConnectionLost = this.onConnectionLost
+    this.client.onConnectionLost = (err: Paho.MQTTError) => {
+      if (err.errorCode !== 0 && this.retry > 0 && this.retry <= 5) {
+        this.connect()
+        console.log(`[${err.errorCode}]:`, err.errorMessage)
+        this.connect()
+      }
+    }
     this.client.onMessageArrived = (msg: any) => { this.handleMsg(msg.topic, msg.payloadString) }
 
-    // connect the client
+    this.connect()
+  }
+
+  private connect() {
+    this.retry++
     this.client.connect({
       useSSL: this.option.ssl,
       userName: this.option.username,
       password: this.option.password,
       onSuccess: () => {
+        this.retry = 0
         this.client.subscribe(`_im/${this.client.clientId}`)
       }
     })
@@ -100,10 +112,12 @@ export default class PahoMsgClient {
     return this.client.isConnected()
   }
 
-  onConnectionLost(response: any) {
-    if (response.errorCode !== 0) {
-      console.log('[onConnectionLost]:', response)
-      console.log(response.errorMessage)
+  onConnectionLost(err: Paho.MQTTError) {
+    if (err.errorCode !== 0) {
+      console.log('[onConnectionLost]:', err.errorMessage)
+      console.log(err.errorMessage)
+
+      this.connect()
     }
   }
 

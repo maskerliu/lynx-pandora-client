@@ -1,5 +1,5 @@
 <template>
-  <van-form label-align="right" label-width="4.5rem" colon>
+  <van-form label-align="right" label-width="4.8rem" colon>
     <van-field :label="$t('iot.device.name')" v-model="device.deviceId" center clearable>
       <template #button>
         <van-icon class="iconfont icon-scan" size="20" @click="scan" />
@@ -18,17 +18,14 @@
   </van-form>
 </template>
 <script lang="ts" setup>
-
-import AmapViewer from '../components/AmapViewer.vue'
-import { onBeforeUnmount, onMounted, ref } from 'vue'
-
-import { IOT, IOTApi } from '../../models'
-import { useCommonStore } from '../../store'
-import { useI18n } from 'vue-i18n'
 import { Notify } from 'vant'
+import { inject, onBeforeUnmount, onMounted, ref } from 'vue'
+import { IOT, IOTApi } from '../../models'
+import AmapViewer from '../components/AmapViewer.vue'
+import { CommonStore, I18n } from '../components/misc'
 
-const commonStore = useCommonStore()
-const i18n = useI18n()
+const commonStore = inject(CommonStore)
+const i18n = inject(I18n)
 const device = ref<IOT.Device>({})
 
 onMounted(() => {

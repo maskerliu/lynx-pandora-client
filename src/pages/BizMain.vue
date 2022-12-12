@@ -2,12 +2,10 @@
   <van-col>
     <van-nav-bar class="animate__animated" v-bind:class="showNavbar ? 'animate__fadeInDown' : 'animate__fadeOutUp'"
       :title="commonStore.navbar.title" :left-arrow="commonStore.navbar.leftArrow" @click-left="back">
-
       <template #right>
         <van-icon size="26" class="iconfont" v-bind:class="commonStore.navbar.rightText"
           @click="commonStore.rightAction" />
       </template>
-
     </van-nav-bar>
 
     <router-view class="biz-content" v-bind:class="showNavbar ? 'move-down' : 'move-up'"
@@ -39,11 +37,11 @@
         </template>
       </van-tabbar-item>
     </van-tabbar>
-    <van-popup position="bottom" style="width: 100%; height: 560px; background-color: #f1f1f1;"
-      v-model:show="commonStore.needLogin">
-      <login />
-    </van-popup>
+
+    <login />
+    
     <debug-panel />
+
   </van-col>
 </template>
 
@@ -70,7 +68,6 @@ provide(I18n, i18n)
 provide(IMStore, imStore)
 provide(VueRouter, router)
 
-
 let animate = null
 
 onMounted(async () => {
@@ -83,7 +80,7 @@ onMounted(async () => {
   }
   await commonStore.init()
   await imStore.init()
-  router.replace("/message")
+  router.replace("/iot")
   active.value = 1
 })
 
@@ -108,6 +105,8 @@ router.beforeEach((to, from) => {
 
   height.value = showNavbar.value ? 55 : 0
   height.value += showTabbar.value ? 55 : 0
+
+  if (commonStore.needLogin) commonStore.forword = to
 
   return !commonStore.needLogin
 })
@@ -137,7 +136,7 @@ function back() {
 
 .slide-in-enter-active,
 .slide-in-leave-active {
-  transition: all 0.5s ease-in-out;
+  transition: all 0.3s ease-in-out;
 }
 
 .slide-in-enter-to {

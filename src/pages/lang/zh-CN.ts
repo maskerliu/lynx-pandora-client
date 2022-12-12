@@ -123,6 +123,10 @@ export default {
       quit: '退出群聊',
       mute: '消息免打扰',
       pin: '消息置顶',
+      notice: '群公告',
+      cleanHistory: '清空聊天记录',
+      cleanTips: '确定删除聊天记录吗？',
+      cleanConfirm: '清空',
       complain: '投诉',
     }
   }

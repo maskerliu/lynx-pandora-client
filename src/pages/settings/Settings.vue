@@ -34,14 +34,12 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
-import { useCommonStore } from '../../store'
+import { inject, onMounted, ref } from 'vue';
+import { CommonStore, I18n, VueRouter } from '../components/misc';
 
-const commonStore = useCommonStore()
-const i18n = useI18n()
-const router = useRouter()
+const commonStore = inject(CommonStore)
+const i18n = inject(I18n)
+const router = inject(VueRouter)
 const showCleanCahe = ref(false)
 
 class Test {

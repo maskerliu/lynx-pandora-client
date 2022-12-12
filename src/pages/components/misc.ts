@@ -1,9 +1,8 @@
 
-import { StoreDefinition, Store } from 'pinia'
+import { Store } from 'pinia'
 import { InjectionKey } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useRoute, useRouter, Router } from 'vue-router'
-import { CommonAction, CommonState, IMAction, IMState, useCommonStore, useIMStore } from '../../store'
+import { Router } from 'vue-router'
+import { CommonAction, CommonState, IMAction, IMState } from '../../store'
 
 export const VueRouter = Symbol() as InjectionKey<Router>
 export const Route = Symbol()

@@ -13,16 +13,14 @@ import piniaPersist from 'pinia-plugin-persist'
 const pinia = createPinia()
 const app = createApp(App)
 
-
 pinia.use(piniaPersist)
-
 app.use(i18n)
 app.use(router)
 app.use(pinia)
 app.use(vant)
 app.mount('#app')
 
-useVConsole()
+// useVConsole()
 
 async function useVConsole() {
   if (__DEV__) {

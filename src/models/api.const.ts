@@ -1,6 +1,6 @@
 export namespace RemoteAPI {
 
-  export const Common ={
+  export const Common = {
     BasePath: '/common',
     AppConfig: '/appConfig',
     DBMgrDBs: '/dbmgr/dbs',
@@ -24,10 +24,10 @@ export namespace RemoteAPI {
 
   export const IOT = {
     BasePath: '/iot',
-    DeviceSearch:'/device/search',
+    DeviceSearch: '/device/search',
     DeviceInfo: '/device/info',
     DeviceSave: '/device/save',
-    DeviceDelete: '/device/remove', 
+    DeviceDelete: '/device/remove',
     CompanyInfo: '/company/info',
     CompanySave: '/company/save',
     RoleAll: '/company/role/all',
@@ -37,6 +37,7 @@ export namespace RemoteAPI {
     OperatorMyself: '/company/operator/myself',
     OperatorSave: '/company/operator/save',
     OperatorDelete: '/company/operator/delete',
+    MyPrivileges: '/company/privileges/myself',
   }
 
   export const IM = {

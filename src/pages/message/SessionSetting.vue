@@ -2,14 +2,14 @@
   <van-col style="flex: 1;">
     <van-cell-group title=" ">
       <van-row style="padding: 15px 0 10px 0;">
-        <div v-for="user in members" style="text-align: center; width: 4rem; margin-left: 15px;">
-          <van-image radius="5" fit="cover" :src="user.avatar" width="4rem" height="4rem" style="" />
+        <div v-for="user in members" style="text-align: center; width: 3.5rem; margin-left: 15px;">
+          <van-image radius="5" fit="cover" :src="user.avatar" width="3.5rem" height="3.5rem" style="" />
           <div class="van-ellipsis" style="font-size: 0.7rem; color: grey;">{{ user.name }}</div>
         </div>
-        <div style="text-align: center; width: 4rem; margin-left: 15px;">
-          <div style="width: 3.5rem; height: 3.5rem; border-radius: 8px; border: dashed 2px #bdc3c7; margin-top: 8px;"
+        <div style="text-align: center; width: 3.5rem; margin-left: 15px;">
+          <div style="width: 3rem; height: 3rem; border-radius: 8px; border: dashed 2px #bdc3c7; margin-top: 8px;"
             @click="gotoContact">
-            <van-icon class="iconfont icon-plus" size="30px" color="#bdc3c7" style="padding: 13px;" />
+            <van-icon class="iconfont icon-plus" size="30px" color="#bdc3c7" style="padding: 8px;" />
           </div>
           <div class="van-ellipsis" style="font-size: 0.7rem; color: #bdc3c7;"></div>
         </div>
@@ -32,7 +32,13 @@
       </van-cell>
     </van-cell-group>
 
+    <van-cell-group title=" " v-if="session?.type == IM.SessionType.GROUP">
+      <van-cell :title="$t('message.setting.notice')" :value="session?.notice" value-class="van-multi-ellipsis--l3"
+        is-link center @click="showNoticeModify = true" />
+    </van-cell-group>
+
     <van-cell-group title=" ">
+      <van-cell :title="$t('message.setting.cleanHistory')" is-link center @click="showCleanHistory = true" />
       <van-cell :title="$t('message.setting.complain')" is-link center />
     </van-cell-group>
 
@@ -44,18 +50,30 @@
         <van-field v-model="session.title" clearable />
       </van-cell-group>
       <van-button type="success" :text="$t('common.save')" style="width: calc(100% - 30px); margin: 15px;"
-        @click="modifyName" />
+        @click="saveModify" />
     </van-popup>
+
+    <van-popup v-model:show="showNoticeModify" style="width: calc(100% - 40px);">
+      <van-cell-group :title="$t('message.setting.notice')" style="width: 100%;">
+        <van-field v-model="session.notice" type="textarea" rows="2" maxlength="50" show-word-limit clearable />
+      </van-cell-group>
+      <van-button type="success" :text="$t('common.save')" style="width: calc(100% - 30px); margin: 15px;"
+        @click="saveModify" />
+    </van-popup>
+
+    <van-dialog v-model:show="showCleanHistory" :message="$t('message.setting.cleanTips')" show-cancel-button
+      :cancel-button-text="$t('common.cancel')" @cancel="showCleanHistory = false" show-confirm-button
+      :confirm-button-text="$t('message.setting.cleanConfirm')" confirm-button-color="#e74c3c"
+      @confirm="cleanHistory" />
 
   </van-col>
 
 </template>
 <script lang="ts" setup>
-import { inject, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
-import { IM, User } from '../../models';
-import { IMApi } from '../../models/im.api';
-import { CommonStore, I18n, IMStore, VueRouter } from '../components/misc';
+import { inject, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { IM, IMApi, User } from '../../models'
+import { CommonStore, I18n, IMStore, VueRouter } from '../components/misc'
 
 const commonStore = inject(CommonStore)
 const imStore = inject(IMStore)
@@ -64,22 +82,36 @@ const router = inject(VueRouter)
 const session = ref<IM.Session>(null)
 const members = ref<Array<User.Profile>>([])
 const showTitleModify = ref(false)
+const showNoticeModify = ref(false)
+const showCleanHistory = ref(false)
 
-onMounted(async () => {
+onMounted(() => {
   let sid = useRoute().params['sid'] as string
   commonStore.navbar.title = i18n.t('message.setting.title')
 
-  session.value = await IMApi.syncFrom(sid)
-  await imStore.updateSession(session.value, null, false)
-  for (let uid of session.value.members) {
-    let profile = await imStore.user(uid)
-    members.value.push(profile)
-  }
+  setTimeout(async () => {
+    session.value = await IMApi.syncFrom(sid)
+    if (session.value.type == IM.SessionType.GROUP) {
+      await imStore.updateSession(session.value, null, false)
+    }
+
+    for (let uid of session.value.members) {
+      let profile = await imStore.user(uid)
+      members.value.push(profile)
+    }
+  }, 500)
+
 })
 
-async function modifyName() {
+async function saveModify() {
   await imStore.updateSession(session.value, null, true)
   showTitleModify.value = false
+  showNoticeModify.value = false
+}
+
+async function cleanHistory() {
+
+  showCleanHistory.value = false
 }
 
 async function quitSession() {

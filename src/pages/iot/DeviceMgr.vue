@@ -52,19 +52,17 @@
 
 <script lang="ts" setup>
 import { Notify } from 'vant';
-import { onMounted, ref, watch } from 'vue';
+import { inject, onMounted, ref, watch } from 'vue';
 import { IOT, IOTApi } from '../../models';
-import { useCommonStore } from '../../store';
+import { CommonStore } from '../components/misc';
 
+const commonStore = inject(CommonStore)
 const searchKey = ref('')
 const removeConfirmDialog = ref(false)
 const curDevice = ref<IOT.Device>()
 const devices = ref<Array<IOT.Device>>([])
-
 const loading = ref(false)
 const refreshing = ref(false)
-
-const commonStore = useCommonStore()
 
 onMounted(() => {
   onRefresh()

@@ -1,5 +1,7 @@
 <template>
   <van-col style="flex: 1; min-width: 375px; height: 100%;">
+    <van-notice-bar v-if="session?.type == IM.SessionType.GROUP && session.notice" left-icon="volume-o"
+      :text="session.notice" />
     <van-pull-refresh v-model="loading" style="height: 100%;" @refresh="onLoadingMore">
       <van-list ref="msgContainer" style="height: calc(100% - 70px); overflow-y: auto">
         <message :message="message" v-for="message in messages" />
@@ -24,22 +26,25 @@ const imStore = inject(IMStore)
 
 const msgContainer = ref()
 const loading = ref<boolean>(false)
+const session = ref<IM.Session>(null)
 const messages = ref<Array<IM.Message>>([])
 
-onMounted(async () => {
+onMounted(() => {
   let sid = useRoute().params['sid'] as string
   commonStore.navbar.rightText = 'icon-more'
   commonStore.rightAction = gotoSessionSetting
   imStore.sid = sid
   imStore._messages = []
-
-  let session = await imStore.session(sid)
-  session.unread = 0
-  commonStore.navbar.title = session.title
-  await imStore.updateSession(session)
-
   loading.value = true
-  setTimeout(async () => { imStore.updateMessage++ }, 200)
+
+  setTimeout(async () => {
+    session.value = await imStore.session(sid)
+    session.value.unread = 0
+    commonStore.navbar.title = session.value.title
+    await imStore.updateSession(session.value)
+
+    imStore.updateMessage++
+  }, 300)
 })
 
 onUnmounted(() => {

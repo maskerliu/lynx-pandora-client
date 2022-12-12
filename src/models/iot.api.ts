@@ -58,6 +58,10 @@ export namespace IOTApi {
     return post<string>(RemoteAPI.IOT.BasePath + RemoteAPI.IOT.OperatorSave, operator)
   }
 
+  export function getMyPrivileges() {
+    return get<Array<number>>(RemoteAPI.IOT.BasePath + RemoteAPI.IOT.MyPrivileges)
+  }
+
   export function removeOperator(uid: string) {
     let data = new FormData()
     data.append('uid', uid)

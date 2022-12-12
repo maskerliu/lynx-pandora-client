@@ -54,16 +54,24 @@ onMounted(async () => {
   selected.value = new Array(contacts.value.length)
   disabled = new Array(contacts.value.length)
 
-  if (isMulti.value) {
-    for (let i = 0; i < contacts.value.length; ++i) {
+  for (let i = 0; i < contacts.value.length; ++i) {
+    if (curSession.value) {
       selected.value[i] = curSession.value.members.indexOf(contacts.value[i].uid) != -1
       disabled[i] = selected.value[i]
+    }
+
+    if (contacts.value[i].uid == commonStore.profile.uid) {
+      selected.value[i] = true
+      disabled[i] = true
     }
   }
 })
 
+
 async function gotoSession(profile: User.Profile, idx: number) {
-  if (isMulti.value) {
+  if (profile.uid == commonStore.profile.uid) {
+
+  } else if (isMulti.value) {
     if (!disabled[idx])
       selected.value[idx] = !selected.value[idx]
   } else {

@@ -53,12 +53,16 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
         use_index: 'idx-timestamp'
       })
       for (let session of sessions) {
-        if (session.type == IM.SessionType.P2P && session.title == null) {
-          let other = session.members.filter((it) => it != useCommonStore().profile.uid)[0]
-          let user = await this.user(other)
-          session.title = user.name
-          session.thumb = user.avatar
-          await sessionRepo.update(session)
+        try {
+          if (session.type == IM.SessionType.P2P && session.title == null) {
+            let other = session.members.filter((it) => it != useCommonStore().profile.uid)[0]
+            let user = await this.user(other)
+            session.title = user.name
+            session.thumb = user.avatar
+            await sessionRepo.update(session)
+          }
+        } catch (err) {
+
         }
       }
       return sessions
@@ -73,6 +77,10 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
     },
     async updateSession(session: IM.Session, snap?: File, sync: boolean = false) {
       let remoteSession = sync ? await IMApi.syncTo(session, snap) : session
+      if (session.type== IM.SessionType.P2P) {
+        remoteSession.title = session.title
+        remoteSession.thumb = session.thumb
+      }
       await sessionRepo.update(remoteSession)
       this.updateSessions++
     },
@@ -81,7 +89,6 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
       this.updateSessions++
     },
     async messages(loadMore?: boolean) {
-      let time = new Date().getTime()
       let opt: PouchDB.Find.FindRequest<any> = {
         selector: {
           sid: this.sid,
@@ -107,7 +114,6 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
           this._messages = msgs.reverse()
         }
       }
-      console.log('query cost:', new Date().getTime() - time)
       return this._messages
     },
     async onMessageArrived(message: IM.Message) {
@@ -158,9 +164,6 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
       await IMApi.sendMsg(message)
       await messageRepo.update(message)
       this.updateMessage++
-    },
-    async syncSessionFromRemote(sid: string) {
-
     },
     async user(uid: string) {
       if (this.users[uid] != null) { return this.users[uid] }

@@ -2,12 +2,12 @@
   <iframe :src="url" width="100%" height="100%"></iframe>
 </template>
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { inject, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { useCommonStore } from '../../store';
+import { CommonStore } from '../components/misc';
 
 const route = useRoute()
-const commonStore = useCommonStore()
+const commonStore = inject(CommonStore)
 const url = ref('')
 
 onMounted(() => {

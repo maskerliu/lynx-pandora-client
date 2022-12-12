@@ -47,23 +47,23 @@
 <script lang="ts" setup>
 import { BarChart, BarSeriesOption, GaugeChart, GaugeSeriesOption, LineChart, LineSeriesOption } from 'echarts/charts'
 import {
-  DatasetComponent, DatasetComponentOption,
-  GridComponent, GridComponentOption,
-  LegendComponent, LegendComponentOption,
-  TitleComponent, TitleComponentOption,
-  TooltipComponent, TooltipComponentOption,
-  TransformComponent
+DatasetComponent, DatasetComponentOption,
+GridComponent, GridComponentOption,
+LegendComponent, LegendComponentOption,
+TitleComponent, TitleComponentOption,
+TooltipComponent, TooltipComponentOption,
+TransformComponent
 } from 'echarts/components'
 import * as echarts from 'echarts/core'
 import { LabelLayout, UniversalTransition } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
 import { Notify } from 'vant'
-import { onMounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { inject, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { IOT, IOTApi } from '../../models'
-import { useCommonStore, useIOTDeviceStore } from '../../store'
+import { useIOTDeviceStore } from '../../store'
 import AmapViewer from '../components/AmapViewer.vue'
+import { CommonStore, I18n } from '../components/misc'
 
 
 type ECOption = echarts.ComposeOption<BarSeriesOption | LineSeriesOption | TitleComponentOption | TooltipComponentOption | GridComponentOption | DatasetComponentOption | LegendComponentOption | GaugeSeriesOption>
@@ -85,15 +85,15 @@ echarts.use([
 
 // const AmapViewer = defineAsyncComponent(() => import('../components/AmapViewer.vue'))
 const route = useRoute()
+const commonStore = inject(CommonStore)
+const i18n = inject(I18n)
+const deviceStore = useIOTDeviceStore()
 
 const echartsElectric = ref()
 const echartsTemperature = ref()
 const echartsHumidity = ref()
 
 const isSubscribe = ref(false)
-const searchKey = ref('')
-const showInfoDialog = ref(false)
-const removeConfirmDialog = ref(false)
 const curDevice = ref<IOT.Device>(null)
 const updating = ref(false)
 const showMap = ref()
@@ -107,12 +107,7 @@ let tempChart: echarts.ECharts = null
 let humidityOpts: any = {}
 let humidityChart: echarts.ECharts = null
 
-const deviceStore = useIOTDeviceStore()
-const commonStore = useCommonStore()
-const i18n = useI18n()
-
 onMounted(async () => {
-
   commonStore.navbar.title = i18n.t('iot.device.title')
 
   initElectric()
