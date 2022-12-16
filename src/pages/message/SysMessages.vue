@@ -22,11 +22,12 @@
   </van-list>
 </template>
 <script lang="ts" setup>
-import { inject, onMounted } from 'vue';
-import { CommonStore, I18n } from '../components/misc';
+import { onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useCommonStore } from '../../store';
 
-const commonStore = inject(CommonStore)
-const i18n = inject(I18n)
+const commonStore = useCommonStore()
+const i18n = useI18n()
 
 onMounted(() => {
   commonStore.navbar.title = i18n.t('message.sys.title')

@@ -23,10 +23,14 @@
   </van-popup>
 </template>
 <script lang="ts" setup>
-import { inject, onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { CommonApi } from '../../models';
-import router from '../../router';
-import { CommonStore } from '../components/misc';
+import { useCommonStore } from '../../store';
+
+
+const router = useRouter()
+const commonStore = useCommonStore()
 
 const phone = ref('')
 const verifyCode = ref('')
@@ -39,7 +43,6 @@ const isLogining = ref(false)
 
 const formatter = (value: string) => value.replace(/^(.{3})(.{4})?(.*)$/, '$1 $2 $3')
 
-const commonStore = inject(CommonStore)
 const phoneReg = /^1(3\d|4[5-9]|5[0-35-9]|6[567]|7[0-8]|8\d|9[0-35-9])\d{8}$/
 
 onMounted(() => {

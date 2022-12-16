@@ -2,16 +2,14 @@
 
 import { defineStore } from 'pinia'
 import { NavBarProps } from 'vant'
-import PahoMsgClient from '../common/PahoMsgClient'
+import { default as msgClient, default as PahoMsgClient } from '../common/PahoMsgClient'
 import { Common, CommonApi, IOT, IOTApi, updateAccessToken, updateBaseDomain, User } from '../models'
-
-export let msgClient: PahoMsgClient = null
 
 export type CommonState = {
   navbar: NavBarProps,
   rightAction: Function,
   needLogin: boolean,
-  appConfig: Common.AppConfig,
+  appConfig?: Common.AppConfig,
   locale: string,
   accessToken?: string,
   profile?: User.Account & User.Profile,
@@ -41,12 +39,12 @@ export const useCommonStore = defineStore<string, CommonState, {}, CommonAction>
       navbar: {} as NavBarProps,
       rightAction: null,
       needLogin: false,
-      appConfig: {} as Common.AppConfig,
+      appConfig: null as Common.AppConfig,
       locale: null,
       accessToken: null,
       profile: null,
       operator: null,
-      company: {},
+      company: null,
       sharePrefs: {} as SharePref,
       forword: null,
     }
@@ -56,14 +54,18 @@ export const useCommonStore = defineStore<string, CommonState, {}, CommonAction>
       updateBaseDomain(SERVER_BASE_URL)
       this.updateUserInfo()
     },
+    setupMsgClient(commonStore?: any, imStore?: any, iotStore?: any) {
+      msgClient.commonStore = commonStore
+      msgClient.imStore = imStore
+      msgClient.iotStore = iotStore
+    },
     async updateUserInfo() {
       if (this.accessToken == null) return
 
       updateAccessToken(this.accessToken)
       this.profile = await CommonApi.getMyProfile()
       this.appConfig = await CommonApi.getAppConfig()
-      if (msgClient && msgClient.isConnected()) { msgClient.close() }
-      msgClient = new PahoMsgClient()
+
       this.operator = await IOTApi.getMyOperatorInfo()
       if (this.operator) {
         this.company = await IOTApi.getCompany(this.operator.cid)

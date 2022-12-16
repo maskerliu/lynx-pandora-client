@@ -1,11 +1,35 @@
-import 'pouchdb'
+import PouchDB from 'pouchdb'
 import { Common } from '../models/common.model'
 
-export default  abstract class BaseRepo<T extends Common.DBDoc> {
+export default abstract class BaseRepo<T extends Common.DBDoc> {
 
   pouchdb: PouchDB.Database
 
-  abstract init()
+  constructor(name: string) {
+    this.pouchdb = new PouchDB(name)
+  }
+
+  abstract init(): void
+
+  public async replicate() {
+    // await this.pouchdb.compact()
+    let tmpDB = new PouchDB('tmp.db')
+    let dbname = this.pouchdb.name
+
+    PouchDB.replicate(this.pouchdb, tmpDB, {
+      filter: (doc) => {
+        if (doc._deleted)
+          return false
+        else
+          return doc
+      }
+    }).on('complete', async () => {
+      await this.pouchdb.destroy()
+      this.pouchdb = new PouchDB(dbname)
+      this.init()
+      PouchDB.replicate(tmpDB, this.pouchdb).on('complete', async () => { await tmpDB.destroy() })
+    })
+  }
 
   public async get(field: string, query: string, returnFields?: Array<string>) {
     let request: PouchDB.Find.FindRequest<any> = {

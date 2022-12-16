@@ -45,28 +45,21 @@
 </template>
 
 <script lang="ts" setup>
-import { BarChart, BarSeriesOption, GaugeChart, GaugeSeriesOption, LineChart, LineSeriesOption } from 'echarts/charts'
+import { BarChart, GaugeChart, LineChart } from 'echarts/charts'
 import {
-DatasetComponent, DatasetComponentOption,
-GridComponent, GridComponentOption,
-LegendComponent, LegendComponentOption,
-TitleComponent, TitleComponentOption,
-TooltipComponent, TooltipComponentOption,
-TransformComponent
+DatasetComponent, GridComponent, LegendComponent,
+TitleComponent, TooltipComponent, TransformComponent
 } from 'echarts/components'
 import * as echarts from 'echarts/core'
 import { LabelLayout, UniversalTransition } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
 import { Notify } from 'vant'
-import { inject, onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { IOT, IOTApi } from '../../models'
-import { useIOTDeviceStore } from '../../store'
+import { useCommonStore, useIOTStore } from '../../store'
 import AmapViewer from '../components/AmapViewer.vue'
-import { CommonStore, I18n } from '../components/misc'
-
-
-type ECOption = echarts.ComposeOption<BarSeriesOption | LineSeriesOption | TitleComponentOption | TooltipComponentOption | GridComponentOption | DatasetComponentOption | LegendComponentOption | GaugeSeriesOption>
 
 echarts.use([
   TitleComponent,
@@ -83,11 +76,10 @@ echarts.use([
   CanvasRenderer,
 ])
 
-// const AmapViewer = defineAsyncComponent(() => import('../components/AmapViewer.vue'))
 const route = useRoute()
-const commonStore = inject(CommonStore)
-const i18n = inject(I18n)
-const deviceStore = useIOTDeviceStore()
+const commonStore = useCommonStore()
+const i18n = useI18n()
+const iotStore = useIOTStore()
 
 const echartsElectric = ref()
 const echartsTemperature = ref()
@@ -133,7 +125,7 @@ watch(isSubscribe, (val, oldVal) => {
   }
 })
 
-watch(() => deviceStore.temperature, () => {
+watch(() => iotStore.temperature, () => {
   updateData()
 })
 
@@ -359,21 +351,21 @@ async function updateDeviceInfo() {
 
 function updateData() {
   if (tempOpts.series[0].data == null) {
-    tempOpts.series[1].data = [{ value: deviceStore.temperature }]
+    tempOpts.series[1].data = [{ value: iotStore.temperature }]
   } else {
     tempOpts.series[1].data = tempOpts.series[0].data
   }
-  tempOpts.series[0].data = [{ value: deviceStore.temperature }]
+  tempOpts.series[0].data = [{ value: iotStore.temperature }]
   tempChart.setOption(tempOpts)
 
 
-  electricOpts.xAxis.data = deviceStore.xAxisLabel
-  electricOpts.series[0].data = deviceStore.voltageData
-  electricOpts.series[1].data = deviceStore.electricData
+  electricOpts.xAxis.data = iotStore.xAxisLabel
+  electricOpts.series[0].data = iotStore.voltageData
+  electricOpts.series[1].data = iotStore.electricData
   electricChart.setOption(electricOpts)
 
-  humidityOpts.xAxis.data = deviceStore.xAxisLabel
-  humidityOpts.series.data = deviceStore.humidityData
+  humidityOpts.xAxis.data = iotStore.xAxisLabel
+  humidityOpts.series.data = iotStore.humidityData
   humidityChart.setOption(humidityOpts)
 }
 

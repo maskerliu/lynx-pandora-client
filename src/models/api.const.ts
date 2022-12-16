@@ -45,5 +45,6 @@ export namespace RemoteAPI {
     SyncFrom: '/sync/get',
     SyncTo: '/sync/save',
     SendMsg: '/sendMsg',
+    GetOfflineMessages: '/sync/messages',
   }
 }

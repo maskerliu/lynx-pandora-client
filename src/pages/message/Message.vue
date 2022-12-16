@@ -1,5 +1,5 @@
 <template>
-  <van-row class="message-body">
+  <van-row class="message">
     <van-image radius="5" class="user-avatar from" fit="cover" v-if="isFrom" :src="avatar" />
     <div class="message-content" v-bind:class="isFrom ? 'from' : 'to'">
       <div class="message-text" v-bind:class="isFrom ? 'from' : 'to'">
@@ -8,14 +8,16 @@
           <span ref="msg-content">{{ message.content }}</span>
         </template>
         <template v-else-if="(message.type == IM.MessageType.IMAGE)">
-          <van-image :src="message.content" :show-loading="message.sent" @click="onPreview" />
+          <van-image ref="image" block :width="width" :height="height" :src="message.content"
+            :show-loading="message.sent" @click="onPreview" />
         </template>
         <template v-else-if="(message.type == IM.MessageType.AUDIO)">
           <!-- 语音 -->
-          <div ref="msg-content" style="width: 80px; flex: 1;">
+          <van-row ref="msg-content" style="width: 80px; flex: 1;" @click="play">
+            <audio ref="audioRef" :src="message.content" />
             <van-icon class="iconfont icon-audio" color="grey" size="20" />
-            <div>10'</div>
-          </div>
+            <div>{{ audioRef?.duration }} '</div>
+          </van-row>
         </template>
         <template v-else-if="(message.type == IM.MessageType.VIDEO)">
           <!-- 视频 -->
@@ -36,42 +38,91 @@
   </van-row>
 </template>
 <script lang="ts" setup>
+import { autoResetRef } from '@vueuse/shared'
 import { nextTick } from 'process'
 import { ImagePreview } from 'vant'
-import { inject, onMounted, ref } from 'vue'
+
+import { onMounted, ref } from 'vue'
 import { IM } from '../../models'
-import { CommonStore, IMStore } from '../components/misc'
+import { useCommonStore, useIMStore } from '../../store'
 
 const props = defineProps<{
   message: IM.Message,
   asyncMode?: Boolean,
 }>()
 
-const commonStore = inject(CommonStore)
-const imStore = inject(IMStore)
+const commonStore = useCommonStore()
+const imStore = useIMStore()
 const isFrom = ref(false)
 const avatar = ref()
+const image = ref()
+const audioRef = ref<HTMLAudioElement>()
+
+const width = ref(100)
+const height = ref(100)
+
+const clientWidth = document.body.clientWidth * 0.4
+const clientHeight = document.body.clientHeight * 0.25
 
 onMounted(async () => {
   isFrom.value = props.message.uid != commonStore.profile.uid
   let user = await imStore.user(props.message.uid)
   avatar.value = user?.avatar
-  nextTick(() => {
-    // linkifyElement(msgContent.value, linkOptions, document)
-  })
+
+  switch (props.message.type) {
+    case IM.MessageType.IMAGE:
+      let img = image.value.$el.children[0] as HTMLImageElement
+      if (img == null) return
+
+      if (img.complete) {
+        getScaleSize(img.naturalWidth, img.naturalHeight)
+      } else {
+        img.onload = () => {
+          getScaleSize(img.naturalWidth, img.naturalHeight)
+        }
+      }
+      break
+    case IM.MessageType.AUDIO:
+      console.log(audioRef.value.duration)
+      break
+  }
 })
 
+function getScaleSize(w: number, h: number) {
+  let widthRatio = w / clientWidth
+  let heightRatio = h / clientHeight
+
+
+  if (widthRatio < 1 && heightRatio < 1) {
+    width.value = w
+    height.value = h
+    return
+  }
+
+  if (widthRatio > heightRatio) {
+    width.value = clientWidth
+    height.value = h / widthRatio
+  } else {
+    width.value = w / heightRatio
+    height.value = clientHeight
+  }
+}
+
+function play() {
+  audioRef.value.play()
+}
 
 function onPreview() {
-  ImagePreview([props.message.content])
+  if (props.message.content != null && props.message.content.length > 0)
+    ImagePreview({ images: [props.message.content], showIndex: false })
 }
 
 </script>
 
 <style lang="css" scoped>
-.message-body {
+.message {
   position: relative;
-  padding: 5px 10px 0 10px;
+  padding: 5px 10px 15px 10px;
 }
 
 .message-content {
@@ -99,7 +150,7 @@ function onPreview() {
   width: 45px;
   height: 45px;
   position: absolute;
-  bottom: -10px;
+  bottom: 5px;
   border-radius: 50%;
 }
 
@@ -141,9 +192,17 @@ function onPreview() {
   /* border-top-right-radius: 0px; */
 }
 
+.message-text.from:active {
+  background: #eeeeee;
+}
+
 .message-text.to {
   background: #27ae60;
   border-bottom-right-radius: 0px;
   /* border-top-left-radius: 0px; */
+}
+
+.message-text.to:active {
+  background: #1b8651;
 }
 </style>

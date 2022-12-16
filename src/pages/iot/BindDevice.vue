@@ -19,13 +19,15 @@
 </template>
 <script lang="ts" setup>
 import { Notify } from 'vant'
-import { inject, onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { IOT, IOTApi } from '../../models'
+import { useCommonStore } from '../../store'
 import AmapViewer from '../components/AmapViewer.vue'
-import { CommonStore, I18n } from '../components/misc'
 
-const commonStore = inject(CommonStore)
-const i18n = inject(I18n)
+
+const commonStore = useCommonStore()
+const i18n = useI18n()
 const device = ref<IOT.Device>({})
 
 onMounted(() => {

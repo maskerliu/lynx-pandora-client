@@ -39,34 +39,31 @@
     </van-tabbar>
 
     <login />
-    
+
     <debug-panel />
 
   </van-col>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onUnmounted, provide, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { useCommonStore, useIMStore } from '../store'
+import msgClient from '../common/PahoMsgClient'
+import { useCommonStore, useIMStore, useIOTStore } from '../store'
 import DebugPanel from './components/DebugPanel.vue'
 import Login from './user/Login.vue'
-import { CommonStore, I18n, IMStore, VueRouter } from './components/misc'
 
+const router = useRouter()
 const commonStore = useCommonStore()
 const imStore = useIMStore()
+const iotStore = useIOTStore()
 const i18n = useI18n()
+
 const active = ref(0)
 const showTabbar = ref(true)
 const showNavbar = ref(false)
-const router = useRouter()
 const height = ref(0)
-
-provide(CommonStore, commonStore)
-provide(I18n, i18n)
-provide(IMStore, imStore)
-provide(VueRouter, router)
 
 let animate = null
 
@@ -78,9 +75,13 @@ onMounted(async () => {
   } else {
     i18n.locale.value = commonStore.locale
   }
-  await commonStore.init()
-  await imStore.init()
-  router.replace("/iot")
+
+  Promise.all([commonStore.init(), imStore.init()]).then(() => {
+    if (msgClient && msgClient.isConnected()) { msgClient.close() }
+    msgClient.init(commonStore, imStore, iotStore)
+  })
+
+  router.replace("/message")
   active.value = 1
 })
 

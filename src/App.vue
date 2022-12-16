@@ -8,9 +8,11 @@ import BizMain from './pages/BizMain.vue'
 
 
 const canRender = ref(false)
+let AMap = null
 
 onMounted(async () => {
-  
+
+  window.AMap = null
   window.webApp.methods = new Map()
 
   window.webApp.register = (func: Function, thiz: any) => {

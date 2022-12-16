@@ -9,8 +9,7 @@ PouchDB.plugin(PouchDBFind)
 export class SessionRepo extends BaseRepo<IM.Session> {
 
   constructor() {
-    super()
-    this.pouchdb = new PouchDB('im-sessions.db')
+    super('im-sessions.db')
   }
 
   async init() {
@@ -21,6 +20,22 @@ export class SessionRepo extends BaseRepo<IM.Session> {
       },
     })
     return this
+  }
+
+  public async bulkGet(sids: Array<string>) {
+    let request: PouchDB.Find.FindRequest<any> = {
+      selector: {
+        sid: { $in: sids }
+      }
+    }
+    let resp = await this.pouchdb.find(request)
+    return resp.docs.map(it => {
+      return it as IM.Session
+    })
+  }
+
+  public async bulkDocs(sessions: Array<IM.Session>) {
+    this.pouchdb.bulkDocs(sessions)
   }
 
   public async update(item: IM.Session) {
@@ -58,18 +73,38 @@ export class SessionRepo extends BaseRepo<IM.Session> {
 
 export class MessageRepo extends BaseRepo<IM.Message> {
   constructor() {
-    super()
-    this.pouchdb = new PouchDB('im-messages.db')
+    super('im-messages.db')
   }
 
   async init() {
     await this.pouchdb.createIndex({
       index: {
-        fields: ['timestamp'],
+        fields: ['sid', 'timestamp'],
         ddoc: 'idx-sid',
       },
     })
     return this
+  }
+
+  async bulkMessages(messages: Array<IM.Message>) {
+    await this.pouchdb.bulkDocs(messages)
+  }
+
+  async deleteSessionMessages(sid: string) {
+    let opt: PouchDB.Find.FindRequest<any> = {
+      selector: {
+        sid: sid,
+        timestamp: { $lt: new Date().getTime() }
+      },
+      use_index: 'idx-sid',
+      fields: ['_id', '_rev']
+    }
+    let resp = await this.pouchdb.find(opt)
+    let docs = resp.docs
+    docs.forEach(it => {
+      it['_deleted'] = true
+    })
+    this.pouchdb.bulkDocs(docs)
   }
 }
 

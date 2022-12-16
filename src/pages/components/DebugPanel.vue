@@ -9,7 +9,12 @@
         </van-button>
       </template>
       <van-col style="width: calc(100vw - 100px); height: 300px; padding: 10px;">
-        <van-button plain block type="primary" text="Clear Local DB" @click="cleanLocalDB" style="margin-top: 15px;" />
+        <van-button plain block type="primary" size="small" text="Clear Local DB" @click="cleanLocalDB"
+          style="margin-top: 15px;" />
+        <van-button plain block type="primary" size="small" text="Compact LocalStorage" @click="compactStorage"
+          style="margin-top: 15px;" />
+        <van-button plain block type="danger" size="small" text="Mock Users" @click="genMockUsers"
+          style="margin-top: 15px;" />
       </van-col>
     </van-popover>
   </div>
@@ -18,6 +23,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import PouchDB from 'pouchdb'
+import { CommonApi } from '../../models';
 
 const dragBall = ref()
 const showPopover = ref(false)
@@ -132,13 +138,26 @@ function getPosition(source: any) {
 }
 
 async function cleanLocalDB() {
+  let dbs = ['im-sessions.db', 'im-messages.db']
+  for (let i = 0; i < dbs.length; ++i) {
+    let db = new PouchDB(dbs[i])
+    await db.destroy()
+  }
+}
 
-  let db = new PouchDB('im-sessions.db')
-  await db.destroy()
+async function compactStorage() {
+  let dbs = ['im-sessions.db', 'im-messages.db']
+  for (let i = 0; i < dbs.length; ++i) {
+    let db = new PouchDB(dbs[i])
+    await db.compact()
+  }
+}
 
-  db = new PouchDB('im-messages.db')
-  await db.destroy()
-
+async function genMockUsers() {
+  // for (let i = 0; i < 100; ++i) {
+  //   let end = i.toString().padStart(2, '0')
+  //   await CommonApi.login(`136518888${end}`, '2222')
+  // }
 }
 
 </script>

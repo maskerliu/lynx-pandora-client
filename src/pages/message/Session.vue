@@ -1,35 +1,36 @@
 <template>
-  <van-col style="flex: 1; min-width: 375px; height: 100%;">
+  <van-col style="flex: 1; min-width: 375px;">
     <van-notice-bar v-if="session?.type == IM.SessionType.GROUP && session.notice" left-icon="volume-o"
       :text="session.notice" />
-    <van-pull-refresh v-model="loading" style="height: 100%;" @refresh="onLoadingMore">
-      <van-list ref="msgContainer" style="height: calc(100% - 70px); overflow-y: auto">
-        <message :message="message" v-for="message in messages" />
-      </van-list>
-    </van-pull-refresh>
+
+    <van-list ref="msgContainer" style="height: calc(100% - 60px); padding-bottom: 20px; overflow-y: auto">
+      <van-pull-refresh v-model="loading" @refresh="onLoadingMore">
+        <message :message="message" v-for="message in messages" :key="message._id" />
+      </van-pull-refresh>
+    </van-list>
     <chat-input-bar :sid="imStore.sid" />
   </van-col>
 </template>
 
 <script lang="ts" setup>
 import { Notify } from 'vant'
-import { inject, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { IM } from '../../models'
-import { CommonStore, IMStore, VueRouter } from '../components/misc'
+import { useCommonStore, useIMStore } from '../../store'
 import ChatInputBar from './ChatInputBar.vue'
 import Message from './Message.vue'
 
-const router = inject(VueRouter)
-const commonStore = inject(CommonStore)
-const imStore = inject(IMStore)
+const router = useRouter()
+const commonStore = useCommonStore()
+const imStore = useIMStore()
 
 const msgContainer = ref()
 const loading = ref<boolean>(false)
 const session = ref<IM.Session>(null)
 const messages = ref<Array<IM.Message>>([])
 
-onMounted(() => {
+onMounted(async () => {
   let sid = useRoute().params['sid'] as string
   commonStore.navbar.rightText = 'icon-more'
   commonStore.rightAction = gotoSessionSetting
@@ -37,34 +38,29 @@ onMounted(() => {
   imStore._messages = []
   loading.value = true
 
-  setTimeout(async () => {
-    session.value = await imStore.session(sid)
-    session.value.unread = 0
-    commonStore.navbar.title = session.value.title
-    await imStore.updateSession(session.value)
+  session.value = await imStore.session(sid)
+  session.value.unread = 0
+  commonStore.navbar.title = session.value.title
+  await imStore.updateSession(session.value)
 
-    imStore.updateMessage++
-  }, 300)
+  imStore.updateMessage++
 })
 
 onUnmounted(() => {
   imStore.sid = null
+  imStore.cleanMessages()
 })
 
 watch(() => imStore.updateMessage, async () => {
-  try {
-    messages.value = await imStore.messages()
-    loading.value = false
-    nextTick(async () => {
-      scrollToBottom()
-    })
-  } catch (err) {
-    console.error(err)
-  }
+  messages.value = await imStore.messages()
+  loading.value = false
+  setTimeout(async () => {
+    scrollToBottom(true)
+  }, 200)
 })
 
-function scrollToBottom() {
-  msgContainer.value.$el.scrollTo({ top: msgContainer.value.$el.scrollHeight, behavior: 'smooth' })
+function scrollToBottom(smooth: boolean) {
+  msgContainer.value.$el.scrollTo({ top: msgContainer.value.$el.scrollHeight, behavior: smooth ? 'smooth' : null })
   // msgContainer.value.$el.scrollTo({ top: msgContainer.value.$el.scrollHeight })
 }
 

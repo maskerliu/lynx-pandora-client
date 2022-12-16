@@ -70,36 +70,36 @@
 
 </template>
 <script lang="ts" setup>
-import { inject, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
-import { IM, IMApi, User } from '../../models'
-import { CommonStore, I18n, IMStore, VueRouter } from '../components/misc'
+import { onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRoute, useRouter } from 'vue-router';
+import { IM, IMApi, User } from '../../models';
+import { useCommonStore, useIMStore } from '../../store';
 
-const commonStore = inject(CommonStore)
-const imStore = inject(IMStore)
-const i18n = inject(I18n)
-const router = inject(VueRouter)
+const commonStore = useCommonStore()
+const imStore = useIMStore()
+const i18n = useI18n()
+const router = useRouter()
+
 const session = ref<IM.Session>(null)
 const members = ref<Array<User.Profile>>([])
 const showTitleModify = ref(false)
 const showNoticeModify = ref(false)
 const showCleanHistory = ref(false)
 
-onMounted(() => {
+onMounted(async () => {
   let sid = useRoute().params['sid'] as string
   commonStore.navbar.title = i18n.t('message.setting.title')
 
-  setTimeout(async () => {
-    session.value = await IMApi.syncFrom(sid)
-    if (session.value.type == IM.SessionType.GROUP) {
-      await imStore.updateSession(session.value, null, false)
-    }
+  session.value = await IMApi.syncFrom(sid)
+  if (session.value.type == IM.SessionType.GROUP) {
+    await imStore.updateSession(session.value, null, false)
+  }
 
-    for (let uid of session.value.members) {
-      let profile = await imStore.user(uid)
-      members.value.push(profile)
-    }
-  }, 500)
+  for (let uid of session.value.members) {
+    let profile = await imStore.user(uid)
+    members.value.push(profile)
+  }
 
 })
 

@@ -5,8 +5,7 @@
         :disabled="commonStore.operator?.privileges.indexOf('1') == -1">
         <van-field :label="$t('company.base.name')" v-model="company.name" center clearable>
           <template #button>
-            <van-tag plain :color="CompanyStatus[company.status ? company.status : 0].color"
-              size="large">
+            <van-tag plain :color="CompanyStatus[company.status ? company.status : 0].color" size="large">
               {{ CompanyStatus[company.status ? company.status : 0].title }}
             </van-tag>
           </template>
@@ -100,13 +99,13 @@
               <div @click="onSearchUser"> {{ $t('common.search') }}</div>
             </template>
           </van-search>
-          <van-field :label="$t('company.operator.name')" v-model="curOperator.name" disabled />
+          <van-field :label="$t('company.operator.name')" :model-value="curOperator?.name" readonly />
           <van-field :label="$t('company.operator.curRoles')">
             <template #input>
               <div style="flex: 1;">
-                <van-tag plain type="success" size="large" v-for="role in curOperator.fullRoles"
-                  style="margin: 0 0 10px 10px;" closeable @close="removeOperatorRole(role._id)">
-                  {{ role.name }}
+                <van-tag plain type="success" size="large" v-for="role in curOperator?.roles"
+                  style="margin: 0 0 10px 10px;" closeable @close="removeOperatorRole(role)">
+                  {{ AllRoles.get(role).name }}
                 </van-tag>
               </div>
             </template>
@@ -114,8 +113,8 @@
           <van-field :label="$t('company.role.allPrivileges')">
             <template #input>
               <div style="flex: 1;">
-                <van-tag plain type="danger" size="large" v-for="role in company.roles"
-                  style="margin: 0 0 10px 10px;" @click="addOperatorRole(role._id)">
+                <van-tag plain type="danger" size="large" v-for="role in company.roles" style="margin: 0 0 10px 10px;"
+                  @click="addOperatorRole(role._id)">
                   {{ role.name }}
                 </van-tag>
               </div>
@@ -132,18 +131,20 @@
 </template>
 <script lang="ts" setup>
 import { Notify } from 'vant';
-import { inject, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { CommonApi, IOT, IOTApi } from '../../models';
-import { CommonStore, I18n } from '../components/misc';
+import { useCommonStore } from '../../store';
 
-const commonStore = inject(CommonStore)
-const i18n = inject(I18n)
+const commonStore = useCommonStore()
+const i18n = useI18n()
+
 const company = ref<IOT.Company>({})
 const showRoleInfo = ref(false)
-const showOperatorInfo = ref(false)
-
-const operators = ref<Array<IOT.Operator>>()
 const curRole = ref<IOT.Role>(null)
+
+const showOperatorInfo = ref(false)
+const operators = ref<Array<IOT.Operator>>([])
 const curOperator = ref<IOT.Operator>(null)
 const searchPhone = ref<string>('')
 
@@ -158,23 +159,21 @@ const CompanyStatus = [
 
 const AllPrivileges = ref<Map<string, IOT.Privilege>>(new Map())
 
-onMounted(() => {
-  commonStore.navbar.title = i18n.t('company.title')
-
-  company.value = commonStore.company
+onMounted(async () => {
   if (commonStore.company != null) {
-    setTimeout(async () => {
-      if (commonStore.operator.privileges.indexOf('2') != -1) {
-        company.value.roles = await IOTApi.getRoles(company.value._id)
-      }
+    company.value = commonStore.company
 
-      if (commonStore.operator.privileges.indexOf('3') != -1) {
-        operators.value = await IOTApi.getOperators(company.value._id)
-      }
+    commonStore.navbar.title = i18n.t('company.title')
+    if (commonStore.operator.privileges.indexOf('2') != -1) {
+      company.value.roles = await IOTApi.getRoles(company.value._id)
+    }
 
-      company.value.privileges?.forEach(it => { AllPrivileges.value.set(it.id, it) })
-      company.value.roles.forEach(it => { AllRoles.set(it._id, it) })
-    }, 800)
+    if (commonStore.operator.privileges.indexOf('3') != -1) {
+      operators.value = await IOTApi.getOperators(company.value._id)
+    }
+
+    company.value.privileges?.forEach(it => { AllPrivileges.value.set(it.id, it) })
+    company.value.roles.forEach(it => { AllRoles.set(it._id, it) })
   } else {
     company.value.owner = commonStore.profile?.uid
     company.value.ownerName = commonStore.profile?.name
@@ -185,8 +184,8 @@ onMounted(() => {
 async function saveCompany() {
   delete company.value.privileges
   delete company.value.ownerName
-  
-  company.value.status = 1
+
+  company.value.status = IOT.CompanyStatus.Verifing
   await IOTApi.saveCompany(company.value)
   await commonStore.updateUserInfo()
 }
@@ -202,8 +201,7 @@ function editRole(role: IOT.Role) {
 async function deleteRole() {
   await IOTApi.deleteRole(curRole.value._id)
   Notify({ type: 'success', message: '删除成功', duration: 500 })
-  company.value = await IOTApi.getCompany(commonStore.operator?.cid)
-  commonStore.company = company.value
+  company.value.roles = await IOTApi.getRoles(commonStore.operator?.cid)
   curRole.value = {}
   showRoleInfo.value = false
 }
@@ -213,38 +211,41 @@ async function saveRole() {
   Notify({ type: 'success', message: '更新功', duration: 500 })
   curRole.value = {}
   showRoleInfo.value = false
-  company.value = await IOTApi.getCompany(commonStore.operator?.cid)
-  commonStore.company = company.value
+  company.value.roles = await IOTApi.getRoles(commonStore.operator?.cid)
 }
 
 function addPrivilege(privilege: string) {
-  let idx = curRole.value.privileges.findIndex((item) => { return item == privilege })
-  if (idx == -1)
+  if (curRole.value.privileges.indexOf(privilege) == -1)
     curRole.value.privileges.push(privilege)
 }
 
 function removePrivilege(privilege: string) {
   let idx = curRole.value.privileges.findIndex((item) => { return item == privilege })
-  curRole.value.privileges.splice(idx, 1)
+  if (idx != -1)
+    curRole.value.privileges.splice(idx, 1)
 }
 
 function editOperator(operator?: IOT.Operator) {
-  if (operator == null) {
-    operator = { uid: '', name: '', roles: [], cid: company.value._id }
-  }
   curOperator.value = operator
   showOperatorInfo.value = true
 }
 
 function removeOperatorRole(role: string) {
-  let idx = curOperator.value.roles.findIndex((item) => { return item == role })
-  curOperator.value.roles.splice(idx, 1)
+  let idx = curOperator.value.roles.indexOf(role)
+  if (idx != -1)
+    curOperator.value.roles.splice(idx, 1)
 }
 
 function addOperatorRole(role: string) {
-  let idx = curOperator.value.roles.findIndex((item) => { return item == role })
-  if (idx == -1)
-    curOperator.value.roles.push(role)
+  if (curOperator.value != null) {
+    if (curOperator.value.roles == null)
+      curOperator.value.roles = []
+
+    if (curOperator.value.roles.indexOf(role) == -1)
+      curOperator.value.roles.push(role)
+  } else {
+    Notify({ type: 'warning', message: '请先通过手机号搜索要添加的员工' })
+  }
 }
 
 async function saveOperator() {
@@ -252,6 +253,7 @@ async function saveOperator() {
     Notify({ type: 'warning', message: '员工信息未正确设置' })
   } else {
     await IOTApi.saveOperator(curOperator.value)
+    curOperator.value = null
     showOperatorInfo.value = false
   }
 }
@@ -263,9 +265,16 @@ async function unbindOperator(uid: string) {
 
 async function onSearchUser() {
   if (/1\d{10}/.test(searchPhone.value)) {
-    let user = await CommonApi.searchUser(searchPhone.value)
-    curOperator.value.name = user?.name
-    curOperator.value.uid = user?._id
+    try {
+      let user = await CommonApi.searchUser(searchPhone.value)
+      curOperator.value = {
+        uid: user?.uid,
+        name: user?.name,
+        cid: company.value._id
+      }
+    } catch (err) {
+      Notify({ type: 'warning', message: err.toString(), duration: 800 })
+    }
   } else {
     Notify({ type: 'warning', message: '请输入正确的手机号', duration: 800 })
   }

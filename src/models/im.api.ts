@@ -24,9 +24,14 @@ export namespace IMApi {
     return formPost<IM.Session>(RemoteAPI.IM.BasePath + RemoteAPI.IM.SyncTo, data)
   }
 
-  export function sendMsg(message: IM.Message) {
+  export function sendMsg(message: IM.Message, file?: File) {
     let data = new FormData()
     data.append('message', JSON.stringify(message))
+    if (file) data.append('file', file)
     return formPost<string>(RemoteAPI.IM.BasePath + RemoteAPI.IM.SendMsg, data)
+  }
+
+  export function syncOfflineMessages() {
+    return get<Array<IM.Message>>(RemoteAPI.IM.BasePath + RemoteAPI.IM.GetOfflineMessages)
   }
 }

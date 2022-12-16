@@ -1,8 +1,9 @@
 import Paho from 'paho-mqtt'
+import { Store } from 'pinia'
 import { IM, IOT } from '../models'
-import { useCommonStore, useIMStore, useIOTDeviceStore } from '../store'
+import { CommonAction, CommonState, IMAction, IMState, IOTAction, IOTState } from '../store'
 
-export default class PahoMsgClient {
+export class PahoMsgClient {
 
   private retry = 0
   private option = {
@@ -15,16 +16,41 @@ export default class PahoMsgClient {
     timeout: 5000,
   }
 
-  protected commonStore = useCommonStore()
-  protected imStore = useIMStore()
-  protected deviceStore = useIOTDeviceStore()
+  commonStore: Store<string, CommonState, {}, CommonAction>
+  imStore: Store<string, IMState, {}, IMAction>
+  iotStore: Store<string, IOTState, {}, IOTAction>
+
   protected client: Paho.Client
+  private willTopic: string
   protected curTopic: string
   protected curSubDevice: string
 
-  constructor() {
-    this.client = new Paho.Client(this.commonStore.appConfig.broker, this.option.port,
-      this.commonStore.profile.uid == null ? 'lynx-iot-nodered-00003' : this.commonStore.profile.uid)
+  private willMessage: Paho.Message
+
+  public init(commonStore: Store<string, CommonState, {}, CommonAction>, imStore: Store<string, IMState, {}, IMAction>,
+    iotStore: Store<string, IOTState, {}, IOTAction>) {
+
+    this.commonStore = commonStore
+    this.imStore = imStore
+    this.iotStore = iotStore
+
+
+    this.willTopic = `_client/lwt/${commonStore.profile.uid}`
+
+    this.willMessage = new Paho.Message(commonStore.profile.uid)
+    this.willMessage.destinationName = this.willTopic
+    this.willMessage.retained = true
+
+    if (this.client != null) {
+      this.client.disconnect()
+      this.client = null
+    }
+
+    this.retry = 0
+
+    if (this.commonStore.profile.uid == null) throw 'user info error'
+
+    this.client = new Paho.Client(this.commonStore.appConfig.broker, this.option.port, this.commonStore.profile.uid)
 
     // set callback handlers
     this.client.onConnectionLost = (err: Paho.MQTTError) => {
@@ -35,7 +61,6 @@ export default class PahoMsgClient {
       }
     }
     this.client.onMessageArrived = (msg: any) => { this.handleMsg(msg.topic, msg.payloadString) }
-
     this.connect()
   }
 
@@ -45,9 +70,12 @@ export default class PahoMsgClient {
       useSSL: this.option.ssl,
       userName: this.option.username,
       password: this.option.password,
+      willMessage: this.willMessage,
+      // reconnect: true,
       onSuccess: () => {
         this.retry = 0
         this.client.subscribe(`_im/${this.client.clientId}`)
+        this.client.send(this.willTopic, '', 0, true) // 更新在线状态
       }
     })
   }
@@ -60,7 +88,7 @@ export default class PahoMsgClient {
   }
 
   public sendMsg(deviceId: string, message: IOT.IOTMsg) {
-    this.client.send(`_iot/tmp/${deviceId}`, JSON.stringify(message))
+    this.client.send(`_iot/tmp/${deviceId}`, JSON.stringify(message), 0, true)
   }
 
   public subscribe(deviceId: string) {
@@ -90,39 +118,32 @@ export default class PahoMsgClient {
       if (topic == `_im/${this.client.clientId}`) {
         let msg = JSON.parse(message) as IM.Message
         this.imStore.onMessageArrived(msg)
-      } else {
+      } else if (topic.indexOf('_iot/') != -1) {
         let msg = JSON.parse(message) as IOT.IOTMsg
         switch (msg.type) {
           case IOT.MsgType.DATA:
-            this.deviceStore.updateDeviceData(msg.from, msg.data)
+            this.iotStore.updateDeviceData(msg.from, msg.data)
             break
           case IOT.MsgType.REGISTER:
 
             break
         }
       }
-
-
     } catch (err) {
       console.log(err)
     }
   }
 
   isConnected(): boolean {
-    return this.client.isConnected()
-  }
-
-  onConnectionLost(err: Paho.MQTTError) {
-    if (err.errorCode !== 0) {
-      console.log('[onConnectionLost]:', err.errorMessage)
-      console.log(err.errorMessage)
-
-      this.connect()
-    }
+    return this.client?.isConnected()
   }
 
   close() {
     this.client.disconnect()
+    this.client = null
   }
-
 }
+
+const msgClient = new PahoMsgClient()
+
+export default msgClient

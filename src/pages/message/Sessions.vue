@@ -30,39 +30,43 @@
           <van-button square type="primary" style="height: 100%;" :text="$t('common.pin')" />
         </template>
       </van-swipe-cell>
+      <van-button block text="test" @click="show = !show" />
+      <div v-if="show" v-motion :initial="{ opacity: 0, x: 100, }" :enter="{ opacity: 1, x: 50, }"
+        :leave="{ x: 0, opacity: 1, }" style="width: 100px; height: 100px; background-color: antiquewhite;"></div>
     </van-list>
   </van-col>
 </template>
 
 <script lang="ts" setup>
 import { Notify } from 'vant'
-import { inject, onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { IM } from '../../models'
-import { CommonStore, I18n, IMStore, VueRouter } from '../components/misc'
+import { useCommonStore, useIMStore } from '../../store'
 
-const commonStore = inject(CommonStore)
-const imStore = inject(IMStore)
-const i18n = inject(I18n)
-const router = inject(VueRouter)
+const commonStore = useCommonStore()
+const imStore = useIMStore()
+const i18n = useI18n()
+const router = useRouter()
 
+const show = ref(false)
 const loading = ref(false)
 const refreshing = ref(false)
 const sessions = ref<Array<IM.Session>>([])
 
-onMounted(() => {
+onMounted(async () => {
   commonStore.navbar.title = i18n.t('message.title')
   commonStore.navbar.leftArrow = false
   commonStore.navbar.rightText = 'icon-contacts'
   commonStore.rightAction = gotoContact
 
-  setTimeout(async () => {
-    try {
-      sessions.value = await imStore.sessions()
-    } catch (err) {
-      console.error(err)
-      Notify({ type: 'danger', message: err.toString(), duration: 500 })
-    }
-  }, 200)
+  try {
+    sessions.value = await imStore.sessions()
+  } catch (err) {
+    console.error(err)
+    Notify({ type: 'danger', message: err.toString(), duration: 500 })
+  }
 
 })
 

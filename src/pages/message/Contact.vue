@@ -1,12 +1,14 @@
 <template>
   <van-index-bar>
-    <van-cell :title="profile.name" v-for="(profile, idx) in contacts" clickable @click="gotoSession(profile, idx)">
-      <template #icon>
-        <van-checkbox v-if="isMulti" :disabled="disabled[idx]" style="margin-right: 15px;" v-model="selected[idx]" />
-      </template>
-    </van-cell>
-
-    <div v-if="isMulti" style="width: 100%; position:absolute; bottom: 0;">
+    <van-list v-model:loading="loading" :finished="finished" @load="loadMore" style="overflow-y: auto;"
+      v-bind:style="{ height: isMulti ? 'calc(100% - 74px)' : '100%' }">
+      <van-cell :title="profile.name" v-for="(profile, idx) in contacts" clickable @click="gotoSession(profile, idx)">
+        <template #icon>
+          <van-checkbox v-if="isMulti" :disabled="disabled[idx]" style="margin-right: 15px;" v-model="selected[idx]" />
+        </template>
+      </van-cell>
+    </van-list>
+    <div v-if="isMulti" style="width: 100%; position: absolute; bottom: 0; background-color: #eee;">
       <van-button type="success"
         :text="$t(curSession?.type == IM.SessionType.GROUP ? 'message.contact.add' : 'message.contact.create')"
         :loading="isGen" style="width: calc(100% - 30px); margin: 15px;" @click="createMultiChat" />
@@ -15,24 +17,29 @@
 </template>
 <script lang="ts" setup>
 import md5 from 'md5'
+import { finished } from 'stream'
 import { Notify } from 'vant'
-import { inject, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 import { loadImage } from '../../common'
 import { CommonApi, IM, User } from '../../models'
-import { CommonStore, I18n, IMStore, VueRouter } from '../components/misc'
+import { useCommonStore, useIMStore } from '../../store'
 
-const i18n = inject(I18n)
-const router = inject(VueRouter)
-const commonStore = inject(CommonStore)
-const imStore = inject(IMStore)
+const i18n = useI18n()
+const router = useRouter()
+const commonStore = useCommonStore()
+const imStore = useIMStore()
 
+const loading = ref(false)
+const finished = ref(false)
 const contacts = ref<Array<User.Profile & User.Account>>([])
 const selected = ref<Array<boolean>>([])
 const curSession = ref<IM.Session>()
 const isGen = ref(false)
 const isMulti = ref(false)
 
+let curPage = 0
 let disabled = []
 
 onMounted(async () => {
@@ -50,7 +57,14 @@ onMounted(async () => {
     isMulti.value = !isMulti.value
     commonStore.navbar.rightText = isMulti.value ? 'icon-cancel' : 'icon-group-chat'
   }
-  contacts.value = await CommonApi.getContact()
+})
+
+async function loadMore() {
+  let more = await CommonApi.getContact(++curPage)
+  contacts.value = contacts.value.concat(more)
+  
+  imStore.cacheUsers(contacts.value)
+
   selected.value = new Array(contacts.value.length)
   disabled = new Array(contacts.value.length)
 
@@ -65,8 +79,10 @@ onMounted(async () => {
       disabled[i] = true
     }
   }
-})
 
+  if (more.length == 0) finished.value = true
+  loading.value = false
+}
 
 async function gotoSession(profile: User.Profile, idx: number) {
   if (profile.uid == commonStore.profile.uid) {
@@ -80,6 +96,12 @@ async function gotoSession(profile: User.Profile, idx: number) {
 }
 
 async function createMultiChat() {
+
+  if (selected.value.filter((it) => { return it }).length < 3) {
+    Notify({ type: 'warning', message: '除自己之外，请至少选择两位联系人才可创建群聊', duration: 1200 })
+    return
+  }
+
   isGen.value = true
 
   let uids = []
@@ -149,5 +171,10 @@ async function genThumb(avatars: Array<string>) {
 
 </script>
 <style scoped>
-
+.box {
+  width: 100px;
+  height: 100px;
+  border-radius: 10px;
+  background-color: var(--splash);
+}
 </style>

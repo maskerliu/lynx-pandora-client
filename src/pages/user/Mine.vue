@@ -51,11 +51,12 @@
 </template>
 <script lang="ts" setup>
 import 'animate.css';
-import { inject, onMounted, ref } from 'vue';
-import { CommonStore, VueRouter } from '../components/misc';
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useCommonStore } from '../../store';
 
-const commonStore = inject(CommonStore)
-const router = inject(VueRouter)
+const commonStore = useCommonStore()
+const router = useRouter()
 
 const userProfile = ref()
 const doShake = ref(false)
@@ -64,10 +65,6 @@ onMounted(() => {
   userProfile.value.$el.addEventListener('animationend', () => { doShake.value = false })
 
   // await commonStore.updateUserInfo()
-
-  if (commonStore.profile == null) {
-
-  }
 })
 
 function goBind() {

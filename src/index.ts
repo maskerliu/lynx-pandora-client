@@ -1,32 +1,75 @@
 import '@vant/touch-emulator'
 import { createPinia } from 'pinia'
-import vant from 'vant'
+import vant, { Lazyload } from 'vant'
 import 'vant/lib/index.css'
+import { MotionPlugin } from '@vueuse/motion'
 import { createApp } from 'vue'
-import i18n from './pages/lang'
 import router from './router'
 import App from './App.vue'
 // import 'default-passive-events'
 import piniaPersist from 'pinia-plugin-persist'
+import { createI18n } from 'vue-i18n'
 
+import en from './locales/en.json'
+import zh from './locales/zh-CN.json'
 
+const i18n = createI18n({
+  legacy: false,
+  locale: 'zh-CN',
+  messages: {
+    en,
+    'zh-CN': zh
+  },
+  datetimeFormats: {
+    'zh-CN': {
+      short: {
+        hour: '2-digit',
+        minute: '2-digit',
+      },
+      long: {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }
+    },
+    'en': {
+      short: {
+        hour: '2-digit',
+        minute: '2-digit',
+      },
+      long: {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }
+    }
+  }
+})
 const pinia = createPinia()
 const app = createApp(App)
 
 pinia.use(piniaPersist)
+app.use(MotionPlugin)
 app.use(i18n)
 app.use(router)
 app.use(pinia)
 app.use(vant)
+app.use(Lazyload)
 app.mount('#app')
 
-// useVConsole()
+useVConsole()
 
 async function useVConsole() {
   if (__DEV__) {
     try {
       const VConsole = await import('vconsole')
-      let vconsole = new VConsole.default()
+      new VConsole.default()
       console.log()
     } catch (err) { console.log(err) }
   }

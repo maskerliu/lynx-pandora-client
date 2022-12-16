@@ -1,16 +1,31 @@
 import { defineStore } from 'pinia'
 import { IOT } from '../models/iot.model'
 
-export const useIOTDeviceStore = defineStore('IOTDevices', {
+export type IOTState = {
+  curDeviceId?: string
+  xAxisLabel: Array<any>,
+  temperature: number,
+  humidityData: Array<any>,
+  speedData: Array<any>,
+  electricData: Array<any>,
+  voltageData: Array<any>,
+}
+
+export type IOTAction = {
+  updateDevice(deviceId: string): void
+  updateDeviceData(deviceId: string, msg: IOT.MonitorSnap): void
+}
+
+export const useIOTStore = defineStore<string, IOTState, {}, IOTAction>('IOT', {
   state: () => {
     return {
       xAxisLabel: [],
-      temperature: 0 as Number,
+      temperature: 0,
       humidityData: [],
       speedData: [],
       electricData: [],
       voltageData: [],
-      curDeviceId: ''
+      curDeviceId: null
     }
   },
   actions: {

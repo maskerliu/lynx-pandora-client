@@ -52,6 +52,14 @@ export default class WebConfig implements Configuration {
         }
       },
       {
+        test: /\.(json5?|ya?ml)$/,
+        type: 'javascript/auto',
+        loader: '@intlify/vue-i18n-loader',
+        include: [ // Use `Rule.include` to specify the files of locale messages to be pre-compiled
+          path.resolve(dirname, 'src/locales')
+        ]
+      },
+      {
         test: /\.(mp3|aac|ogg|m4a)$/,
         loader: 'file-loader'
       },

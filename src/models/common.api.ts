@@ -42,8 +42,8 @@ export namespace CommonApi {
     return formPost<User.Profile>(RemoteAPI.User.BasePath + RemoteAPI.User.ProfileSearch, data)
   }
 
-  export function getContact() {
-    return get<Array<User.Profile & User.Account>>(RemoteAPI.User.BasePath + RemoteAPI.User.Contact)
+  export function getContact(page?: number) {
+    return get<Array<User.Profile & User.Account>>(RemoteAPI.User.BasePath + RemoteAPI.User.Contact, { page })
   }
 
   export function getAllDBs() {

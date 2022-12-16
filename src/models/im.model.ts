@@ -36,6 +36,6 @@ export namespace IM {
     sent: boolean // 是否已发送
     read: boolean // 是否已读
     type: MessageType
-    content: any
+    content?: any
   }
 }

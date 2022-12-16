@@ -21,12 +21,14 @@
 </template>
 <script lang="ts" setup>
 import { UploaderFileListItem } from 'vant';
-import { inject, onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { CommonApi } from '../../models';
-import { CommonStore, I18n } from '../components/misc';
+import { useCommonStore } from '../../store';
 
-const i18n = inject(I18n)
-const commonStore = inject(CommonStore)
+const commonStore = useCommonStore()
+const i18n = useI18n()
+
 const avatar = ref<Array<UploaderFileListItem>>([])
 
 onMounted(() => {

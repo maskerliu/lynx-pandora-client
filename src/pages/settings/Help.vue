@@ -22,11 +22,12 @@
 </template>
 <script lang="ts" setup>
 import { UploaderFileListItem } from 'vant';
-import { inject, onMounted, onUnmounted, ref } from 'vue';
-import { CommonStore, I18n } from '../components/misc';
+import { onMounted, onUnmounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useCommonStore } from '../../store';
 
-const commonStore = inject(CommonStore)
-const i18n = inject(I18n)
+const commonStore = useCommonStore()
+const i18n = useI18n()
 
 const active = ref(0)
 const message = ref('')

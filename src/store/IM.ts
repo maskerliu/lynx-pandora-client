@@ -22,9 +22,12 @@ export type IMAction = {
   updateSession(session: IM.Session, snap?: File, sync?: boolean): Promise<void>
   deleteSession(sid: string): Promise<void>
   messages(loadMore?: boolean): Promise<Array<IM.Message>>
+  cleanMessages(): void
   onMessageArrived(message: IM.Message): void
-  sendMessage(message: IM.Message): Promise<void>
+  sendMessage(message: IM.Message, file: File): Promise<void>
   user(uid: string): Promise<User.Profile>
+  cacheUsers(users: Array<User.Profile>): void
+  cleanCache(): Promise<void>
 }
 
 export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
@@ -41,6 +44,8 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
     async init() {
       await sessionRepo.init()
       await messageRepo.init()
+
+      await this.syncOfflineMessages()
 
       notifyAudio.src = dingdong
       this._messages = []
@@ -75,9 +80,9 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
       }
       return session
     },
-    async updateSession(session: IM.Session, snap?: File, sync: boolean = false) {
-      let remoteSession = sync ? await IMApi.syncTo(session, snap) : session
-      if (session.type== IM.SessionType.P2P) {
+    async updateSession(session: IM.Session, thumb?: File, sync: boolean = false) {
+      let remoteSession = sync ? await IMApi.syncTo(session, thumb) : session
+      if (session.type == IM.SessionType.P2P) {
         remoteSession.title = session.title
         remoteSession.thumb = session.thumb
       }
@@ -86,6 +91,7 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
     },
     async deleteSession(sid: string) {
       await sessionRepo.delete(sid)
+      await messageRepo.deleteSessionMessages(sid)
       this.updateSessions++
     },
     async messages(loadMore?: boolean) {
@@ -116,6 +122,9 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
       }
       return this._messages
     },
+    cleanMessages() {
+      this._messages = []
+    },
     async onMessageArrived(message: IM.Message) {
       // notifyAudio.play()
 
@@ -130,24 +139,7 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
         }
       }
 
-      switch (message.type) {
-        case IM.MessageType.AUDIO:
-          session.snapshot = '[语音]'
-          break
-        case IM.MessageType.VIDEO:
-          session.snapshot = '[视频]'
-          break
-        case IM.MessageType.EMOJI:
-          session.snapshot = '[表情]'
-          break
-        case IM.MessageType.IMAGE:
-          session.snapshot = '[图片]'
-          break
-        default:
-          session.snapshot = message.content
-          break
-      }
-
+      session.snapshot = this.message2sessionSnap(message)
       session.timestamp = message.timestamp
 
       await messageRepo.update(message)
@@ -157,20 +149,92 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
       } else {
         session.unread += 1
       }
-
       await this.updateSession(session)
+      this.updateSessions++
     },
-    async sendMessage(message: IM.Message) {
-      await IMApi.sendMsg(message)
-      await messageRepo.update(message)
-      this.updateMessage++
+    async sendMessage(message: IM.Message, file: File) {
+      await IMApi.sendMsg(message, file)
+
+      if (message.type == IM.MessageType.TEXT) {
+        await messageRepo.update(message)
+        this.updateMessage++
+
+        let session: IM.Session = await this.session(message.sid)
+        session.snapshot = message.content
+        session.timestamp = message.timestamp
+        await this.updateSession(session)
+        this.updateSessions++
+      }
     },
     async user(uid: string) {
       if (this.users[uid] != null) { return this.users[uid] }
       let user = await CommonApi.getUserProfile(uid)
       this.users[uid] = user
       return user
+    },
+    cacheUsers(users: Array<User.Profile>) {
+      users.forEach(it => {
+        if (this.users[it.uid] == null)
+          this.users[it.uid] = it
+      })
+    },
+    async cleanCache() {
+      await sessionRepo.replicate()
+      // await messageRepo.compact()
+    },
+    async syncOfflineMessages() {
+      let offlineMsgs = await IMApi.syncOfflineMessages()
+      await messageRepo.bulkMessages(offlineMsgs)
+      type SessionTmpSnap = { unread: number, snapshot: string, timestamp: number }
+      let sessionSanps = new Map<string, SessionTmpSnap>()
+      offlineMsgs.forEach(it => {
+        if (!sessionSanps.has(it.sid)) {
+          sessionSanps.set(it.sid, { unread: 1, snapshot: this.message2sessionSnap(it), timestamp: it.timestamp })
+        } else {
+          let curSnap = sessionSanps.get(it.sid)
+          let newSnap: SessionTmpSnap = Object.assign({}, curSnap)
+          newSnap.unread++
+          if (curSnap.timestamp < it.timestamp) {
+            newSnap.timestamp = it.timestamp
+            newSnap.snapshot = this.message2sessionSnap(it)
+          }
+          sessionSanps.set(it.sid, newSnap)
+        }
+      })
+      let sids = Array.from(sessionSanps.keys())
+      let sessions = await sessionRepo.bulkGet(sids)
+      sessions.forEach(it => {
+        let snap = sessionSanps.get(it.sid)
+        it.snapshot = snap.snapshot
+        it.timestamp = snap.timestamp
+        it.unread += snap.unread
+      })
+
+      await sessionRepo.bulkDocs(sessions)
+      this.updateSessions++
+    },
+    message2sessionSnap(message: IM.Message) {
+      let snapshot = ''
+      switch (message.type) {
+        case IM.MessageType.AUDIO:
+          snapshot = '[语音]'
+          break
+        case IM.MessageType.VIDEO:
+          snapshot = '[视频]'
+          break
+        case IM.MessageType.EMOJI:
+          snapshot = '[表情]'
+          break
+        case IM.MessageType.IMAGE:
+          snapshot = '[图片]'
+          break
+        default:
+          snapshot = message.content
+          break
+      }
+      return snapshot
     }
+
   },
   persist: {
     enabled: true,
