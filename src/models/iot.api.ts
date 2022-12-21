@@ -46,8 +46,8 @@ export namespace IOTApi {
     return formPost<string>(RemoteAPI.IOT.BasePath + RemoteAPI.IOT.RoleDelete, data)
   }
 
-  export function getOperators(cid: string) {
-    return get<Array<IOT.Operator>>(RemoteAPI.IOT.BasePath + RemoteAPI.IOT.OperatorAll, { cid })
+  export function getOperators(cid: string, page: number) {
+    return get<Array<IOT.Operator>>(RemoteAPI.IOT.BasePath + RemoteAPI.IOT.PagedOperators, { cid, page })
   }
 
   export function getMyOperatorInfo() {

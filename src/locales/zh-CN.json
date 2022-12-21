@@ -105,9 +105,9 @@
   },
   "message": {
     "title": "消息中心",
-    "session": {
-
-    },
+    "pin": "置顶",
+    "unpin": "取消置顶",
+    "session": {},
     "sys": {
       "title": "系统消息"
     },
@@ -128,6 +128,20 @@
       "cleanTips": "确定删除聊天记录吗？",
       "cleanConfirm": "清空",
       "complain": "投诉"
+    }
+  },
+  "channel": {
+    "title": "频道",
+    "room": {
+      "create":{
+        "title":"创建个人频道",
+        "name":"频道名",
+        "namePlaceholder":"给您的频道取一个有个性的名字吧",
+        "cover":"封面",
+        "notice":"公告",
+        "noticePlaceholder":"您可以把频道规则、公告发布在这里",
+        "tags": "标签"
+      }
     }
   }
 }

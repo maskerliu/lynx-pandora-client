@@ -10,22 +10,21 @@ export function generateUid(): string {
       )
     )
   }
-  res.push(new Date().getTime() + "o")
-  return res.join("")
+  res.push(new Date().getTime() + 'o')
+  return res.join('')
 }
 
 export function throttle(fn: Function, delay: number) {
-  let timer = null;
+  let timer = null
   return (...args: any) => {
     if (!timer) {
       timer = setTimeout(() => {
-        fn.apply(this, args);
-        timer = null;
-      }, delay);
+        fn.apply(this, args)
+        timer = null
+      }, delay)
     }
-  };
+  }
 }
-
 
 export function map2json(map: Map<any, any>): JSON {
   let json = Object.create(null)

@@ -1,3 +1,4 @@
+import md5 from 'md5'
 import { defineStore } from 'pinia'
 import { useCommonStore } from '.'
 import dingdong from '../asserts/dingdong.m4a'
@@ -7,23 +8,26 @@ import { IMApi } from '../models/im.api'
 
 const notifyAudio = new Audio()
 
+type SessionTmpSnap = { unread: number, snapshot: string, timestamp: number }
+
 export type IMState = {
+  unread: number
   sid?: string
   _messages: Array<IM.Message>
   users: {},
   updateSessions: number,
-  updateMessage: number
+  updateMessages: number
 }
 
 export type IMAction = {
   init(): Promise<void>
   sessions(): Promise<Array<IM.Session>>
   session(sid: string): Promise<IM.Session>
-  updateSession(session: IM.Session, snap?: File, sync?: boolean): Promise<void>
+  updateSession(session: IM.Session, snap?: File): Promise<void>
   deleteSession(sid: string): Promise<void>
   messages(loadMore?: boolean): Promise<Array<IM.Message>>
   cleanMessages(): void
-  onMessageArrived(message: IM.Message): void
+  onMessageArrived(message: Array<IM.Message>): Promise<void>
   sendMessage(message: IM.Message, file: File): Promise<void>
   user(uid: string): Promise<User.Profile>
   cacheUsers(users: Array<User.Profile>): void
@@ -33,11 +37,12 @@ export type IMAction = {
 export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
   state: () => {
     return {
+      unread: 0,
       sid: null,
       _messages: [],
       users: {},
       updateSessions: 0,
-      updateMessage: 0,
+      updateMessages: 0,
     }
   },
   actions: {
@@ -51,26 +56,30 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
       this._messages = []
     },
     async sessions() {
-      let sessions = await sessionRepo.find({
-        selector: {},
-        limit: 50,
-        sort: [{ 'timestamp': 'desc' }],
+      let result = await sessionRepo.find({
+        selector: {
+          pinned: { $gt: -1 },
+          timestamp: { $lt: new Date().getTime() }
+        },
+        sort: [{ 'pinned': 'desc' }, 'timestamp'],
         use_index: 'idx-timestamp'
       })
-      for (let session of sessions) {
-        try {
-          if (session.type == IM.SessionType.P2P && session.title == null) {
-            let other = session.members.filter((it) => it != useCommonStore().profile.uid)[0]
-            let user = await this.user(other)
-            session.title = user.name
-            session.thumb = user.avatar
-            await sessionRepo.update(session)
-          }
-        } catch (err) {
 
+      let needUpdate = false
+      result.forEach(async (session) => {
+        if (session.type == IM.SessionType.P2P && session.title == null) {
+          let other = session.members.filter((it) => it != useCommonStore().profile.uid)[0]
+          let user = await this.user(other)
+          session.title = user.name
+          session.thumb = user.avatar
+          await sessionRepo.update(session)
+          needUpdate = true
         }
-      }
-      return sessions
+      })
+
+      this.unread = 0
+      result.forEach(it => { this.unread += it.unread })
+      return result
     },
     async session(sid: string) {
       let session = await sessionRepo.get('sid', sid)
@@ -80,12 +89,16 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
       }
       return session
     },
-    async updateSession(session: IM.Session, thumb?: File, sync: boolean = false) {
-      let remoteSession = sync ? await IMApi.syncTo(session, thumb) : session
+    async updateSession(session: IM.Session, thumb?: File) {
+      let remoteSession: IM.Session
       if (session.type == IM.SessionType.P2P) {
+        remoteSession = session
         remoteSession.title = session.title
         remoteSession.thumb = session.thumb
+      } else {
+        remoteSession = await IMApi.syncTo(session, thumb)
       }
+      remoteSession.pinned = remoteSession.pinned != null ? remoteSession.pinned : 0
       await sessionRepo.update(remoteSession)
       this.updateSessions++
     },
@@ -101,7 +114,7 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
           timestamp: {}
         },
         limit: 15,
-        sort: [{ 'timestamp': 'desc' }],
+        sort: [{ 'sid': 'desc' }, { 'timestamp': 'desc' }],
         use_index: 'idx-sid',
       }
 
@@ -125,41 +138,23 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
     cleanMessages() {
       this._messages = []
     },
-    async onMessageArrived(message: IM.Message) {
+    async onMessageArrived(messages: Array<IM.Message>) {
       // notifyAudio.play()
-
-      let session = await sessionRepo.get('sid', message.sid)
-      if (session == null) {
-        session = await IMApi.syncFrom(message.sid)
-
-        if (session.type == IM.SessionType.P2P) {
-          let profile = await CommonApi.getUserProfile(message.uid)
-          session.title = profile.name
-          session.thumb = profile.avatar
-        }
-      }
-
-      session.snapshot = this.message2sessionSnap(message)
-      session.timestamp = message.timestamp
-
-      await messageRepo.update(message)
-      if (this.sid == message.sid) {
-        this.updateMessage++
-        session.unread = 0
-      } else {
-        session.unread += 1
-      }
-      await this.updateSession(session)
-      this.updateSessions++
+      await this.bulkMessages(messages)
+    },
+    async syncOfflineMessages() {
+      let offlineMsgs = await IMApi.syncOfflineMessages()
+      await this.bulkMessages(offlineMsgs)
     },
     async sendMessage(message: IM.Message, file: File) {
+
       await IMApi.sendMsg(message, file)
 
-      if (message.type == IM.MessageType.TEXT) {
+      if (message.type == IM.MessageType.TEXT || message.type == IM.MessageType.EMOJI) {
         await messageRepo.update(message)
-        this.updateMessage++
+        this.updateMessages++
 
-        let session: IM.Session = await this.session(message.sid)
+        let session = await this.session(message.sid)
         session.snapshot = message.content
         session.timestamp = message.timestamp
         await this.updateSession(session)
@@ -180,16 +175,34 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
     },
     async cleanCache() {
       await sessionRepo.replicate()
-      // await messageRepo.compact()
+      await messageRepo.replicate()
     },
-    async syncOfflineMessages() {
-      let offlineMsgs = await IMApi.syncOfflineMessages()
-      await messageRepo.bulkMessages(offlineMsgs)
-      type SessionTmpSnap = { unread: number, snapshot: string, timestamp: number }
+    async bulkMessages(messages: Array<IM.Message>) {
+      let uid = useCommonStore().profile.uid
       let sessionSanps = new Map<string, SessionTmpSnap>()
-      offlineMsgs.forEach(it => {
+      let p2pSessions = new Map<string, IM.Session>()
+      messages.forEach(it => {
+        if (it.sid == md5([uid, it.uid].sort().join(';'))) { // is p2p message
+          let profile = this.user(it.uid)
+          let session: IM.Session = {
+            sid: it.sid,
+            type: IM.SessionType.P2P,
+            title: profile.name,
+            thumb: profile.avatar,
+            timestamp: it.timestamp,
+            members: [it.uid, uid],
+            unread: 1,
+            pinned: 0,
+          }
+          p2pSessions.set(it.sid, session)
+        }
+
         if (!sessionSanps.has(it.sid)) {
-          sessionSanps.set(it.sid, { unread: 1, snapshot: this.message2sessionSnap(it), timestamp: it.timestamp })
+          sessionSanps.set(it.sid, {
+            unread: 1,
+            snapshot: this.message2sessionSnap(it),
+            timestamp: it.timestamp
+          })
         } else {
           let curSnap = sessionSanps.get(it.sid)
           let newSnap: SessionTmpSnap = Object.assign({}, curSnap)
@@ -201,8 +214,27 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
           sessionSanps.set(it.sid, newSnap)
         }
       })
+
       let sids = Array.from(sessionSanps.keys())
       let sessions = await sessionRepo.bulkGet(sids)
+      let localSids: Array<string>, remoteSessions: Array<IM.Session>
+
+      // p2p session not in local db
+      localSids = sessions.map(it => it.sid)
+      if (sessionSanps.size > sessions.length) {
+        let p2pSids = sids.filter(it => !localSids.includes(it))
+        remoteSessions = p2pSids.map(it => { return p2pSessions.get(it) })
+        sessions.push(...remoteSessions)
+      }
+
+      // group session not in local db
+      localSids = sessions.map(it => it.sid)
+      if (sessionSanps.size > sessions.length) {
+        let remoteSids = sids.filter(it => !localSids.includes(it))
+        remoteSessions = await IMApi.bulkSyncFrom(remoteSids)
+        sessions.push(...remoteSessions)
+      }
+
       sessions.forEach(it => {
         let snap = sessionSanps.get(it.sid)
         it.snapshot = snap.snapshot
@@ -210,8 +242,17 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
         it.unread += snap.unread
       })
 
-      await sessionRepo.bulkDocs(sessions)
-      this.updateSessions++
+      if (messages.length > 0) {
+        await messageRepo.bulkMessages(messages)
+        this.updateMessages++
+      }
+
+      if (sessions.length > 0) {
+        await sessionRepo.bulkDocs(sessions)
+        this.updateSessions++
+      }
+
+
     },
     message2sessionSnap(message: IM.Message) {
       let snapshot = ''

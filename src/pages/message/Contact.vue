@@ -17,7 +17,6 @@
 </template>
 <script lang="ts" setup>
 import md5 from 'md5'
-import { finished } from 'stream'
 import { Notify } from 'vant'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -62,7 +61,7 @@ onMounted(async () => {
 async function loadMore() {
   let more = await CommonApi.getContact(++curPage)
   contacts.value = contacts.value.concat(more)
-  
+
   imStore.cacheUsers(contacts.value)
 
   selected.value = new Array(contacts.value.length)
@@ -125,10 +124,11 @@ async function createSession(members: string[], title: string, thumb: string, ty
   let session: IM.Session = {
     sid, type, members, title, thumb,
     timestamp: new Date().getTime(),
-    unread: 0
+    unread: 0,
+    pinned: 0,
   }
   try {
-    await imStore.updateSession(session, snap, true)
+    await imStore.updateSession(session, snap)
     router.push({ name: 'Session', params: { sid }, replace: true })
   } catch (err) {
     Notify({ type: 'danger', message: err.toString(), duration: 1500 })
@@ -146,9 +146,7 @@ async function genThumb(avatars: Array<string>) {
 
   let size = 100, margin = 5, cols = 3
   if (avatars.length <= 4) {
-    size = 135
-    margin = 17
-    cols = 2
+    size = 135, margin = 17, cols = 2
   }
 
   for (let i = 1; i <= avatars.length; ++i) {

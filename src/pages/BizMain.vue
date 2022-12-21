@@ -3,7 +3,7 @@
     <van-nav-bar class="animate__animated" v-bind:class="showNavbar ? 'animate__fadeInDown' : 'animate__fadeOutUp'"
       :title="commonStore.navbar.title" :left-arrow="commonStore.navbar.leftArrow" @click-left="back">
       <template #right>
-        <van-icon size="26" class="iconfont" v-bind:class="commonStore.navbar.rightText"
+        <van-icon size="24" class="iconfont" v-bind:class="commonStore.navbar.rightText"
           @click="commonStore.rightAction" />
       </template>
     </van-nav-bar>
@@ -26,7 +26,8 @@
           <van-icon class="iconfont icon-device" size="26" />
         </template>
       </van-tabbar-item>
-      <van-tabbar-item replace to="/message" badge="5">
+      <van-tabbar-item replace to="/message"
+        :badge="imStore.unread == 0 ? '' : (imStore.unread > 99 ? '99+' : imStore.unread)">
         <template #icon>
           <van-icon class="iconfont icon-msg-read" size="26" />
         </template>
@@ -81,7 +82,7 @@ onMounted(async () => {
     msgClient.init(commonStore, imStore, iotStore)
   })
 
-  router.replace("/message")
+  router.replace("/channel")
   active.value = 1
 })
 

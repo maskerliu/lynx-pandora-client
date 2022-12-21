@@ -41,6 +41,12 @@ export default createRouter({
           component: require('../pages/iot/Company.vue').default,
           meta: { navBar: true }
         },
+        {
+          path: 'stuffMgr',
+          name: 'StuffMgr',
+          component: require('../pages/iot/StuffMgr.vue').default,
+          meta: { navBar: true }
+        },
       ]
     },
     {
@@ -77,6 +83,24 @@ export default createRouter({
           component: require('../pages/message/SysMessages.vue').default,
           meta: { navBar: true, tabBar: false },
         },
+      ]
+    },
+    {
+      path: '/channel',
+      redirect: '/channel/home',
+      children: [
+        {
+          path: 'home',
+          name: 'ChannelList',
+          component: require('../pages/channel/ChannelList.vue').default,
+          meta: { navBar: true, tabBar: false }
+        },
+        {
+          path: 'room',
+          name: 'ChatRoom',
+          component: require('../pages/channel/ChatRoom.vue').default,
+          meta: { navBar: true, tabBar: false }
+        }
       ]
     },
     {

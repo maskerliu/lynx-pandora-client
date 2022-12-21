@@ -18,6 +18,8 @@ export namespace IM {
     timestamp: number
     unread: number // 未读消息数
     notice?: string
+    pinned?: number // 是否置顶
+    muted?: boolean
   }
 
   export enum MessageType {
@@ -33,8 +35,8 @@ export namespace IM {
     sid?: string // Seesion Id
     uid: string
     timestamp: number
-    sent: boolean // 是否已发送
-    read: boolean // 是否已读
+    sent?: number // 是否已发送 0: 发送中，-1:发送失败，1发送成功
+    read?: boolean // 是否已读
     type: MessageType
     content?: any
   }

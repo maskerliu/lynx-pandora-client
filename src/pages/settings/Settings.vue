@@ -30,7 +30,7 @@
       :text="$t('settings.logout')" />
 
     <van-dialog v-bind:show="showCleanCahe" title="" message="清理缓存可能需要一些时间，清理过程中请耐心等候" show-cancel-button
-      @cancel="showCleanCahe = false" :before-close="clean" @confirm="cleanCache"/>
+      @cancel="cleanCache = false" :before-close="clean" @confirm="cleanCache = true" />
   </van-col>
 </template>
 
@@ -41,12 +41,13 @@ import { useRouter } from 'vue-router';
 import { useCommonStore, useIMStore } from '../../store';
 
 const commonStore = useCommonStore()
+const imStore = useIMStore()
 const i18n = useI18n()
 const router = useRouter()
 
 const showCleanCahe = ref(false)
 const cacheSize = ref('0 kb')
-const cleaning = ref(false)
+const cleanCache = ref(false)
 
 onMounted(() => {
   commonStore.navbar.title = i18n.t('settings.title')
@@ -66,19 +67,19 @@ async function getCacheSize() {
     cacheSize.value = `${size.toFixed(0)} KB`
   }
 }
+const clean = () => {
+  return new Promise<boolean>(resolve => {
+    if (!cleanCache.value) {
+      showCleanCahe.value = false
+      resolve(true)
+    } else {
+      Promise.all([imStore.cleanCache(), getCacheSize()]).then(() => {
+        showCleanCahe.value = false
+        resolve(true)
+      }).catch(err => { resolve(false) })
+    }
 
-async function clean() {
-  try {
-    await getCacheSize()
-    return true
-  } catch (err) {
-    return false
-  }
-}
-
-async function cleanCache() {
-  await useIMStore().cleanCache()
-  showCleanCahe.value = false
+  })
 }
 
 function logout() {
@@ -88,6 +89,6 @@ function logout() {
 
 
 </script>
-<style scoped>
+<style>
 
 </style>

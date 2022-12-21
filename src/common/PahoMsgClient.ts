@@ -116,8 +116,8 @@ export class PahoMsgClient {
   protected handleMsg(topic: string, message: string) {
     try {
       if (topic == `_im/${this.client.clientId}`) {
-        let msg = JSON.parse(message) as IM.Message
-        this.imStore.onMessageArrived(msg)
+        let msgs = JSON.parse(message) as Array<IM.Message>
+        this.imStore.onMessageArrived(msgs)
       } else if (topic.indexOf('_iot/') != -1) {
         let msg = JSON.parse(message) as IOT.IOTMsg
         switch (msg.type) {

@@ -1,6 +1,6 @@
 import { IM } from '.'
 import { RemoteAPI } from './api.const'
-import { formPost, get } from './base.api'
+import { formPost, get, post } from './base.api'
 
 export namespace IMApi {
 
@@ -8,10 +8,15 @@ export namespace IMApi {
     return get<IM.Session>(RemoteAPI.IM.BasePath + RemoteAPI.IM.SyncFrom, { sid })
   }
 
+  export function bulkSyncFrom(sids: Array<string>) {
+    return post<Array<IM.Session>>(RemoteAPI.IM.BasePath + RemoteAPI.IM.BulkSyncFrom, sids)
+  }
+
   export async function syncTo(session: IM.Session, thumb?: File) {
     let obj = Object.assign({}, session)
     delete obj._id
     delete obj._rev
+    delete obj.pinned
 
     if (obj.type == IM.SessionType.P2P) {
       delete obj.title

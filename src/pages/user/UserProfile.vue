@@ -2,7 +2,7 @@
   <van-col>
     <van-cell-group title=" ">
       <van-form label-align="right" label-width="5.5rem" colon>
-        <van-field :label="$t('mine.profile.avatar')" v-model="commonStore.profile.name" input-align="right">
+        <van-field :label="$t('mine.profile.avatar')" input-align="right">
           <template #input>
             <van-uploader width="4rem" height="4rem" v-model="avatar" :max-count="1" closeImagePreview
               :after-read="uploadAvatar" @click-upload="openFileSelector" />

@@ -2,7 +2,7 @@
   <div class="drag-ball" ref="dragBall" @touchstart.stop="touchStart" @touchmove.prevent.stop="touchMove"
     @touchend.stop="touchEnd" @mousedown.prevent.stop="touchStart" @mousemove.prevent.stop="touchMove"
     @mouseup.prevent.stop="touchEnd">
-    <van-popover v-model:show="showPopover" theme="light" placement="left">
+    <van-popover v-model:show="showDebugPanel" :close-on-click-outside="false" theme="light" placement="left">
       <template #reference>
         <van-button plain hairline round style="width: 60px; height: 60px;">
           <van-icon class="iconfont icon-debug" name="bug" size="30" color="#e17055" />
@@ -11,9 +11,15 @@
       <van-col style="width: calc(100vw - 100px); height: 300px; padding: 10px;">
         <van-button plain block type="primary" size="small" text="Clear Local DB" @click="cleanLocalDB"
           style="margin-top: 15px;" />
-        <van-button plain block type="primary" size="small" text="Compact LocalStorage" @click="compactStorage"
-          style="margin-top: 15px;" />
+        <van-button block type="primary" size="small" text="Compact LocalStorage" @click="compactStorage"
+          :loading="compacting" style="margin-top: 15px;" />
         <van-button plain block type="danger" size="small" text="Mock Users" @click="genMockUsers"
+          style="margin-top: 15px;" />
+
+        <van-button plain block type="danger" size="small" text="IM(p2p) Mock" @click="genMockP2PMessages"
+          style="margin-top: 15px;" />
+
+        <van-button plain block type="danger" size="small" text="IM(group) Mock" @click="genMockGroupMessages"
           style="margin-top: 15px;" />
       </van-col>
     </van-popover>
@@ -23,10 +29,16 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import PouchDB from 'pouchdb'
-import { CommonApi } from '../../models';
+import { CommonApi, IM } from '../../models'
+import { useCommonStore, useIMStore } from '../../store'
+import md5 from 'md5';
 
 const dragBall = ref()
-const showPopover = ref(false)
+const showDebugPanel = ref(false)
+const compacting = ref(false)
+
+const commonStore = useCommonStore()
+const imStore = useIMStore()
 
 let canDrag = false
 let inset = { left: 0, top: 0, }
@@ -111,10 +123,10 @@ function touchEnd(e: any) {
         dragBall.value.style.left =
           window.innerWidth - dragBall.value.offsetWidth + 'px'
 
-        showPopover.value = false
+        showDebugPanel.value = false
       } else {
         dragBall.value.style.left = 0 + 'px'
-        showPopover.value = true
+        showDebugPanel.value = true
       }
     }
 
@@ -143,14 +155,18 @@ async function cleanLocalDB() {
     let db = new PouchDB(dbs[i])
     await db.destroy()
   }
+  showDebugPanel.value = false
 }
 
 async function compactStorage() {
+  compacting.value = true
   let dbs = ['im-sessions.db', 'im-messages.db']
   for (let i = 0; i < dbs.length; ++i) {
     let db = new PouchDB(dbs[i])
     await db.compact()
   }
+  compacting.value = false
+  showDebugPanel.value = false
 }
 
 async function genMockUsers() {
@@ -158,6 +174,40 @@ async function genMockUsers() {
   //   let end = i.toString().padStart(2, '0')
   //   await CommonApi.login(`136518888${end}`, '2222')
   // }
+
+  showDebugPanel.value = false
+}
+
+async function genMockP2PMessages() {
+  // let sessions = await imStore.sessions()
+  let mockUsers = await CommonApi.getContact()
+  let messages: Array<IM.Message> = []
+  mockUsers.forEach(it => {
+    let members = [it.uid, commonStore.profile.uid]
+    let sid = md5(members.sort().join(';'))
+
+    let count = Math.random() * 10
+    for (let i = 0; i < count; ++i) {
+      let seed = Math.random()
+      messages.push({
+        sid,
+        uid: it.uid,
+        content: `${it.name}++${i}++`,
+        timestamp: new Date().getTime() - Math.floor(seed * 10000000),
+        type: 1 + Math.round(seed) + Math.round(seed * 10 - Math.floor(seed * 10)),
+        sent: 1 - Math.round(seed) - Math.round(seed * 10 - Math.floor(seed * 10)),
+        read: false,
+      } as IM.Message)
+    }
+  })
+
+  await imStore.onMessageArrived(messages)
+  showDebugPanel.value = false
+}
+
+async function genMockGroupMessages() {
+
+  showDebugPanel.value = false
 }
 
 </script>

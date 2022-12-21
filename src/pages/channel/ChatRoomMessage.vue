@@ -1,8 +1,8 @@
 <template>
   <van-row class="message">
-    <van-image radius="5" class="user-avatar from" fit="cover" v-if="isFrom" :src="avatar" />
-    <div class="message-content" v-bind:class="isFrom ? 'from' : 'to'">
-      <div class="message-text" v-bind:class="isFrom ? 'from' : 'to'">
+    <van-image round radius="2rem" width="2rem" height="2rem" class="user-avatar" fit="cover" :src="avatar" />
+    <div class="message-content">
+      <div class="message-text">
         <template v-if="(message.type == IM.MessageType.TEXT || message.type == IM.MessageType.EMOJI)">
           <!-- 文字 -->
           <span ref="msg-content">{{ message.content }}</span>
@@ -24,15 +24,10 @@
           <p ref="msg-content">{{ message.content }}</p>
         </template>
       </div>
-      <div class="message-timestamp"
-        :style="{ 'justify-content': 'baseline', 'flex-direction': isFrom ? 'row' : 'row-reverse' }">
+      <div class="message-timestamp" :style="{ 'justify-content': 'baseline', 'flex-direction': 'row' }">
         <div>{{ $d(new Date(message.timestamp), 'short') }}</div>
-        <van-icon v-if="!isFrom && message.sent == 1" :size="14" name="success" color="#2ecc71" />
-        <van-icon v-else-if="!isFrom && message.sent == -1" :size="14" name="warning-o" color="#e74c3c" />
-        <div v-else-if="!isFrom && message.sent == 0" class="message-loading"></div>
       </div>
     </div>
-    <van-image radius="5" class="user-avatar to" fit="cover" :src="commonStore.profile.avatar" v-if="!isFrom" />
   </van-row>
 </template>
 <script lang="ts" setup>
@@ -49,7 +44,6 @@ const props = defineProps<{
 
 const commonStore = useCommonStore()
 const imStore = useIMStore()
-const isFrom = ref(false)
 const avatar = ref()
 const audioRef = ref<HTMLAudioElement>()
 
@@ -60,9 +54,8 @@ const clientWidth = document.body.clientWidth * 0.4
 const clientHeight = document.body.clientHeight * 0.25
 
 onMounted(async () => {
-  isFrom.value = props.message.uid != commonStore.profile.uid
-  let user = await imStore.user(props.message.uid)
-  avatar.value = user?.avatar
+  // let user = await imStore.user(props.message.uid)
+  // avatar.value = user?.avatar
 
   switch (props.message.type) {
     case IM.MessageType.IMAGE:
@@ -86,7 +79,7 @@ function play() {
 
 function onPreview() {
   if (props.message.content != null && props.message.content.length > 0)
-    showImagePreview({ images: [props.message.content], showIndex: false })
+  showImagePreview({ images: [props.message.content], showIndex: false })
 }
 
 </script>
@@ -94,7 +87,7 @@ function onPreview() {
 <style lang="css" scoped>
 .message {
   position: relative;
-  padding: 5px 10px 15px 10px;
+  padding: 5px;
 }
 
 .message-content {
@@ -102,16 +95,7 @@ function onPreview() {
   justify-content: flex-start;
   flex-direction: column;
   flex-grow: 1;
-}
-
-.message-content.from {
-  margin-left: 60px;
   align-items: flex-start;
-}
-
-.message-content.to {
-  margin-right: 60px;
-  align-items: flex-end;
 }
 
 .message-image {
@@ -119,20 +103,9 @@ function onPreview() {
 }
 
 .user-avatar {
-  width: 45px;
-  height: 45px;
-  position: absolute;
-  bottom: 5px;
+  border-radius: 32px;
   border-radius: 50%;
-}
-
-.user-avatar.from {
-  margin-right: 10px;
-}
-
-.user-avatar.to {
-  right: 10px;
-  margin-left: 10px;
+  margin: auto 10px;
 }
 
 .message-timestamp {
@@ -157,45 +130,10 @@ function onPreview() {
   overflow-wrap: break-word;
   white-space: pre-wrap;
   word-break: break-word;
-}
-
-.message-text.from {
   border-bottom-left-radius: 0px;
-  /* border-top-right-radius: 0px; */
 }
 
-.message-text.from:active {
+.message-text:active {
   background: #eeeeee;
-}
-
-.message-text.to {
-  background: #27ae60;
-  border-bottom-right-radius: 0px;
-  /* border-top-left-radius: 0px; */
-}
-
-.message-text.to:active {
-  background: #1b8651;
-}
-
-.message-loading {
-  height: 8px;
-  width: 8px;
-  border: 1px solid rgb(187, 183, 183);
-  border-left-color: rgb(59, 59, 59);
-  border-radius: 50%;
-  margin-left: 5px;
-  display: inline-block;
-  animation: spin 1.3s ease infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
 }
 </style>

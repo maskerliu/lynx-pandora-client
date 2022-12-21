@@ -22,12 +22,12 @@
       </van-cell>
       <van-cell :title="$t('message.setting.mute')" center>
         <template #value>
-          <van-switch size="24px"></van-switch>
+          <van-switch size="24px" v-model="mute" />
         </template>
       </van-cell>
       <van-cell :title="$t('message.setting.pin')" center>
         <template #value>
-          <van-switch size="24px"></van-switch>
+          <van-switch size="24px" v-model="pin" />
         </template>
       </van-cell>
     </van-cell-group>
@@ -70,7 +70,7 @@
 
 </template>
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { IM, IMApi, User } from '../../models';
@@ -83,6 +83,8 @@ const router = useRouter()
 
 const session = ref<IM.Session>(null)
 const members = ref<Array<User.Profile>>([])
+const mute = ref(false)
+const pin = ref(false)
 const showTitleModify = ref(false)
 const showNoticeModify = ref(false)
 const showCleanHistory = ref(false)
@@ -91,33 +93,47 @@ onMounted(async () => {
   let sid = useRoute().params['sid'] as string
   commonStore.navbar.title = i18n.t('message.setting.title')
 
-  session.value = await IMApi.syncFrom(sid)
+  session.value = await imStore.session(sid)
+
   if (session.value.type == IM.SessionType.GROUP) {
-    await imStore.updateSession(session.value, null, false)
+    session.value = await IMApi.syncFrom(sid)
+    await imStore.updateSession(session.value)
   }
+
+  mute.value = session.value.muted
+  pin.value = session.value.pinned > 0
 
   for (let uid of session.value.members) {
     let profile = await imStore.user(uid)
     members.value.push(profile)
   }
+})
 
+watch(mute, async () => {
+  session.value.muted = mute.value
+  await imStore.updateSession(session.value)
+})
+
+watch(pin, async (val, oldVal) => {
+  if ((session.value.pinned > 0) == val) { return }
+  session.value.pinned = val ? new Date().getTime() : 0
+  await imStore.updateSession(session.value)
 })
 
 async function saveModify() {
-  await imStore.updateSession(session.value, null, true)
+  await imStore.updateSession(session.value)
   showTitleModify.value = false
   showNoticeModify.value = false
 }
 
 async function cleanHistory() {
-
   showCleanHistory.value = false
 }
 
 async function quitSession() {
   let idx = session.value.members.indexOf(commonStore.profile.uid)
   session.value.members.splice(idx, 1)
-  await imStore.updateSession(session.value, null, true)
+  await imStore.updateSession(session.value)
   await imStore.deleteSession(session.value.sid)
 
   router.go(-2)

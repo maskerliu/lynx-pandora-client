@@ -5,6 +5,7 @@ export * from './common.model'
 export * from './user.model'
 export * from './im.model'
 export * from './im.api'
+export * from './channel.model'
 
 export * from './base.model'
 

@@ -75,7 +75,6 @@ onMounted(async () => {
   --van-nav-bar-arrow-size: 1.5rem;
   --van-nav-bar-icon-color: rgb(159, 159, 159);
   --van-nav-bar-title-font-size: 1.0rem;
-  --van-nav-bar-background: rgb(218, 44, 44);
   --van-tabbar-height: 55px;
   --van-tabbar-background-color: rgb(240, 240, 240);
   --van-tabbar-item-active-background-color: rgb(240, 240, 240);
@@ -87,6 +86,10 @@ onMounted(async () => {
   --van-cell-vertical-padding: 12px;
   --van-cell-horizontal-padding: 15px;
   --van-uploader-delete-icon-size: 1.3rem;
+  --van-grid-item-content-padding: 0;
+  --van-grid-item-content-background-color: #FFFFFF00;
+  --van-collapse-item-content-padding: 0;
+  --van-collapse-item-content-background: transparent;
 }
 
 /* .van-field__body {

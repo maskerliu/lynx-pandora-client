@@ -12,19 +12,10 @@ declare global {
     AMapUI: any
   }
 
-  
-  let AMapUI: any
-
   let __IS_WEB__: boolean
   let PROTOCOL: string
   let SERVER_BASE_URL: string
 }
-
-declare module '*.png'
-declare module '*.svg'
-declare module '*.jpeg'
-declare module '*.jpg'
-declare module '*.m4a'
 
 declare module 'vue-router' {
   interface RouteMeta {

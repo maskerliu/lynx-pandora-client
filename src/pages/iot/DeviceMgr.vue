@@ -11,7 +11,7 @@
             </div>
           </template>
           <template #label>
-            <div class="van-ellipsis" style="font-size: 0.7rem; ">
+            <div class="van-multi-ellipsis--l2" style="font-size: 0.7rem; ">
               地址:{{ item.address }}
             </div>
           </template>

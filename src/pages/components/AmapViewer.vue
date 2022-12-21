@@ -50,7 +50,7 @@ async function initMap() {
 
   map.value.addControl(new window.AMap.ToolBar())
 
-  AMapUI.loadUI(['misc/PositionPicker'], (PositionPicker: any) => {
+  window.AMapUI.loadUI(['misc/PositionPicker'], (PositionPicker: any) => {
     let positionPicker = new PositionPicker({ mode: 'dragMap', map: map.value })
 
     positionPicker.on('success', (location: any) => {

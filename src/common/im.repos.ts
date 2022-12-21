@@ -15,7 +15,7 @@ export class SessionRepo extends BaseRepo<IM.Session> {
   async init() {
     await this.pouchdb.createIndex({
       index: {
-        fields: ['timestamp'],
+        fields: ['pinned', 'timestamp'],
         ddoc: 'idx-timestamp',
       },
     })
@@ -35,7 +35,17 @@ export class SessionRepo extends BaseRepo<IM.Session> {
   }
 
   public async bulkDocs(sessions: Array<IM.Session>) {
-    this.pouchdb.bulkDocs(sessions)
+
+    let sids = sessions.map(it => it.sid)
+    let request: PouchDB.Find.FindRequest<any> = {
+      selector: {
+        sid: { $in: sids }
+      },
+      fields: ['_id', '_rev', 'sid']
+    }
+    let resp = await this.pouchdb.find(request)
+
+    await this.pouchdb.bulkDocs(sessions)
   }
 
   public async update(item: IM.Session) {

@@ -40,6 +40,10 @@ export default class WebConfig implements Configuration {
         use: ['vue-style-loader', 'less-loader']
       },
       {
+        test: /\.scss$/,
+        use: ['css-loader', 'sass-loader',]
+      },
+      {
         test: /\.css$/,
         use: ['vue-style-loader', 'css-loader']
       },

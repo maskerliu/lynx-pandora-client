@@ -8,20 +8,21 @@
         <message :message="message" v-for="message in messages" :key="message._id" />
       </van-pull-refresh>
     </van-list>
-    <chat-input-bar :sid="imStore.sid" />
+    <msg-input-bar :sid="(route.params['sid'] as string)" />
   </van-col>
 </template>
 
 <script lang="ts" setup>
 import { Notify } from 'vant'
-import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { IM } from '../../models'
 import { useCommonStore, useIMStore } from '../../store'
-import ChatInputBar from './ChatInputBar.vue'
+import MsgInputBar from './MsgInputBar.vue'
 import Message from './Message.vue'
 
 const router = useRouter()
+const route = useRoute()
 const commonStore = useCommonStore()
 const imStore = useIMStore()
 
@@ -31,19 +32,18 @@ const session = ref<IM.Session>(null)
 const messages = ref<Array<IM.Message>>([])
 
 onMounted(async () => {
-  let sid = useRoute().params['sid'] as string
   commonStore.navbar.rightText = 'icon-more'
   commonStore.rightAction = gotoSessionSetting
-  imStore.sid = sid
+  imStore.sid = route.params['sid'] as string
   imStore._messages = []
   loading.value = true
 
-  session.value = await imStore.session(sid)
+  session.value = await imStore.session(route.params['sid'] as string)
   session.value.unread = 0
   commonStore.navbar.title = session.value.title
   await imStore.updateSession(session.value)
 
-  imStore.updateMessage++
+  imStore.updateMessages++
 })
 
 onUnmounted(() => {
@@ -51,7 +51,7 @@ onUnmounted(() => {
   imStore.cleanMessages()
 })
 
-watch(() => imStore.updateMessage, async () => {
+watch(() => imStore.updateMessages, async () => {
   messages.value = await imStore.messages()
   loading.value = false
   setTimeout(async () => {

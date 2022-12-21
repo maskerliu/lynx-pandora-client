@@ -59,12 +59,12 @@
 <script lang ="ts" setup>
 import { UploaderFileListItem } from 'vant'
 import { onMounted, ref, watch } from 'vue'
-import { IM, IMApi } from '../../models'
+import { IM } from '../../models'
 import { useCommonStore, useIMStore } from '../../store'
 import EmojiPicker from './EmojiPicker.vue'
 
 const props = defineProps<{
-  sid: String
+  sid: string
 }>()
 
 const commonStore = useCommonStore()
@@ -77,6 +77,8 @@ const textInput = ref(null)
 const emoji = ref('')
 const image = ref<Array<UploaderFileListItem>>([])
 const audioRecord = ref<string>('')
+
+let session: IM.Session = null
 let recorder: MediaRecorder
 let audioFile: File = null
 
@@ -88,6 +90,27 @@ onMounted(async () => {
     window.webApp.register(onFileSelect)
   }
 
+  session = await imStore.session(props.sid.toString())
+
+  await initRecorder()
+})
+
+watch(emoji, () => {
+
+  if (emoji) {
+    textInput.value += emoji.value
+  }
+
+  showEmojiPanel.value = false
+})
+
+function openFileSelector() {
+  if (window.argus) {
+    window.argus.fileSelect(0, 1)
+  }
+}
+
+async function initRecorder() {
   let stream = await navigator.mediaDevices.getUserMedia({ audio: true })
   recorder = new MediaRecorder(stream)
 
@@ -111,29 +134,13 @@ onMounted(async () => {
 
     await sendMessage(IM.MessageType.AUDIO)
   }
-})
-
-watch(emoji, () => {
-
-  if (emoji) {
-    textInput.value += emoji.value
-  }
-
-  showEmojiPanel.value = false
-})
-
-function openFileSelector() {
-  if (window.argus) {
-    window.argus.fileSelect(0, 1)
-  }
 }
 
 async function sendMessage(type: IM.MessageType) {
-
   let file: File = null, content: string = null
-
   switch (type) {
     case IM.MessageType.TEXT:
+    case IM.MessageType.EMOJI:
       const contentMatch = textInput.value.match(/^\s*((.|\n)+?)\s*$/i)
       if (matchNotEmpty.test(textInput.value) && contentMatch) {
         content = contentMatch[1]
@@ -149,14 +156,15 @@ async function sendMessage(type: IM.MessageType) {
 
   if (content == null && file == null) return
 
+  let uid = commonStore.profile.uid
+  let to = session.type == IM.SessionType.P2P ? session.members.filter(it => it != uid)[0] : null
   let msg: IM.Message = {
     sid: props.sid.toString(),
     uid: commonStore.profile.uid,
-    type,
-    content,
+    type, content, to,
     timestamp: new Date().getTime(),
-    sent: false,
-    read: false
+    sent: 0,
+    read: false,
   }
 
   await imStore.sendMessage(msg, file)

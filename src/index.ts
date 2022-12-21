@@ -68,8 +68,8 @@ useVConsole()
 async function useVConsole() {
   if (__DEV__) {
     try {
-      const VConsole = await import('vconsole')
-      new VConsole.default()
+      // const VConsole = await import('vconsole')
+      // new VConsole.default()
       console.log()
     } catch (err) { console.log(err) }
   }

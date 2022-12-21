@@ -1,6 +1,6 @@
 <template>
   <van-col style="flex: 1; min-width: 375px;">
-    <van-list style="height: 100%; overflow-y: auto;">
+    <van-list v-model:loading="loading" :finished="finished" style="height: 100%; overflow-y: auto;">
       <van-cell title="系统消息" label="10号机异常" center clickable to="/message/sysMessages">
         <template #icon>
           <van-icon class="iconfont icon-notification" size="26" color="#4fc08d" style="margin: 10px 20px 10px 12px;" />
@@ -20,14 +20,26 @@
               style="margin-right: 15px;" />
           </template>
           <template #value>
-            <div>{{ $d(new Date(session.timestamp), 'short') }}</div>
-            <van-badge v-if="session.unread != 0" :content="session.unread" style=" margin: 15px 15px 0 15px;" />
+            <van-row justify="end">
+              <div>
+                <van-icon class="iconfont icon-pin" size="15px" v-if="session.pinned > 0"
+                  style="margin: 5px 5px 0 0; color: #f39c12; font-weight: bold;" />
+                <van-icon class="iconfont icon-mute" size="15px" v-if="session.muted" style="margin: 5px 5px 0 0;" />
+              </div>
+              <div>
+                <div>{{ $d(new Date(session.timestamp), 'short') }}</div>
+                <van-badge v-if="!session.muted && session.unread != 0"
+                  :content="session.unread > 99 ? '99+' : session.unread" style="margin: 15px 15px 0 15px;" />
+                <van-badge v-if="session.muted && session.unread > 0" dot style="margin: 15px 15px 0 15px;" />
+              </div>
+            </van-row>
           </template>
         </van-cell>
         <template #right>
-          <van-button square type="danger" style="height: 100%;" :text="$t('common.delete')"
+          <van-button square type="danger" style="width: 60px; height: 100%;" :text="$t('common.delete')"
             @click="imStore.deleteSession(session.sid)" />
-          <van-button square type="primary" style="height: 100%;" :text="$t('common.pin')" />
+          <van-button square type="primary" style="width: 60px; height: 100%;"
+            :text="$t(session.pinned > 0 ? 'message.unpin' : 'message.pin')" @click="pin(session)" />
         </template>
       </van-swipe-cell>
       <van-button block text="test" @click="show = !show" />
@@ -52,7 +64,7 @@ const router = useRouter()
 
 const show = ref(false)
 const loading = ref(false)
-const refreshing = ref(false)
+const finished = ref(false)
 const sessions = ref<Array<IM.Session>>([])
 
 onMounted(async () => {
@@ -61,25 +73,24 @@ onMounted(async () => {
   commonStore.navbar.rightText = 'icon-contacts'
   commonStore.rightAction = gotoContact
 
+  imStore.updateSessions++
+})
+
+watch(() => imStore.updateSessions, async () => {
+  await onLoad()
+})
+
+async function onLoad() {
   try {
+    loading.value = true
     sessions.value = await imStore.sessions()
   } catch (err) {
     console.error(err)
     Notify({ type: 'danger', message: err.toString(), duration: 500 })
+  } finally {
+    loading.value = false
+    finished.value = true
   }
-
-})
-
-watch(() => imStore.updateSessions, async () => {
-  sessions.value = await imStore.sessions()
-})
-
-async function onRefresh() {
-  loading.value = true
-  refreshing.value = true
-
-  loading.value = false
-  refreshing.value = false
 }
 
 function gotoContact() {
@@ -88,6 +99,11 @@ function gotoContact() {
 
 function gotoSession(sid: string, title: string) {
   router.push({ name: 'Session', params: { sid } })
+}
+
+async function pin(session: IM.Session) {
+  session.pinned = session.pinned > 0 ? 0 : new Date().getTime()
+  await imStore.updateSession(session)
 }
 
 </script>
