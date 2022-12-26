@@ -86,19 +86,19 @@ export default createRouter({
       ]
     },
     {
-      path: '/channel',
-      redirect: '/channel/home',
+      path: '/square',
+      redirect: '/square/home',
       children: [
         {
           path: 'home',
           name: 'ChannelList',
-          component: require('../pages/channel/ChannelList.vue').default,
-          meta: { navBar: true, tabBar: false }
+          component: require('../pages/square/ChannelList.vue').default,
+          meta: { navBar: true, tabBar: true }
         },
         {
           path: 'room',
-          name: 'ChatRoom',
-          component: require('../pages/channel/ChatRoom.vue').default,
+          name: 'Chatroom',
+          component: require('../pages/square/Chatroom.vue').default,
           meta: { navBar: true, tabBar: false }
         }
       ]

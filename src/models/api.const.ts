@@ -49,13 +49,7 @@ export namespace RemoteAPI {
     GetOfflineMessages: '/sync/messages',
   }
 
-  export const Channel = {
-    BasePath: '/channel',
-    Recommend: '/recommend',
-    Create: '/room/create',
-  }
-
-  export const ChatRoom = {
+  export const Chatroom = {
     BasePath: '/room',
     Recommend: '/recommend', // 推荐房间
     MyCollections: '/myCollections',
@@ -65,5 +59,6 @@ export namespace RemoteAPI {
     Gifts: '/gifts', // 礼物信息
     Enter: '/enter',
     Leave: '/leave',
+    Reward: '/reward',
   }
 }

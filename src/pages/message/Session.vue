@@ -13,13 +13,13 @@
 </template>
 
 <script lang="ts" setup>
-import { Notify } from 'vant'
+import { showNotify } from 'vant'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { IM } from '../../models'
 import { useCommonStore, useIMStore } from '../../store'
-import MsgInputBar from './MsgInputBar.vue'
 import Message from './Message.vue'
+import MsgInputBar from './MsgInputBar.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -73,7 +73,7 @@ async function onLoadingMore() {
     loading.value = true
     messages.value = await imStore.messages(true)
   } catch (err) {
-    Notify({ type: 'danger', message: err.toString(), duration: 800 })
+    showNotify({ type: 'danger', message: err.toString(), duration: 800 })
   } finally {
     loading.value = false
   }

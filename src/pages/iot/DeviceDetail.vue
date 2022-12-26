@@ -47,13 +47,13 @@
 <script lang="ts" setup>
 import { BarChart, GaugeChart, LineChart } from 'echarts/charts'
 import {
-DatasetComponent, GridComponent, LegendComponent,
-TitleComponent, TooltipComponent, TransformComponent
+  DatasetComponent, GridComponent, LegendComponent,
+  TitleComponent, TooltipComponent, TransformComponent
 } from 'echarts/components'
 import * as echarts from 'echarts/core'
 import { LabelLayout, UniversalTransition } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
-import { Notify } from 'vant'
+import { showNotify } from 'vant'
 import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
@@ -115,17 +115,18 @@ watch(isSubscribe, (val, oldVal) => {
 
   try {
     if (val) {
-      commonStore.deviceTmpSubscribe(curDevice.value.deviceId)
+      iotStore.subscribe(curDevice.value.deviceId)
     } else {
-      commonStore.deviceTmpUnsubscribe(curDevice.value.deviceId)
+      iotStore.unsubscribe(curDevice.value.deviceId)
     }
   } catch (err) {
+    console.log(err)
     isSubscribe.value = oldVal
-    Notify({ type: 'danger', message: '未能链接该设备', duration: 500 })
+    showNotify({ type: 'danger', message: '未能链接该设备', duration: 500 })
   }
 })
 
-watch(() => iotStore.temperature, () => {
+watch(() => iotStore.needUpdate, () => {
   updateData()
 })
 

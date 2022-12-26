@@ -1,5 +1,5 @@
 <template>
-  <van-field style="width: 100%; position: absolute; bottom: 0;" v-model="textInput" type="textarea" autosize rows="1"
+  <van-field style="width: 100%; position: absolute; bottom: 0; background: white;" v-model="textInput" type="textarea" autosize rows="1"
     center clearable>
     <template #left-icon>
       <van-button round @touchstart.prevent="onVoice(true)" @touchend.prevent="onVoice(false)"

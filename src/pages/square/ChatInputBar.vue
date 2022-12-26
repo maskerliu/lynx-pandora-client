@@ -1,6 +1,6 @@
 <template>
-  <van-field style="width: 100%; position: absolute; bottom: 0;" v-model="textInput" type="textarea" autosize rows="1"
-    center clearable>
+  <van-field class="inputbar" v-model="textInput" :placeholder="$t('square.room.inputPlaceholder')" type="textarea"
+    autosize rows="1" center clearable>
     <template #left-icon>
       <van-button round style="width: 35px; height: 35px; margin-right: 15px;">
         <template #icon>
@@ -62,7 +62,7 @@ const activeTab = ref(0)
 const textInput = ref(null)
 const emoji = ref('')
 const image = ref<Array<UploaderFileListItem>>([])
-  
+
 let session: IM.Session = null
 
 const matchNotEmpty = /[^\s]+/i
@@ -136,6 +136,13 @@ async function onFileSelect(...args: string[]) {
 
 </script>
 <style scoped>
+.inputbar {
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  background: #ffffffcc;
+}
+
 .emoji-panel {
   overflow-x: hidden;
   overflow-y: auto;

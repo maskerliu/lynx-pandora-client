@@ -17,8 +17,7 @@
           </template>
           <template #value style="width: 100px;">
             <div>
-              <van-button type="warning" plain size="small"
-                @click.stop.prevent="commonStore.rebootDevice(item.deviceId)">
+              <van-button type="warning" plain size="small" @click.stop.prevent="iotStore.rebootDevice(item.deviceId)">
                 <template #icon>
                   <van-icon class="iconfont icon-shut-down" />
                 </template>
@@ -51,12 +50,15 @@
 </template>
 
 <script lang="ts" setup>
-import { Notify } from 'vant';
-import { onMounted, ref, watch } from 'vue';
-import { IOT, IOTApi } from '../../models';
-import { useCommonStore } from '../../store';
+import { showNotify } from 'vant'
+import { onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { IOT, IOTApi } from '../../models'
+import { useCommonStore, useIOTStore } from '../../store'
 
 const commonStore = useCommonStore()
+const iotStore = useIOTStore()
+const route = useRoute()
 const searchKey = ref('')
 const removeConfirmDialog = ref(false)
 const curDevice = ref<IOT.Device>()
@@ -89,9 +91,9 @@ async function removeDevice() {
   try {
     let result = await IOTApi.removeDevice(curDevice.value!._id)
     curDevice.value = undefined
-    Notify({ type: 'success', message: result, duration: 500 })
+    showNotify({ type: 'success', message: result, duration: 500 })
   } catch (err) {
-    Notify({ type: 'warning', message: err as string, duration: 500 })
+    showNotify({ type: 'warning', message: err as string, duration: 500 })
   }
   removeConfirmDialog.value = false
 }

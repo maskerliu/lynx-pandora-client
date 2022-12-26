@@ -8,12 +8,12 @@
           <van-image :radius="5" width="8rem" height="8rem" fit="cover" :src="commonStore.profile?.avatar" />
         </template>
         <template #value>
-          <div style="margin-left: 15px;" v-if="commonStore.profile">
+          <div style="margin-left: 15px; text-align: left;" v-if="commonStore.profile">
             <h3 :style="{ color: commonStore.profile.name == null ? '#d63031' : '#2d3436' }">
               {{ commonStore.profile.name == null ? $t('mine.needUpdateProfile') : commonStore.profile.name }}
             </h3>
           </div>
-          <div style="margin-left: 15px;">
+          <div style="margin-left: 15px; text-align: left;">
             <van-tag plain type="primary" v-for="role in commonStore.operator?.fullRoles" style="margin-right: 15px;">
               {{ role.name }}
             </van-tag>

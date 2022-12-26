@@ -1,7 +1,9 @@
 <template>
   <van-col span="6" @click="handleSeatClick" class="seat-item">
     <div class="seat-box">
-      <!-- <img v-show="showSoundWave" class="sound-wave" src="../../assets/sound_wave.png" /> -->
+      <img v-show="showSoundWave" class="sound-wave" :src="SoundWave" />
+
+
       <van-image v-if="seatInfo.userInfo" :src="seatInfo.userInfo.avatar" fit="cover" round radius="36"
         class="seat-item-avatar" />
       <van-icon class="seat-item-icon iconfont icon-lock" v-else-if="seatInfo.isLocked" size="24" />
@@ -11,21 +13,23 @@
         <span class="iconfont icon-like" style="font-size: 0.5rem;"></span>
         <span>{{ seatInfo.charm }}</span>
       </div> -->
+      <img class="seat-item-frame" :src="seatFrames[seatInfo.seq].url" />
       <span class="seat-item-mute iconfont icon-mute" v-if="(seatInfo && seatInfo.isMute)"></span>
     </div>
     <div class="seat-item-name">
-      zhangsan
+      {{ seatInfo.userInfo ? seatInfo.userInfo.name : seatInfo.seq + '号麦' }}
     </div>
   </van-col>
 </template>
 <script lang="ts" setup>
-
 import { onMounted, ref } from 'vue';
-import { ChatRoom } from '../../models';
+import { Chatroom } from '../../models';
+import SoundWave from '../../asserts/sound_wave.png'
+
 
 const seat = ref()
 
-const showSoundWave = ref(false)
+const showSoundWave = ref(true)
 const seatIsLock = ref(false)
 
 
@@ -42,8 +46,19 @@ const menuTextMap = {
   unlockSeat: '打开座位',
 }
 
+const seatFrames = [
+  { name: '冰雪世界', url: 'https://yppphoto.hibixin.com/yppphoto/7a0affe10a9946c09ca334e81bcd469c.png' },
+  { name: '圣诞快乐', url: 'https://yppphoto.hibixin.com/yppphoto/17e9091cbf1f4e9896c9d09ae31ac55d.png' },
+  { name: '大神', url: 'https://yppphoto.hibixin.com/yppphoto/ab614afd8f2e41f88b9fcc6b40d0ef3e.png' },
+  { name: '冬日回忆', url: 'https://yppphoto.hibixin.com/yppphoto/b8e363e137804c10ad5e8da569e017b8.png' },
+  { name: '圣诞帽', url: 'https://yppphoto.hibixin.com/yppphoto/83867fc3e37442e0abe9fd28158ecae4.png' },
+  { name: '林深见鹿', url: 'https://yppphoto.hibixin.com/yppphoto/6f88334cb220407b83960d27fa352a74.png' },
+  { name: '月光坠落', url: 'https://yppphoto.hibixin.com/yppphoto/3497d525a4e84bc7912c275fc484aebd.png' },
+  { name: '绿松石', url: 'https://yppphoto.hibixin.com/yppphoto/cd1fa8defb904ac7986bed61d20cf1ac.png' },
+]
+
 const props = defineProps<{
-  seatInfo: ChatRoom.Seat
+  seatInfo: Chatroom.Seat
 }>()
 
 onMounted(() => {
@@ -55,7 +70,7 @@ function handleSeatClick() {
 }
 
 </script>
-<style scoped>
+<style>
 .seat-item {
   height: 61px;
   cursor: pointer;
@@ -99,7 +114,7 @@ function handleSeatClick() {
   width: 70px;
   height: 70px;
   top: -15px;
-  left: 10px;
+  left: -15px;
 }
 
 .seat-item-frame {
@@ -107,7 +122,7 @@ function handleSeatClick() {
   width: 60px;
   height: 60px;
   top: -10px;
-  left: 15px;
+  left: -10px;
 }
 
 .seat-item-mute {
@@ -130,6 +145,7 @@ function handleSeatClick() {
   overflow: hidden;
   font-size: 0.7rem;
   margin-top: 6px;
+  text-align: center;
 }
 
 .seat-item-tag {

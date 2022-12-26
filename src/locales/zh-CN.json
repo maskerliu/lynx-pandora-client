@@ -130,7 +130,7 @@
       "complain": "投诉"
     }
   },
-  "channel": {
+  "square": {
     "title": "频道",
     "room": {
       "create":{
@@ -141,7 +141,9 @@
         "notice":"公告",
         "noticePlaceholder":"您可以把频道规则、公告发布在这里",
         "tags": "标签"
-      }
+      },
+      "reward": "赠送",
+      "inputPlaceholder": "说点什么吧"
     }
   }
 }

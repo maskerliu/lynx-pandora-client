@@ -74,7 +74,7 @@ onMounted(async () => {
 })
 
 function calcImageSize(e: any) {
-  if (e.type == 'load') {
+  if (e?.type == 'load') {
     let img = (e.target != null ? e.target : e.path[0]) as HTMLImageElement
     [width.value, height.value] = getScaleSize(img.naturalWidth, img.naturalHeight, clientWidth, clientHeight)
   }

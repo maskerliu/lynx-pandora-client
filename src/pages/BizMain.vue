@@ -1,9 +1,14 @@
 <template>
   <van-col>
-    <van-nav-bar class="animate__animated" v-bind:class="showNavbar ? 'animate__fadeInDown' : 'animate__fadeOutUp'"
-      :title="commonStore.navbar.title" :left-arrow="commonStore.navbar.leftArrow" @click-left="back">
+    <van-nav-bar class="animate__animated nav-bar"
+      v-bind:class="showNavbar ? 'animate__fadeInDown' : 'animate__fadeOutUp'"
+      v-bind:style="{background: `${commonStore.navbarBg}`, color: `${commonStore.navbarColor}`}"
+      :left-arrow="commonStore.navbar.leftArrow" @click-left="back">
+      <template #title>
+        <div v-bind:style="{ color: `${commonStore.navbarColor}` }">{{ commonStore.navbar.title }}</div>
+      </template>
       <template #right>
-        <van-icon size="24" class="iconfont" v-bind:class="commonStore.navbar.rightText"
+        <van-icon size="20" class="iconfont" v-bind:class="commonStore.navbar.rightText"
           @click="commonStore.rightAction" />
       </template>
     </van-nav-bar>
@@ -12,7 +17,7 @@
       v-bind:style="{ height: `calc(100vh - ${height}px)` }" v-slot="{ Component, route }">
       <suspense>
         <transition :name="route.meta.animate">
-          <keep-alive :include="['DeviceMgr']">
+          <keep-alive :include="[]">
             <component :is="Component" :key="route.path" />
           </keep-alive>
         </transition>
@@ -30,6 +35,11 @@
         :badge="imStore.unread == 0 ? '' : (imStore.unread > 99 ? '99+' : imStore.unread)">
         <template #icon>
           <van-icon class="iconfont icon-msg-read" size="26" />
+        </template>
+      </van-tabbar-item>
+      <van-tabbar-item replace to="/square">
+        <template #icon>
+          <van-icon class="iconfont icon-square" size="26" />
         </template>
       </van-tabbar-item>
       <van-tabbar-item replace to="/mine">
@@ -51,7 +61,7 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import msgClient from '../common/PahoMsgClient'
-import { useCommonStore, useIMStore, useIOTStore } from '../store'
+import { useChatroomStore, useCommonStore, useIMStore, useIOTStore } from '../store'
 import DebugPanel from './components/DebugPanel.vue'
 import Login from './user/Login.vue'
 
@@ -79,10 +89,11 @@ onMounted(async () => {
 
   Promise.all([commonStore.init(), imStore.init()]).then(() => {
     if (msgClient && msgClient.isConnected()) { msgClient.close() }
-    msgClient.init(commonStore, imStore, iotStore)
+    msgClient.init(commonStore, imStore, iotStore, useChatroomStore())
+    // msgClient.setupChatroomStore(useChatroomStore())
   })
 
-  router.replace("/channel")
+  router.replace("/square")
   active.value = 1
 })
 
@@ -102,6 +113,8 @@ router.beforeEach((to, from) => {
   commonStore.navbar.leftArrow = true
   commonStore.navbar.rightText = null
   commonStore.rightAction = null
+  commonStore.navbarBg = 'linear-gradient(0.5turn, #ffffff, #f1f1f1)'
+  commonStore.navbarColor = '#2c3e50'
 
   commonStore.needLogin = to.meta.needAuth == true && commonStore.accessToken == null
 
@@ -129,6 +142,11 @@ function back() {
 </script>
 
 <style scoped>
+.van-nav-bar::after,
+[class*='van-hairline']::after {
+  display: none;
+}
+
 .biz-content {
   width: 100%;
   margin: 0px 0 50px 0;

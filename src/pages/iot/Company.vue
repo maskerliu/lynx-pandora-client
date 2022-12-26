@@ -75,7 +75,7 @@
   </van-col>
 </template>
 <script lang="ts" setup>
-import { Notify } from 'vant';
+import { showNotify } from 'vant';
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { IOT, IOTApi } from '../../models';
@@ -133,7 +133,7 @@ function editRole(role: IOT.Role) {
 
 async function deleteRole() {
   await IOTApi.deleteRole(curRole.value._id)
-  Notify({ type: 'success', message: '删除成功', duration: 500 })
+  showNotify({ type: 'success', message: '删除成功', duration: 500 })
   company.value.roles = await IOTApi.getRoles(commonStore.operator?.cid)
   curRole.value = {}
   showRoleInfo.value = false
@@ -141,7 +141,7 @@ async function deleteRole() {
 
 async function saveRole() {
   await IOTApi.saveRole(curRole.value)
-  Notify({ type: 'success', message: '更新功', duration: 500 })
+  showNotify({ type: 'success', message: '更新功', duration: 500 })
   curRole.value = {}
   showRoleInfo.value = false
   company.value.roles = await IOTApi.getRoles(commonStore.operator?.cid)

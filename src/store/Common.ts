@@ -8,6 +8,8 @@ import { Common, CommonApi, IOT, IOTApi, updateAccessToken, updateBaseDomain, Us
 export type CommonState = {
   navbar: NavBarProps,
   rightAction: Function,
+  navbarBg?: string,
+  navbarColor?: string,
   needLogin: boolean,
   appConfig?: Common.AppConfig,
   locale: string,
@@ -23,9 +25,6 @@ export type CommonAction = {
   init(): Promise<void>
   updateUserInfo(): Promise<void>
   logout(): Promise<void>
-  rebootDevice(deviceId: string): void
-  deviceTmpSubscribe(deviceId: string): void
-  deviceTmpUnsubscribe(deviceId: string): void
 }
 
 export type SharePref = {
@@ -38,6 +37,8 @@ export const useCommonStore = defineStore<string, CommonState, {}, CommonAction>
     return {
       navbar: {} as NavBarProps,
       rightAction: null,
+      navbarBg: null,
+      navbarColor: null,
       needLogin: false,
       appConfig: null as Common.AppConfig,
       locale: null,
@@ -53,11 +54,6 @@ export const useCommonStore = defineStore<string, CommonState, {}, CommonAction>
     async init() {
       updateBaseDomain(SERVER_BASE_URL)
       this.updateUserInfo()
-    },
-    setupMsgClient(commonStore?: any, imStore?: any, iotStore?: any) {
-      msgClient.commonStore = commonStore
-      msgClient.imStore = imStore
-      msgClient.iotStore = iotStore
     },
     async updateUserInfo() {
       if (this.accessToken == null) return
@@ -78,46 +74,6 @@ export const useCommonStore = defineStore<string, CommonState, {}, CommonAction>
       this.company = {}
       msgClient.close()
     },
-    publishMessage(message: string) {
-      // here just mock a device to send a fake monitor data for test
-      let deviceId = 'lynx-iot-nodered-00003'
-      let monitorSnap: IOT.MonitorSnap = {
-        temperature: Number.parseFloat((Math.random() * 60).toFixed(2)),
-        humidity: Number.parseFloat(Math.random().toFixed(2)),
-        speed: Number.parseInt((Math.random() * 5000).toFixed(1)),
-        voltage: Number.parseInt((Math.random() * 220).toFixed(0)),
-        electric: Number.parseFloat((Math.random() * 5).toFixed(1)),
-        pressure: Number.parseFloat((Math.random() * 10).toFixed(1)),
-        timestamp: new Date().getTime()
-      }
-
-      let msg: IOT.IOTMsg = {
-        from: deviceId,
-        type: IOT.MsgType.DATA,
-        data: monitorSnap
-      }
-      msgClient.sendMsg(deviceId, msg)
-    },
-    rebootDevice(deviceId: string) {
-      msgClient.sendMsg(deviceId, {
-        from: 'my/test/electron',
-        type: IOT.MsgType.REBOOT
-      })
-    },
-    deviceTmpSubscribe(deviceId: string) {
-      msgClient.subscribe(deviceId)
-      msgClient.sendMsg(deviceId, {
-        from: 'my/test/electron',
-        type: IOT.MsgType.TMP_SUBSCRIBED
-      })
-    },
-    deviceTmpUnsubscribe(deviceId: string) {
-      msgClient.unsubscribe(deviceId)
-      msgClient.sendMsg(deviceId, {
-        from: 'my/test/electron',
-        type: IOT.MsgType.TMP_UNSUBSCRIBED
-      })
-    }
   },
   persist: {
     enabled: true,

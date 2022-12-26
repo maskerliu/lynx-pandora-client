@@ -4,27 +4,29 @@
     style="width: 100%; height: 50%; padding-top: 15px;">
     <van-cell-group>
       <van-form label-align="right" label-width="5.5rem" colon>
-        <van-field :label="$t('channel.room.create.name')" :placeholder="$t('channel.room.create.namePlaceholder')"
+        <van-field :label="$t('square.room.create.name')" :placeholder="$t('square.room.create.namePlaceholder')"
           v-model="roomInfo.title" />
-        <van-field :label="$t('channel.room.create.notice')" :placeholder="$t('channel.room.create.noticePlaceholder')"
+        <van-field :label="$t('square.room.create.notice')" :placeholder="$t('square.room.create.noticePlaceholder')"
           type="textarea" rows="2" maxlength="100" show-word-limit v-model="roomInfo.notice" />
-        <van-field :label="$t('channel.room.create.cover')" input-align="right">
+        <van-field :label="$t('square.room.create.cover')" input-align="right">
           <template #input>
             <van-uploader width="4rem" height="4rem" v-model="cover" :max-count="1" closeImagePreview
               @click-upload="openFileSelector" />
           </template>
         </van-field>
 
-        <van-field :label="$t('channel.room.create.tags')" />
+        <van-field :label="$t('square.room.create.tags')" />
       </van-form>
     </van-cell-group>
-    <van-button type="success" style="position: absolute; bottom: 0; width: calc(100% - 30px); margin: 15px;" text="提交申请" />
+    <van-button type="success" style="position: absolute; bottom: 0; width: calc(100% - 30px); margin: 15px;"
+      text="提交申请" />
   </van-popup>
 </template>
 <script lang="ts" setup>
 import { UploaderFileListItem } from 'vant'
-import { onMounted, onUnmounted, ref } from 'vue'
-import { Channel } from '../../models'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { Chatroom } from '../../models'
+import { useChatroomStore } from '../../store'
 
 defineProps<{
   show: boolean
@@ -32,8 +34,9 @@ defineProps<{
 
 const emits = defineEmits(['update:show'])
 
+const chatroomStore = useChatroomStore()
 const cover = ref<Array<UploaderFileListItem>>([])
-const roomInfo = ref<Channel.Room>({})
+const roomInfo = ref<Chatroom.Room>({})
 
 onMounted(() => {
   if (window.argus) {

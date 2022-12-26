@@ -1,6 +1,7 @@
 <template>
   <van-col style="flex: 1; min-width: 375px;">
-    <van-list v-model:loading="loading" :finished="finished" style="height: 100%; overflow-y: auto;">
+    <van-list v-model:loading="loading" :finished="finished"
+      style="height: 100%; background-color: white; overflow-y: auto;">
       <van-cell title="系统消息" label="10号机异常" center clickable to="/message/sysMessages">
         <template #icon>
           <van-icon class="iconfont icon-notification" size="26" color="#4fc08d" style="margin: 10px 20px 10px 12px;" />
@@ -50,7 +51,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Notify } from 'vant'
+import { Notify, showNotify } from 'vant'
 import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -86,7 +87,7 @@ async function onLoad() {
     sessions.value = await imStore.sessions()
   } catch (err) {
     console.error(err)
-    Notify({ type: 'danger', message: err.toString(), duration: 500 })
+    showNotify({ type: 'danger', message: err.toString(), duration: 500 })
   } finally {
     loading.value = false
     finished.value = true

@@ -6,13 +6,9 @@
 import { onMounted, ref } from 'vue'
 import BizMain from './pages/BizMain.vue'
 
-
 const canRender = ref(false)
-let AMap = null
 
 onMounted(async () => {
-
-  window.AMap = null
   window.webApp.methods = new Map()
 
   window.webApp.register = (func: Function, thiz: any) => {
@@ -84,10 +80,12 @@ onMounted(async () => {
   --van-tag-border-radius: 5px;
   --van-cell-font-size: 1rem;
   --van-cell-vertical-padding: 12px;
+  --van-cell-background: transparent;
   --van-cell-horizontal-padding: 15px;
   --van-uploader-delete-icon-size: 1.3rem;
   --van-grid-item-content-padding: 0;
-  --van-grid-item-content-background-color: #FFFFFF00;
+  --van-grid-item-content-background: transparent;
+  --van-grid-item-content-background-color: transparent;
   --van-collapse-item-content-padding: 0;
   --van-collapse-item-content-background: transparent;
 }

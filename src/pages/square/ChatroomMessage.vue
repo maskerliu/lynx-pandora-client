@@ -74,7 +74,7 @@ function calcImageSize(e: any) {
 }
 
 function play() {
-  audioRef.value.play()
+  audioRef.value?.play()
 }
 
 function onPreview() {
@@ -121,16 +121,16 @@ function onPreview() {
 }
 
 .message-text {
-  color: #2c3e50;
-  background: #fff;
+  color: #ecf0f1;
+  background: #0807077d;
   padding: 10px 10px;
-  border-radius: 15px;
+  border-radius: 15px 0 15px 0;
   margin: 5px 0;
   max-width: 70%;
+  font-size: 0.8rem;
   overflow-wrap: break-word;
   white-space: pre-wrap;
   word-break: break-word;
-  border-bottom-left-radius: 0px;
 }
 
 .message-text:active {

@@ -1,7 +1,7 @@
 import Paho from 'paho-mqtt'
 import { Store } from 'pinia'
-import { IM, IOT } from '../models'
-import { CommonAction, CommonState, IMAction, IMState, IOTAction, IOTState } from '../store'
+import { Chatroom, IM, IOT } from '../models'
+import { ChatroomAction, ChatroomState, CommonAction, CommonState, IMAction, IMState, IOTAction, IOTState } from '../store'
 
 export class PahoMsgClient {
 
@@ -16,27 +16,29 @@ export class PahoMsgClient {
     timeout: 5000,
   }
 
-  commonStore: Store<string, CommonState, {}, CommonAction>
-  imStore: Store<string, IMState, {}, IMAction>
-  iotStore: Store<string, IOTState, {}, IOTAction>
-
-  protected client: Paho.Client
+  private commonStore: Store<string, CommonState, {}, CommonAction>
+  private imStore: Store<string, IMState, {}, IMAction>
+  private iotStore: Store<string, IOTState, {}, IOTAction>
+  private chatroomStore: Store<string, ChatroomState, {}, ChatroomAction>
   private willTopic: string
+  private willMessage: Paho.Message
+
   protected curTopic: string
   protected curSubDevice: string
 
-  private willMessage: Paho.Message
+  client: Paho.Client
 
-  public init(commonStore: Store<string, CommonState, {}, CommonAction>, imStore: Store<string, IMState, {}, IMAction>,
-    iotStore: Store<string, IOTState, {}, IOTAction>) {
+  public init(commonStore: Store<string, CommonState, {}, CommonAction>,
+    imStore: Store<string, IMState, {}, IMAction>,
+    iotStore: Store<string, IOTState, {}, IOTAction>,
+    chatroomStore: Store<string, ChatroomState, {}, ChatroomAction>) {
 
     this.commonStore = commonStore
     this.imStore = imStore
     this.iotStore = iotStore
+    this.chatroomStore = chatroomStore
 
-
-    this.willTopic = `_client/lwt/${commonStore.profile.uid}`
-
+    this.willTopic = `_client/lwt/im/${commonStore.profile.uid}`
     this.willMessage = new Paho.Message(commonStore.profile.uid)
     this.willMessage.destinationName = this.willTopic
     this.willMessage.retained = true
@@ -80,37 +82,19 @@ export class PahoMsgClient {
     })
   }
 
-  public unsubscribe(deviceId: string): void {
+  public subscribe(topic: string) {
     if (!this.isConnected()) { return }
-    this.client.unsubscribe(this.curTopic)
-    this.client.unsubscribe(`tmp/${deviceId}`)
-    this.client.unsubscribe(`message/${this.client.clientId}`)
+    this.client.subscribe(topic)
   }
 
-  public sendMsg(deviceId: string, message: IOT.IOTMsg) {
-    this.client.send(`_iot/tmp/${deviceId}`, JSON.stringify(message), 0, true)
+  public unsubscribe(topic: string) {
+    if (!this.isConnected()) { return }
+    this.client.unsubscribe(topic)
   }
 
-  public subscribe(deviceId: string) {
-
+  public send(topic: string, message: string) {
     if (!this.isConnected()) { return }
-
-    if (this.curTopic && this.curSubDevice !== deviceId) {
-      this.sendMsg(this.curSubDevice, {
-        from: this.client.clientId,
-        type: IOT.MsgType.TMP_UNSUBSCRIBED,
-      })
-      this.client.unsubscribe(this.curTopic)
-    }
-
-    this.curSubDevice = deviceId
-    this.curTopic = `_iot/tmp/${deviceId}`
-    this.client.subscribe(this.curTopic)
-
-    this.sendMsg(deviceId, {
-      from: this.client.clientId,
-      type: IOT.MsgType.TMP_SUBSCRIBED,
-    })
+    this.client.send(topic, message, 0, false)
   }
 
   protected handleMsg(topic: string, message: string) {
@@ -120,14 +104,10 @@ export class PahoMsgClient {
         this.imStore.onMessageArrived(msgs)
       } else if (topic.indexOf('_iot/') != -1) {
         let msg = JSON.parse(message) as IOT.IOTMsg
-        switch (msg.type) {
-          case IOT.MsgType.DATA:
-            this.iotStore.updateDeviceData(msg.from, msg.data)
-            break
-          case IOT.MsgType.REGISTER:
-
-            break
-        }
+        this.iotStore.onDataArrived(msg.from, msg)
+      } else if (topic.indexOf('_room/') != -1) {
+        let msgs = JSON.parse(message) as Array<Chatroom.Message>
+        this.chatroomStore.onMessageArrived(msgs)
       }
     } catch (err) {
       console.log(err)

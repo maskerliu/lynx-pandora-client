@@ -17,7 +17,7 @@
 </template>
 <script lang="ts" setup>
 import md5 from 'md5'
-import { Notify } from 'vant'
+import { showNotify } from 'vant'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
@@ -97,7 +97,7 @@ async function gotoSession(profile: User.Profile, idx: number) {
 async function createMultiChat() {
 
   if (selected.value.filter((it) => { return it }).length < 3) {
-    Notify({ type: 'warning', message: '除自己之外，请至少选择两位联系人才可创建群聊', duration: 1200 })
+    showNotify({ type: 'warning', message: '除自己之外，请至少选择两位联系人才可创建群聊', duration: 1200 })
     return
   }
 
@@ -131,7 +131,7 @@ async function createSession(members: string[], title: string, thumb: string, ty
     await imStore.updateSession(session, snap)
     router.push({ name: 'Session', params: { sid }, replace: true })
   } catch (err) {
-    Notify({ type: 'danger', message: err.toString(), duration: 1500 })
+    showNotify({ type: 'danger', message: err.toString(), duration: 1500 })
   }
 }
 
