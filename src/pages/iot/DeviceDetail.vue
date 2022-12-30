@@ -32,7 +32,7 @@
           <amap-viewer style="height: 300px;" v-model:lng="curDevice.lng" v-model:lat="curDevice.lat"
             v-model:address="curDevice.address" />
           <van-button type="success" :loading="updating" @click="updateDeviceInfo" :text="$t('common.done')"
-            style="width: 100%; margin: 15px 0;" />
+            style="width: calc(100% - 30px); margin: 15px 0;" />
         </van-collapse-item>
       </van-collapse>
     </van-cell-group>

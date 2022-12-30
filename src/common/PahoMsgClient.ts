@@ -82,9 +82,10 @@ export class PahoMsgClient {
     })
   }
 
-  public subscribe(topic: string) {
-    if (!this.isConnected()) { return }
+  public subscribe(topic: string): boolean {
+    if (!this.isConnected()) { return false }
     this.client.subscribe(topic)
+    return true
   }
 
   public unsubscribe(topic: string) {
@@ -119,8 +120,11 @@ export class PahoMsgClient {
   }
 
   close() {
-    this.client.disconnect()
-    this.client = null
+    if (this.client && this.isConnected()) {
+      this.client.disconnect()
+      this.client = null
+    }
+
   }
 }
 

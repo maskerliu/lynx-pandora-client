@@ -56,8 +56,10 @@ export const useCommonStore = defineStore<string, CommonState, {}, CommonAction>
       this.updateUserInfo()
     },
     async updateUserInfo() {
-      if (this.accessToken == null) return
-
+      if (this.accessToken == null) {
+        this.needLogin = true
+        return
+      }
       updateAccessToken(this.accessToken)
       this.profile = await CommonApi.getMyProfile()
       this.appConfig = await CommonApi.getAppConfig()

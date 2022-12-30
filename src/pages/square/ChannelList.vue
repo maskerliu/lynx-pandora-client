@@ -1,9 +1,17 @@
 <template>
   <van-col style="width:100%; height: 100%; overflow-y: auto;">
-    <van-tabs v-model:active="activeTab" sticky>
+    <van-tabs v-model:active="activeTab" sticky shrink animated background="#f6f6f6">
       <van-tab title="我的关注">
-        <van-list :loading="collectionLoading" :finished="collectionFinished" @load="getMyCollections">
-          <van-cell :title="room.title" :label="room.owner" v-for="room in myCollections">
+        <van-list style="height: 100%; overflow-y: auto;" :loading="collectionLoading" :finished="collectionFinished"
+          @load="getMyCollections">
+          <template v-if="myCollections.length == 0">
+            <div
+              style="width:100%; height: 100%; margin-top: 50%; text-align: center; color: #bdc3c7; font-size: 0.7rem;">
+              <van-icon class="iconfont icon-emptybox" size="50" />
+              <div style="margin-top: 10px;">空空如野，快去收藏您喜欢的频道吧～～</div>
+            </div>
+          </template>
+          <van-cell :title="room.title" :label="room.ownerName" v-for="room in myCollections" clickable @click="enterRoom(room)">
             <template #icon>
               <van-image :src="room.cover" width="4rem" height="4rem" round radius="8px" style="margin-right: 15px;" />
             </template>
@@ -11,20 +19,19 @@
         </van-list>
       </van-tab>
       <van-tab title="推荐">
-        <van-list style="width: 100%;" :loading="loading" :finished="finished" @load="fetchList">
+        <van-list :loading="loading" :finished="finished" @load="fetchList">
           <div class="list-box">
-
             <div class="list-item" v-for="(item, idx) of rooms" :key="idx" @click="enterRoom(item)">
               <img src="https://yppphoto.hibixin.com/yppphoto/e3e10912ee3847b0a2af20e6ec848fa2.apng"
-                style="position:absolute; width: 100%; height: 100%;" />
+                style="position:absolute; width: 100%;" />
               <img class="item-cover" v-if="item.cover" :src="item.cover" fit="cover" @load="calcImageHeight"
                 @error="calcImageHeight" />
 
               <div class="item-info">
-                <div class="item-text van-ellipsis">{{
-                    item.title
-                }}</div>
-                <div class="item-text van-multi-ellipsis--l2" style="font-size: 0.7rem; color: #bdc3c7;">
+                <div class="item-text van-ellipsis">
+                  {{ item.title }}
+                </div>
+                <div class="item-text van-ellipsis" style="font-size: 0.7rem; color: #bdc3c7;">
                   {{ item.notice }}</div>
               </div>
             </div>
@@ -32,11 +39,10 @@
         </van-list>
       </van-tab>
     </van-tabs>
-
-    <create-room v-model:show="showCreateRoom" />
   </van-col>
 </template>
 <script lang="ts" setup>
+import { showToast } from 'vant'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -44,7 +50,7 @@ import { getScaleSize } from '../../common/image.util'
 import { Chatroom } from '../../models'
 import { ChatroomApi } from '../../models/chatroom.api'
 import { useChatroomStore, useCommonStore } from '../../store'
-import CreateRoom from './CreateRoom.vue'
+
 
 const commonStore = useCommonStore()
 const chatroomStore = useChatroomStore()
@@ -54,7 +60,6 @@ const myCollections = ref<Array<Chatroom.Room>>([])
 const rooms = ref<Array<Chatroom.Room>>([])
 
 const activeTab = ref(0)
-const showCreateRoom = ref(false)
 const loading = ref(false)
 const finished = ref(false)
 const collectionLoading = ref(false)
@@ -67,9 +72,7 @@ let originData: Array<Chatroom.Room> = []
 
 onMounted(async () => {
   commonStore.navbar.title = i18n.t('square.title')
-  commonStore.navbar.rightText = 'icon-add'
   commonStore.navbar.leftArrow = false
-  commonStore.rightAction = () => { showCreateRoom.value = true }
 
   activeTab.value = 1
 })
@@ -79,7 +82,7 @@ async function getMyCollections() {
   let collections = await ChatroomApi.myCollections()
   myCollections.value.push(...collections)
   collectionLoading.value = false
-  if (myCollections.value.length > 8) collectionFinished.value = true
+  collectionFinished.value = true
 }
 
 async function fetchList() {
@@ -98,8 +101,12 @@ async function fetchList() {
 }
 
 async function enterRoom(item: Chatroom.Room) {
-  await chatroomStore.enterRoom(item._id)
-  router.push({ name: 'Chatroom' })
+  try {
+    await chatroomStore.enterRoom(item._id)
+    router.push({ name: 'Chatroom' })
+  } catch (err) {
+    showToast(err.toString())
+  }
 }
 
 function calcImageHeight(e: any) {

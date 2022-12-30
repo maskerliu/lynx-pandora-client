@@ -59,7 +59,7 @@
   </van-col>
 </template>
 <script lang="ts" setup>
-import { Notify } from 'vant'
+import { Notify, showNotify } from 'vant'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { CommonApi, IOT, IOTApi } from '../../models'
@@ -118,13 +118,13 @@ function addOperatorRole(role: string) {
     if (curOperator.value.roles.indexOf(role) == -1)
       curOperator.value.roles.push(role)
   } else {
-    Notify({ type: 'warning', message: '请先通过手机号搜索要添加的员工' })
+    showNotify({ type: 'warning', message: '请先通过手机号搜索要添加的员工' })
   }
 }
 
 async function saveOperator() {
   if (curOperator.value.cid == null || curOperator.value.name == null || curOperator.value.roles.length == 0) {
-    Notify({ type: 'warning', message: '员工信息未正确设置' })
+    showNotify({ type: 'warning', message: '员工信息未正确设置' })
   } else {
     await IOTApi.saveOperator(curOperator.value)
     curOperator.value = null
@@ -147,10 +147,10 @@ async function onSearchUser() {
         cid: commonStore.company._id
       }
     } catch (err) {
-      Notify({ type: 'warning', message: err.toString(), duration: 800 })
+      showNotify({ type: 'warning', message: err.toString(), duration: 800 })
     }
   } else {
-    Notify({ type: 'warning', message: '请输入正确的手机号', duration: 800 })
+    showNotify({ type: 'warning', message: '请输入正确的手机号', duration: 800 })
   }
 }
 

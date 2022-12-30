@@ -25,7 +25,7 @@
     <van-cell-group title="  ">
       <van-cell :title="$t('mine.company')" :title-style="{ 'max-width': '100px' }" center is-link @click="goCompany">
         <template #icon>
-          <van-icon class="iconfont icon-company" size="24" color="green" style="margin-right: 10px;" />
+          <van-icon class="iconfont icon-company" size="24" color="#34495e" style="margin-right: 10px;" />
         </template>
         <template #value>
           <div class="van-ellipsis" style="max-width: 100%; text-align: right;">
@@ -35,7 +35,15 @@
       </van-cell>
       <van-cell :title="$t('mine.bindDevice')" center is-link @click="goBind">
         <template #icon>
-          <van-icon class="iconfont icon-zhongjiqi" size="24" color="green" style="margin-right: 10px;" />
+          <van-icon class="iconfont icon-zhongjiqi" size="24" color="#27ae60" style="margin-right: 10px;" />
+        </template>
+      </van-cell>
+    </van-cell-group>
+
+    <van-cell-group title="  ">
+      <van-cell :title="$t('mine.myChatrooms')" is-link to="/square/myRooms">
+        <template #icon>
+          <van-icon class="iconfont icon-channel" size="24" color="#2980b9" style="margin-right: 10px;" />
         </template>
       </van-cell>
     </van-cell-group>
@@ -47,6 +55,7 @@
         </template>
       </van-cell>
     </van-cell-group>
+
   </van-col>
 </template>
 <script lang="ts" setup>

@@ -2,7 +2,7 @@
   <span>
     <van-button round style="width: 35px; height: 35px; margin-left: 10px;" @click="showGiftPanel = !showGiftPanel">
       <template #icon>
-        <van-icon class="iconfont icon-gift" size="24" />
+        <van-icon class="iconfont icon-gift" size="24" color="#f39c12" />
       </template>
     </van-button>
     <van-popup v-model:show="showGiftPanel" position="bottom" round class="gift-panel" style="background: #34495e;">
@@ -14,17 +14,22 @@
             :src="seat.userInfo.avatar" @click="onSeatClicked(seat.userInfo.uid)" />
         </div>
       </van-row>
-      <van-swipe class="gift-swiper">
-        <van-swipe-item v-for="i in Math.ceil(gifts.length / 8)">
+      <van-swipe class="gift-swiper" lazy-render>
+        <van-swipe-item v-for="i in Math.ceil(chatroomStore.gifts.length / 8)">
           <van-grid :column-num="4" :border="false">
             <van-grid-item v-for="j in 8" style="padding: 0;" @click="onGiftSelected((i - 1) * 8 + j - 1)">
               <template #default style="background: transparent;">
-                <div v-if="((i - 1) * 8 + j - 1) >= gifts.length" style="width:100%; height: 0;"></div>
+                <div v-if="((i - 1) * 8 + j - 1) >= chatroomStore.gifts.length" style="width: 100%; height: 0;"></div>
                 <div v-else class="gift-item" :class="selectedGift == ((i - 1) * 8 + j - 1) ? 'active' : ''">
-                  <van-image :src="gifts[(i - 1) * 8 + j - 1]?.snap" fit="cover" style="width: 4rem; height: 4rem;" />
+                  <van-image :src="chatroomStore.gifts[(i - 1) * 8 + j - 1]?.snap" fit="cover"
+                    style="width: 4rem; height: 4rem;" />
                   <div style="width: 100%; text-align: center;">
-                    <div style="font-size: 0.7rem; color: #ecf0f1">{{ gifts[(i - 1) * 8 + j - 1]?.title }}</div>
-                    <div style="font-size: 0.6rem; color: #bdc3c7">{{ gifts[(i - 1) * 8 + j - 1]?.priceDesc }}</div>
+                    <div style="font-size: 0.7rem; color: #ecf0f1">
+                      {{ chatroomStore.gifts[(i - 1) * 8 + j - 1]?.title }}
+                    </div>
+                    <div style="font-size: 0.6rem; color: #bdc3c7">
+                      {{ chatroomStore.gifts[(i - 1) * 8 + j - 1]?.priceDesc }}
+                    </div>
                   </div>
                 </div>
               </template>
@@ -52,20 +57,17 @@
 </template>
 <script lang="ts" setup>
 import { onMounted, ref, watch } from 'vue';
-import { Chatroom } from '../../models';
-import { ChatroomApi } from '../../models/chatroom.api';
 import { useChatroomStore } from '../../store';
 
 const chatroomStore = useChatroomStore()
 const showGiftPanel = ref(false)
 const showGiftCount = ref(false)
-const gifts = ref<Array<Chatroom.Gift>>([])
 const giftCount = ref(0)
 const selectedSeats = ref<Array<string>>([])
 const selectedGift = ref(-1)
 
 onMounted(async () => {
-  gifts.value = await ChatroomApi.gifts()
+
 })
 
 
@@ -88,7 +90,6 @@ function onSeatClicked(uid: string) {
 
 function onGiftSelected(idx: number) {
   selectedGift.value = idx
-  console.log(gifts.value[idx].title)
 }
 
 function onGiftCountSelect(count: number) {
@@ -96,9 +97,10 @@ function onGiftCountSelect(count: number) {
   showGiftCount.value = false
 }
 
-function reward() {
+async function reward() {
   if (selectedGift.value != -1 && selectedSeats.value.length > 0 && giftCount.value > 0) {
-    chatroomStore.reward(gifts.value[selectedGift.value]._id, giftCount.value, selectedSeats.value)
+    await chatroomStore.reward(selectedGift.value + '', giftCount.value, selectedSeats.value)
+    showGiftPanel.value = false
   }
 }
 

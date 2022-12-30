@@ -61,6 +61,7 @@
     "company": "公司",
     "createCompany": "尚未绑定公司，请去创建或联系管理员",
     "bindDevice": "绑定设备",
+    "myChatrooms": "我的频道",
     "settings": "设置",
     "profile": {
       "title": "个人资料",
@@ -133,17 +134,31 @@
   "square": {
     "title": "频道",
     "room": {
-      "create":{
-        "title":"创建个人频道",
-        "name":"频道名",
-        "namePlaceholder":"给您的频道取一个有个性的名字吧",
-        "cover":"封面",
-        "notice":"公告",
-        "noticePlaceholder":"您可以把频道规则、公告发布在这里",
-        "tags": "标签"
+      "create": {
+        "title": "创建个人频道",
+        "name": "频道名",
+        "namePlaceholder": "给您的频道取一个有个性的名字吧",
+        "type": "类别",
+        "cover": "封面",
+        "notice": "公告",
+        "noticePlaceholder": "您可以把频道规则、公告发布在这里",
+        "tags": "标签",
+        "master": "管理",
+        "submit": "创建频道"
+      },
+      "seatMgr": {
+        "title": "当前麦序",
+        "mute": "闭麦",
+        "on": "抱上麦",
+        "down": "抱下麦",
+        "request": "申请上麦",
+        "onDirectly": "上麦"
       },
       "reward": "赠送",
       "inputPlaceholder": "说点什么吧"
+    },
+    "myRooms": {
+      "title": "我的个人频道"
     }
   }
 }

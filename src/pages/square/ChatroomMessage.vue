@@ -1,32 +1,27 @@
 <template>
   <van-row class="message">
-    <van-image round radius="2rem" width="2rem" height="2rem" class="user-avatar" fit="cover" :src="avatar" />
+    <van-image round radius="2rem" width="2rem" height="2rem" class="user-avatar" fit="cover"
+      :src="(message.data as Chatroom.ChatContent).avatar"
+      v-if="message.type == Chatroom.MsgType.ChatText||message.type == Chatroom.MsgType.ChatEmoji" />
     <div class="message-content">
-      <div class="message-text">
-        <template v-if="(message.type == IM.MessageType.TEXT || message.type == IM.MessageType.EMOJI)">
-          <!-- 文字 -->
-          <span ref="msg-content">{{ message.content }}</span>
-        </template>
-        <template v-else-if="(message.type == IM.MessageType.IMAGE)">
-          <van-image ref="image" block :width="width" :height="height" :src="message.content"
-            :show-loading="message.sent < 1" @load="calcImageSize" @error="calcImageSize" @click="onPreview" />
-        </template>
-        <template v-else-if="(message.type == IM.MessageType.AUDIO)">
-          <!-- 语音 -->
-          <van-row ref="msg-content" style="width: 80px; flex: 1;" @click="play">
-            <audio ref="audioRef" :src="message.content" />
-            <van-icon class="iconfont icon-audio" color="grey" size="20" />
-            <div>{{ audioRef?.duration }} '</div>
-          </van-row>
-        </template>
-        <template v-else-if="(message.type == IM.MessageType.VIDEO)">
-          <!-- 视频 -->
-          <p ref="msg-content">{{ message.content }}</p>
-        </template>
-      </div>
-      <div class="message-timestamp" :style="{ 'justify-content': 'baseline', 'flex-direction': 'row' }">
-        <div>{{ $d(new Date(message.timestamp), 'short') }}</div>
-      </div>
+
+      <template v-if="message.type == Chatroom.MsgType.ChatText">
+        <!-- 文字 -->
+        <div class="chat-content">
+          <span ref="msg-content">{{ (message.data as Chatroom.ChatContent).content }}</span>
+        </div>
+      </template>
+      <template v-else-if="(message.type == Chatroom.MsgType.ChatEmoji)">
+        <div class="chat-content">
+          <van-image ref="image" block width="4rem" height="4rem"
+            :src="(message.data as Chatroom.ChatContent).content" />
+        </div>
+      </template>
+
+      <template v-else-if="(message.type == Chatroom.MsgType.Sys)">
+        <!-- 视频 -->
+        <div class="sys-info" v-html="(message.data as Chatroom.SysInfoContent).content"></div>
+      </template>
     </div>
   </van-row>
 </template>
@@ -34,11 +29,11 @@
 import { showImagePreview } from 'vant'
 import { onMounted, ref } from 'vue'
 import { getScaleSize } from '../../common/image.util'
-import { IM } from '../../models'
+import { Chatroom } from '../../models'
 import { useCommonStore, useIMStore } from '../../store'
 
 const props = defineProps<{
-  message: IM.Message,
+  message: Chatroom.Message,
   asyncMode?: Boolean,
 }>()
 
@@ -56,14 +51,6 @@ const clientHeight = document.body.clientHeight * 0.25
 onMounted(async () => {
   // let user = await imStore.user(props.message.uid)
   // avatar.value = user?.avatar
-
-  switch (props.message.type) {
-    case IM.MessageType.IMAGE:
-      break
-    case IM.MessageType.AUDIO:
-      // console.log(audioRef.value.duration)
-      break
-  }
 })
 
 function calcImageSize(e: any) {
@@ -71,15 +58,6 @@ function calcImageSize(e: any) {
     let img = (e.target != null ? e.target : e.path[0]) as HTMLImageElement
     [width.value, height.value] = getScaleSize(img.naturalWidth, img.naturalHeight, clientWidth, clientHeight)
   }
-}
-
-function play() {
-  audioRef.value?.play()
-}
-
-function onPreview() {
-  if (props.message.content != null && props.message.content.length > 0)
-  showImagePreview({ images: [props.message.content], showIndex: false })
 }
 
 </script>
@@ -90,22 +68,16 @@ function onPreview() {
   padding: 5px;
 }
 
+.user-avatar {
+  margin: 0 10px 0 0;
+}
+
 .message-content {
   display: flex;
   justify-content: flex-start;
   flex-direction: column;
   flex-grow: 1;
   align-items: flex-start;
-}
-
-.message-image {
-  display: flex;
-}
-
-.user-avatar {
-  border-radius: 32px;
-  border-radius: 50%;
-  margin: auto 10px;
 }
 
 .message-timestamp {
@@ -120,11 +92,11 @@ function onPreview() {
   flex-direction: row-reverse;
 }
 
-.message-text {
+.chat-content {
   color: #ecf0f1;
   background: #0807077d;
-  padding: 10px 10px;
-  border-radius: 15px 0 15px 0;
+  padding: 10px;
+  border-radius: 0 15px 0 15px;
   margin: 5px 0;
   max-width: 70%;
   font-size: 0.8rem;
@@ -133,7 +105,11 @@ function onPreview() {
   word-break: break-word;
 }
 
-.message-text:active {
-  background: #eeeeee;
+.sys-info {
+  color: #2c3e50;
+  background: #aaaaaa7d;
+  padding: 5px;
+  border-radius: 10px 0 10px 0;
+  font-size: 0.8rem;
 }
 </style>

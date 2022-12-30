@@ -21,7 +21,7 @@ export default createRouter({
           path: 'devices',
           name: 'DeviceMgr',
           component: require('../pages/iot/DeviceMgr.vue').default,
-          meta: { tabBar: true }
+          meta: { tabBar: true, needAuth: false }
         },
         {
           path: 'device/:did',
@@ -93,14 +93,20 @@ export default createRouter({
           path: 'home',
           name: 'ChannelList',
           component: require('../pages/square/ChannelList.vue').default,
-          meta: { navBar: true, tabBar: true }
+          meta: { navBar: false, tabBar: true }
         },
         {
           path: 'room',
           name: 'Chatroom',
           component: require('../pages/square/Chatroom.vue').default,
+          meta: { navBar: false, tabBar: false }
+        },
+        {
+          path: 'myRooms',
+          name: 'MyRooms',
+          component: require('../pages/square/MyRooms.vue').default,
           meta: { navBar: true, tabBar: false }
-        }
+        },
       ]
     },
     {

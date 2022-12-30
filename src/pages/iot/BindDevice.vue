@@ -30,12 +30,12 @@ import AmapViewer from '../components/AmapViewer.vue'
 
 const commonStore = useCommonStore()
 const i18n = useI18n()
-const device = ref<IOT.Device>({})
+const device = ref<IOT.Device>({
+  lat: 32.1323, lng: 121.4232
+})
 
 onMounted(() => {
   commonStore.navbar.title = i18n.t('mine.bindDevice')
-  device.value = { lat: 32.1323, lng: 121.4232 }
-
   window.webApp.register(onScanResult)
 })
 

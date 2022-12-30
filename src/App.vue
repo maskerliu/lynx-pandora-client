@@ -88,6 +88,8 @@ onMounted(async () => {
   --van-grid-item-content-background-color: transparent;
   --van-collapse-item-content-padding: 0;
   --van-collapse-item-content-background: transparent;
+  --van-tabs-card-height: 2.5rem;
+  
 }
 
 /* .van-field__body {

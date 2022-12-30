@@ -10,3 +10,5 @@ export const CommonStore = Symbol() as InjectionKey<Store<string, CommonState, {
 export const IMStore = Symbol() as InjectionKey<Store<string, IMState, {}, IMAction>>
 export const IOTStore = Symbol() as InjectionKey<Store<string, IOTState, {}, IOTAction>>
 export const I18n = Symbol() as InjectionKey<any>
+
+export const NavBack = Symbol() as InjectionKey<() => void>

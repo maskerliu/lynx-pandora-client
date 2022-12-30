@@ -57,12 +57,13 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, provide, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import msgClient from '../common/PahoMsgClient'
 import { useChatroomStore, useCommonStore, useIMStore, useIOTStore } from '../store'
 import DebugPanel from './components/DebugPanel.vue'
+import { NavBack } from './components/misc'
 import Login from './user/Login.vue'
 
 const router = useRouter()
@@ -78,6 +79,9 @@ const height = ref(0)
 
 let animate = null
 
+
+provide(NavBack, back)
+
 onMounted(async () => {
   window.webApp.back = back
 
@@ -90,11 +94,11 @@ onMounted(async () => {
   Promise.all([commonStore.init(), imStore.init()]).then(() => {
     if (msgClient && msgClient.isConnected()) { msgClient.close() }
     msgClient.init(commonStore, imStore, iotStore, useChatroomStore())
-    // msgClient.setupChatroomStore(useChatroomStore())
   })
 
   router.replace("/square")
   active.value = 1
+
 })
 
 onUnmounted(() => {
@@ -116,7 +120,7 @@ router.beforeEach((to, from) => {
   commonStore.navbarBg = 'linear-gradient(0.5turn, #ffffff, #f1f1f1)'
   commonStore.navbarColor = '#2c3e50'
 
-  commonStore.needLogin = to.meta.needAuth == true && commonStore.accessToken == null
+  commonStore.needLogin = to.meta.needAuth != false && commonStore.accessToken == null
 
   height.value = showNavbar.value ? 55 : 0
   height.value += showTabbar.value ? 55 : 0

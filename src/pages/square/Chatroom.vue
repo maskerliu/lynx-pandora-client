@@ -1,37 +1,59 @@
 <template>
 
   <van-col :style="{
-    background: `${chatroomStore.curRoom?.background ? 'url(' + chatroomStore.curRoom?.background + ')' : '#0a3d62'}`, backgroundSize: 'cover'
-  }">
-    <van-collapse v-model="showSeatPanel" accordion>
-      <van-collapse-item name="1" class="bg-border top-panel" style="border: 0; border-radius: 5px; padding:0;">
-        <template #title>
-          <van-row style="background: transparent;">
-            <van-image round radius="8" width="4rem" height="4rem" :src="chatroomStore.curRoom?.cover" />
-            <div style="width: calc(100vw - 140px); padding: 0 0 5px 15px;">
-              {{ chatroomStore.curRoom?.title }}
-              <van-notice-bar background="#fff0" style="padding: 0;" left-icon="volume-o"
-                :text="chatroomStore.curRoom?.notice" />
-            </div>
-          </van-row>
-        </template>
-        <van-row
-          style="border-radius: 0 0 8px 8px; border: 0; background-color: transparent; margin-top: 0; padding: 15px 0;">
-          <seat v-for="item in chatroomStore.curRoom?.seats" :seat-info="item"
-            @click="showSeatMgr = true; curSeatInfo = item;" />
-        </van-row>
-      </van-collapse-item>
-    </van-collapse>
+  background: `${chatroomStore.curRoom?.background ? 'url(' + chatroomStore.curRoom?.background + ')' : '#0a3d62'}`,
+  backgroundSize: 'cover',
+  height: '100%'
+}">
+    <van-row justify="space-between" style="padding: 5px 0;">
+      <van-col class="room-info">
+        <van-image round radius="1.25rem" width="2.5rem" height="2.5rem" style="margin:auto 0;"
+          :src="chatroomStore.curRoom?.cover" />
+        <div style="width: calc(100% - 80px); padding: 5px 15px;">
+          {{ chatroomStore.curRoom?.title }}
+          <div class="van-ellipsis" style="font-size: 0.6rem; color: burlywood; margin-top: 5px;">
+            {{ chatroomStore.curRoom?.ownerName }}
+          </div>
+        </div>
+      </van-col>
 
-    <van-row :style="{ height: `calc(100% - ${offsetHeight}px)`, padding: '10px' }">
+      <van-col>
+        <template v-if="chatroomStore.curRoom?.owner == commonStore.profile?.uid">
+          <van-icon class="iconfont icon-info" size="20" color="white" style="padding: 5px; margin: 10px 0;"
+            @click="showRoomInfo = true" />
+        </template>
+        <template v-else>
+          <van-icon class="iconfont" :class="isStared ? 'icon-star-select' : 'icon-star'" size="20" color="#f39c12"
+            style="padding: 5px; margin: 10px 0;" @click="collectRoom" />
+        </template>
+
+        <van-icon class="iconfont icon-shut-down" size="20" color="white" style="padding: 5px; margin: 10px;"
+          @click="leaveRoom" />
+      </van-col>
+    </van-row>
+
+    <template v-if="chatroomStore.curRoom?.type == Chatroom.RoomType.DianTai">
+      <DianTaiSeatsPanel @seat-click="handleSeatClick" />
+    </template>
+    <template v-else-if="chatroomStore.curRoom?.type == Chatroom.RoomType.YuLe">
+      <YuleSeatsPanel @seat-click="handleSeatClick" />
+    </template>
+    <template v-else-if="chatroomStore.curRoom?.type == Chatroom.RoomType.JiaoYou">
+      <JiaoYouSeatsPanel @seat-click="handleSeatClick" />
+    </template>
+
+    <van-notice-bar v-if="chatroomStore.curRoom?.notice" background="#fff0" style="padding: 0; margin: 0 5px;" left-icon="volume-o"
+      :text="chatroomStore.curRoom?.notice" />
+    <van-row :style="{ height: `calc(100% - ${offsetHeight}px)`, padding: '0 5px' }">
       <van-list style="flex: 1; height: 100%; overflow-y: auto;">
-        <chatroom-message :message="item" v-for="item in messages" />
+        <chatroom-message :message="item" v-for="item in chatroomStore.messages" />
       </van-list>
       <van-col style="width: 100px; height: 200px; background: #1817177d; border-radius: 15px; color: #ecf0f1;">
         活动
       </van-col>
     </van-row>
 
+    <room-info v-model:show="showRoomInfo" :room="chatroomStore.curRoom" />
     <seat-mgr v-model:show="showSeatMgr" :seat-info="curSeatInfo" />
 
     <div class="effect" :style="{ display: showEffect ? 'block' : 'none' }">
@@ -43,70 +65,55 @@
 </template>
 <script lang="ts" setup>
 import parseAPNG from 'apng-js'
-import { onMounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { Chatroom, IM } from '../../models'
+import { onMounted, onUnmounted, ref, watch, inject } from 'vue'
+import { useRouter } from 'vue-router'
+import { Chatroom, ChatroomApi } from '../../models'
 import { useChatroomStore, useCommonStore } from '../../store'
+import { NavBack } from '../components/misc'
 import ChatInputBar from './ChatInputBar.vue'
 import ChatroomMessage from './ChatroomMessage.vue'
-import Seat from './Seat.vue'
+import RoomInfo from './RoomInfo.vue'
 import SeatMgr from './SeatMgr.vue'
+import DianTaiSeatsPanel from './seats/DianTaiSeatsPanel.vue'
+import JiaoYouSeatsPanel from './seats/JiaoYouSeatsPanel.vue'
+import YuleSeatsPanel from './seats/YuleSeatsPanel.vue'
 
-const route = useRoute()
+const router = useRouter()
 const commonStore = useCommonStore()
 const chatroomStore = useChatroomStore()
 
+const isStared = ref(false)
 const effectContainer = ref<HTMLImageElement>()
-// const room = ref<Chatroom.Room>(null)
 const showRoomInfo = ref(false)
 const showSeatMgr = ref(false)
-const showSeatPanel = ref('1')
-const offsetHeight = ref(160)
-const seats = ref<Array<Chatroom.Seat>>([])
-const messages = ref<Array<IM.Message>>([])
+const offsetHeight = ref(325)
 const curSeatInfo = ref<Chatroom.Seat>(null)
-const curEffect = ref<string>(null)
 const showEffect = ref(false)
 
-let roomId: string = null
 let isMyRoom = false
-let isStared = false
+let timer = null
 
+const back = inject(NavBack)
 onMounted(async () => {
-  commonStore.navbar.title = chatroomStore.curRoom.title
-  commonStore.navbarBg = 'linear-gradient(0.5turn, #0d79c6, #0f5383, #0a3d62)'
-  commonStore.navbarColor = 'white'
-  commonStore.navbar.rightText = isMyRoom ? 'icon-info' : (isStared ? 'icon-star-select' : 'icon-star')
-  commonStore.rightAction = () => {
-    if (isMyRoom) {
-      showRoomInfo.value = true
-    } else {
-      isStared = !isStared
-      commonStore.navbar.rightText = isStared ? 'icon-star-select' : 'icon-star'
-    }
-  }
 
-  mockMessages()
-
-  setTimeout(() => { showSeatPanel.value = null }, 3000)
-
-  await playGiftEffect()
+  isStared.value = chatroomStore.curRoom.isStared
+  offsetHeight.value = chatroomStore.curRoom.notice ? 365 : 325
+  timer = setInterval(async () => {
+    await playGiftEffect()
+  }, 200)
 })
 
-watch(showSeatPanel, () => {
-  if (showSeatPanel.value == '1') {
-    offsetHeight.value = 360
-  } else {
-    offsetHeight.value = 160
-  }
-})
-
-watch(chatroomStore.effects, () => {
-  curEffect.value = chatroomStore.effects.shift()
+onUnmounted(() => {
+  clearInterval(timer)
 })
 
 async function playGiftEffect() {
-  let img = await fetch('https://yppphoto.hellobixin.com/4d769c3857a8430f845d3aa4bf458817.png')
+  if (showEffect.value || chatroomStore.effects.length == 0) { return }
+
+  let effectMsg = chatroomStore.effects.shift()
+  let effect = chatroomStore.gifts[(effectMsg.data as Chatroom.RewardContent).giftId].effect
+
+  let img = await fetch(effect)
   let blob = await img.blob()
   let buf = await blob.arrayBuffer()
   let apng = parseAPNG(buf)
@@ -125,16 +132,19 @@ async function playGiftEffect() {
   }
 }
 
-function mockMessages() {
-  for (let i = 0; i < 20; ++i) {
-    messages.value.push({
-      sid: '',
-      uid: 'string',
-      timestamp: new Date().getTime(),
-      type: IM.MessageType.TEXT,
-      content: `hello world ${i}`
-    })
-  }
+function handleSeatClick(seat: Chatroom.Seat) {
+  showSeatMgr.value = true
+  curSeatInfo.value = seat
+}
+
+async function collectRoom() {
+  await ChatroomApi.collect(chatroomStore.curRoom._id)
+  isStared.value = !isStared.value
+}
+
+async function leaveRoom() {
+  await chatroomStore.leaveRoom()
+  back()
 }
 
 </script>
@@ -149,8 +159,16 @@ function mockMessages() {
   display: none;
 }
 
-.top-panel {
-  background: linear-gradient(0.25turn, #3f87a6, #ebf8e1, #f69d3c);
+.room-info {
+  width: 200px;
+  display: flex;
+  background: #08070744;
+  font-size: 0.8rem;
+  color: white;
+  border: 0;
+  border-radius: 25px;
+  box-shadow: 0px 12px 8px -12px #000;
+  margin: 5px;
 }
 
 .effect {
@@ -160,5 +178,7 @@ function mockMessages() {
   top: 0;
   left: 0;
   pointer-events: none;
+  font-style: italic;
+  font-weight: bold;
 }
 </style>

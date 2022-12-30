@@ -1,18 +1,11 @@
 <template>
-  <van-col span="6" @click="handleSeatClick" class="seat-item">
-    <div class="seat-box">
+  <van-col span="6" class="seat-item">
+    <div class="seat-box" @click="onSeatClick">
       <img v-show="showSoundWave" class="sound-wave" :src="SoundWave" />
-
-
       <van-image v-if="seatInfo.userInfo" :src="seatInfo.userInfo.avatar" fit="cover" round radius="36"
         class="seat-item-avatar" />
       <van-icon class="seat-item-icon iconfont icon-lock" v-else-if="seatInfo.isLocked" size="24" />
-      <van-icon class="seat-item-icon iconfont icon-plus" size="24" v-else />
-      <!-- <img v-if="seatInfo && seatInfo.seatFrame" class="seat-item-frame" :src="seatInfo.seatFrame" /> -->
-      <!-- <div class="seat-item-charm-tag" v-if="seatInfo && seatInfo.charm">
-        <span class="iconfont icon-like" style="font-size: 0.5rem;"></span>
-        <span>{{ seatInfo.charm }}</span>
-      </div> -->
+      <van-icon class="seat-item-icon iconfont icon-add" size="24" v-else />
       <img class="seat-item-frame" :src="seatFrames[seatInfo.seq].url" />
       <span class="seat-item-mute iconfont icon-mute" v-if="(seatInfo && seatInfo.isMute)"></span>
     </div>
@@ -23,15 +16,11 @@
 </template>
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { Chatroom } from '../../models';
-import SoundWave from '../../asserts/sound_wave.png'
-
-
-const seat = ref()
+import { Chatroom } from '../../../models';
+import SoundWave from '../../../asserts/sound_wave.png';
 
 const showSoundWave = ref(true)
 const seatIsLock = ref(false)
-
 
 const menuTextMap = {
   handleSitDownMaster: '自己上麦',
@@ -61,19 +50,20 @@ const props = defineProps<{
   seatInfo: Chatroom.Seat
 }>()
 
+const emits = defineEmits(['seatClick'])
+
 onMounted(() => {
 
 })
 
-function handleSeatClick() {
-
+function onSeatClick() {
+  emits('seatClick')
 }
 
 </script>
 <style>
 .seat-item {
   height: 61px;
-  cursor: pointer;
   position: relative;
   color: white;
   text-align: center;

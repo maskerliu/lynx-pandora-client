@@ -114,7 +114,7 @@ export class MessageRepo extends BaseRepo<IM.Message> {
     docs.forEach(it => {
       it['_deleted'] = true
     })
-    this.pouchdb.bulkDocs(docs)
+    await this.pouchdb.bulkDocs(docs)
   }
 }
 

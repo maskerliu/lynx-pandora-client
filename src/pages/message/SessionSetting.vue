@@ -9,7 +9,7 @@
         <div style="text-align: center; width: 3.5rem; margin-left: 15px;">
           <div style="width: 3rem; height: 3rem; border-radius: 8px; border: dashed 2px #bdc3c7; margin-top: 8px;"
             @click="gotoContact">
-            <van-icon class="iconfont icon-plus" size="30px" color="#bdc3c7" style="padding: 8px;" />
+            <van-icon class="iconfont icon-add" size="30px" color="#bdc3c7" style="padding: 8px;" />
           </div>
           <div class="van-ellipsis" style="font-size: 0.7rem; color: #bdc3c7;"></div>
         </div>

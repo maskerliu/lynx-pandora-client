@@ -53,12 +53,19 @@ export namespace RemoteAPI {
     BasePath: '/room',
     Recommend: '/recommend', // 推荐房间
     MyCollections: '/myCollections',
+    MyRooms: '/myRooms',
     RoomInfo: '/info', // 房间基础信息
     RoomSave: '/save',
     RoomDelete: '/delete',
+    SeatRequests: '/seatRequests',
+    SeatReq: '/seatReq', // cmd code: see Chatroom.MsgType.SeatXXX
+    SeatMgr: '/seatMgr', // 
+    Collect: '/collect',
     Gifts: '/gifts', // 礼物信息
+    Emojis: '/emojis',
     Enter: '/enter',
     Leave: '/leave',
     Reward: '/reward',
+    SendMsg: '/sendMsg',
   }
 }
