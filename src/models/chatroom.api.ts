@@ -60,7 +60,7 @@ export namespace ChatroomApi {
   }
 
   export function leave(roomId: string) {
-    return get<string>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.Leave, { roomId })
+    return post<string>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.Leave, { roomId })
   }
 
   export function reward(roomId: string, giftId: string, count: number, receivers: string[]) {

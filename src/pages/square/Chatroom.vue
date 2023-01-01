@@ -42,10 +42,10 @@
       <JiaoYouSeatsPanel @seat-click="handleSeatClick" />
     </template>
 
-    <van-notice-bar v-if="chatroomStore.curRoom?.notice" background="#fff0" style="padding: 0; margin: 0 5px;" left-icon="volume-o"
-      :text="chatroomStore.curRoom?.notice" />
+    <van-notice-bar v-if="chatroomStore.curRoom?.notice" background="#fff0" style="padding: 0; margin: 0 5px;"
+      left-icon="volume-o" :text="chatroomStore.curRoom?.notice" />
     <van-row :style="{ height: `calc(100% - ${offsetHeight}px)`, padding: '0 5px' }">
-      <van-list style="flex: 1; height: 100%; overflow-y: auto;">
+      <van-list ref="msgContainer" style="flex: 1; height: 100%; overflow-y: auto;">
         <chatroom-message :message="item" v-for="item in chatroomStore.messages" />
       </van-list>
       <van-col style="width: 100px; height: 200px; background: #1817177d; border-radius: 15px; color: #ecf0f1;">
@@ -83,6 +83,7 @@ const commonStore = useCommonStore()
 const chatroomStore = useChatroomStore()
 
 const isStared = ref(false)
+const msgContainer = ref()
 const effectContainer = ref<HTMLImageElement>()
 const showRoomInfo = ref(false)
 const showSeatMgr = ref(false)
@@ -104,6 +105,10 @@ onMounted(async () => {
 
 onUnmounted(() => {
   clearInterval(timer)
+})
+
+watch(chatroomStore.messages, () => {
+  scrollToBottom(true)
 })
 
 async function playGiftEffect() {
@@ -131,6 +136,11 @@ async function playGiftEffect() {
   }
 }
 
+function scrollToBottom(smooth: boolean) {
+  msgContainer.value.$el.scrollTo({ top: msgContainer.value.$el.scrollHeight, behavior: smooth ? 'smooth' : null })
+  // msgContainer.value.$el.scrollTo({ top: msgContainer.value.$el.scrollHeight })
+}
+
 function handleSeatClick(seat: Chatroom.Seat) {
   showSeatMgr.value = true
   curSeatInfo.value = seat
@@ -142,7 +152,7 @@ async function collectRoom() {
 }
 
 async function leaveRoom() {
-  await chatroomStore.leaveRoom()
+  await chatroomStore.leaveRoom(commonStore.profile.uid)
   back()
 }
 

@@ -48,11 +48,11 @@
             <van-button plain type="primary" size="small" :text="$t('square.room.seatMgr.on')"
               v-if="chatroomStore.curRoom?.masters?.includes(commonStore.profile.uid)" @click="allowSeatOn(item)" />
             <van-button plain type="warning" size="small" :text="$t('common.cancel')" style="margin-left: 15px;"
-              v-if="item.uid == commonStore.profile.uid" @click="seatReqCancel" />
+              v-if="item.uid == commonStore.profile.uid" @click="seatOnReqCancel" />
           </template>
         </van-cell>
       </van-list>
-      <van-button type="primary" style="width: calc(100% - 30px); margin: 15px;" @click="seatReq"
+      <van-button type="primary" style="width: calc(100% - 30px); margin: 15px;" @click="seatOnReq"
         :disabled="seatInfo.isLocked"
         :text="$t(chatroomStore.curRoom?.masters?.includes(commonStore.profile.uid) ? 'square.room.seatMgr.onDirectly' : 'square.room.seatMgr.request')" />
     </template>
@@ -87,49 +87,40 @@ watch(() => props.show, async () => {
 })
 
 async function mute() {
-  await ChatroomApi.seatMgr(chatroomStore.curRoom._id, null, props.seatInfo.seq, props.seatInfo.isMute ? Chatroom.MsgType.SeatUnmute : Chatroom.MsgType.SeatMute)
+  await chatroomStore.mute(props.seatInfo)
   emits('update:show', false)
 }
 
 async function lock() {
-  await ChatroomApi.seatMgr(chatroomStore.curRoom._id, null, props.seatInfo.seq, props.seatInfo.isLocked ? Chatroom.MsgType.SeatUnlock : Chatroom.MsgType.SeatLock)
+  await chatroomStore.lock(props.seatInfo)
   emits('update:show', false)
 }
 
 async function allowSeatOn(item: Chatroom.SeatReq) {
-  await ChatroomApi.seatMgr(chatroomStore.curRoom._id, item.uid, item.seatSeq, Chatroom.MsgType.SeatOn)
+  await chatroomStore.allowSeatOn(item.uid, item.seatSeq)
   seatReqs.value = await ChatroomApi.seatRequests(chatroomStore.curRoom._id)
 }
 // 抱下麦 or 主动下麦
 async function seatDown() {
-  if (commonStore.profile.uid == props.seatInfo.userInfo.uid) {
-    await ChatroomApi.seatReq(chatroomStore.curRoom._id, props.seatInfo.seq, Chatroom.MsgType.SeatDown)
-  } else if (chatroomStore.curRoom?.masters?.includes(commonStore.profile.uid)) {
-    await ChatroomApi.seatMgr(chatroomStore.curRoom._id, props.seatInfo.userInfo.uid, props.seatInfo.seq, Chatroom.MsgType.SeatDown)
-  }
+  await chatroomStore.seatDown(props.seatInfo, commonStore.profile.uid)
+  emits('update:show', false)
 }
 
-async function seatReq() {
+async function seatOnReq() {
 
-  let isOnSeat = chatroomStore.curRoom?.seats.find(it => { return it.userInfo?.uid == commonStore.profile.uid }) != null
+  let isOnSeat = chatroomStore.isOnSeat(commonStore.profile.uid)
   if (isOnSeat) {
     showToast('您已经在麦上了，请先下麦')
     return
   }
 
-  if (chatroomStore.curRoom?.masters?.includes(commonStore.profile.uid)) { // 有权限直接上麦
-    await ChatroomApi.seatMgr(chatroomStore.curRoom._id, commonStore.profile.uid, props.seatInfo.seq, Chatroom.MsgType.SeatOn)
-  } else { // 发送上麦请求
-    await ChatroomApi.seatReq(chatroomStore.curRoom._id, props.seatInfo.seq, Chatroom.MsgType.SeatReq)
-  }
-
+  await chatroomStore.seatOnReq(props.seatInfo, commonStore.profile.uid)
   emits('update:show', false)
 }
 
-async function seatReqCancel() {
+async function seatOnReqCancel() {
   await ChatroomApi.seatReq(chatroomStore.curRoom._id, props.seatInfo.seq, Chatroom.MsgType.SeatReqCancel)
   seatReqs.value = await ChatroomApi.seatRequests(chatroomStore.curRoom._id)
-
   emits('update:show', false)
 }
 

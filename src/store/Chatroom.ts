@@ -11,10 +11,16 @@ export type ChatroomState = {
 }
 
 export interface ChatroomAction {
+  isOnSeat(uid: string): boolean
   enterRoom(roomId: string): Promise<void>
-  leaveRoom(): Promise<void>
+  leaveRoom(uid: string): Promise<void>
   reward(giftId: string, count: number, receivers: Array<string>): Promise<void>
   sendMessage(content: string, type: Chatroom.MsgType): Promise<void>
+  seatOnReq(seatInfo: Chatroom.Seat, uid: string): Promise<void>
+  seatDown(seatInfo: Chatroom.Seat, uid: string): Promise<void>
+  mute(seatInfo: Chatroom.Seat): Promise<void>
+  lock(seatInfo: Chatroom.Seat): Promise<void>
+  allowSeatOn(uid: string, seq: number): Promise<void>
   onMessageArrived(msgs: Chatroom.Message[]): Promise<void>
 }
 
@@ -28,6 +34,9 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
     }
   },
   actions: {
+    isOnSeat(uid: string) {
+      return this.curRoom.seats.find((it: Chatroom.Seat) => { return it.userInfo?.uid == uid }) != null
+    },
     async enterRoom(roomId: string) {
       this.curRoom = await ChatroomApi.enter(roomId)
       if (this.gifts.length == 0) {
@@ -49,12 +58,8 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
 
       this.mockMessages()
     },
-    async leaveRoom() {
-      try {
-        // await ChatroomApi.leave(this.curRoom._id)
-      } catch (err) {
-
-      }
+    async leaveRoom(uid: string) {
+      await ChatroomApi.leave(this.curRoom._id)
 
       this.curRoom = null
       this.messages = []
@@ -78,12 +83,34 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
       // 本地视角，优先播放用户打赏特效
       await ChatroomApi.reward(this.curRoom._id, giftId, count, receivers)
     },
+    async seatOnReq(seatInfo: Chatroom.Seat, uid: string) {
+      if (this.curRoom?.masters?.includes(uid)) { // 有权限直接上麦
+        await ChatroomApi.seatMgr(this.curRoom._id, uid, seatInfo.seq, Chatroom.MsgType.SeatOn)
+      } else { // 发送上麦请求
+        await ChatroomApi.seatReq(this.curRoom._id, seatInfo.seq, Chatroom.MsgType.SeatReq)
+      }
+    },
+    async seatDown(seatInfo: Chatroom.Seat, uid: string) {
+      if (uid == seatInfo.userInfo.uid) {
+        await ChatroomApi.seatReq(this.curRoom._id, seatInfo.seq, Chatroom.MsgType.SeatDown)
+      } else if (this.curRoom?.masters?.includes(uid)) {
+        await ChatroomApi.seatMgr(this.curRoom._id, seatInfo.userInfo.uid, seatInfo.seq, Chatroom.MsgType.SeatDown)
+      }
+    },
+    async mute(seatInfo: Chatroom.Seat) {
+      await ChatroomApi.seatMgr(this.curRoom._id, null, seatInfo.seq, seatInfo.isMute ? Chatroom.MsgType.SeatUnmute : Chatroom.MsgType.SeatMute)
+    },
+    async lock(seatInfo: Chatroom.Seat) {
+      await ChatroomApi.seatMgr(this.curRoom._id, null, seatInfo.seq, seatInfo.isLocked ? Chatroom.MsgType.SeatUnlock : Chatroom.MsgType.SeatLock)
+    },
+    async allowSeatOn(uid: string, seq: number) {
+      await ChatroomApi.seatMgr(this.curRoom._id, uid, seq, Chatroom.MsgType.SeatOn)
+    },
     async onMessageArrived(msgs: Chatroom.Message[]) {
       msgs.forEach(it => {
         switch (it.type) {
           case Chatroom.MsgType.SeatLock:
           case Chatroom.MsgType.SeatUnlock: {
-            console.log(it)
             let isLock = it.type == Chatroom.MsgType.SeatLock
             let seq = (it.data as Chatroom.SeatContent).seq
             this.curRoom.seats.find((item: Chatroom.Seat) => { return item.seq == seq }).isLocked = isLock
@@ -107,7 +134,9 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
           }
           case Chatroom.MsgType.SeatDown: {
             let seq = (it.data as Chatroom.SeatContent).seq
-            this.curRoom.seats.find((it: Chatroom.Seat) => { return it.seq == seq }).userInfo = null
+            if (this.curRoom) {
+              this.curRoom.seats.find((it: Chatroom.Seat) => { return it.seq == seq }).userInfo = null
+            }
             break
           }
           case Chatroom.MsgType.Enter:

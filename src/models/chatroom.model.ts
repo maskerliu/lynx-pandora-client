@@ -58,6 +58,7 @@ export namespace Chatroom {
   }
 
   export interface Seat extends Common.DBDoc {
+    roomId: string
     seq: number // 麦序
     type: SeatType
     isMute: boolean // 是否闭麦
