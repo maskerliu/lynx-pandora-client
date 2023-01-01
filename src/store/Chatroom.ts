@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import msgClient from '../common/PahoMsgClient'
-import { Chatroom } from '../models'
+import { Chatroom, User } from '../models'
 import { ChatroomApi } from '../models/chatroom.api'
 
 export type ChatroomState = {
@@ -38,6 +38,15 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
         throw 'cant subscribe room'
       }
 
+      this.messages = []
+      if (this.curRoom.welcome != null) {
+        this.messages.push({
+          from: 'string',
+          type: Chatroom.MsgType.Sys,
+          data: { content: this.curRoom.welcome } as Chatroom.SysInfoContent
+        })
+      }
+
       this.mockMessages()
     },
     async leaveRoom() {
@@ -72,6 +81,35 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
     async onMessageArrived(msgs: Chatroom.Message[]) {
       msgs.forEach(it => {
         switch (it.type) {
+          case Chatroom.MsgType.SeatLock:
+          case Chatroom.MsgType.SeatUnlock: {
+            console.log(it)
+            let isLock = it.type == Chatroom.MsgType.SeatLock
+            let seq = (it.data as Chatroom.SeatContent).seq
+            this.curRoom.seats.find((item: Chatroom.Seat) => { return item.seq == seq }).isLocked = isLock
+            break
+          }
+
+          case Chatroom.MsgType.SeatMute:
+          case Chatroom.MsgType.SeatUnmute: {
+            let isMute = it.type == Chatroom.MsgType.SeatMute
+            let seq = (it.data as Chatroom.SeatContent).seq
+            this.curRoom.seats.find((item: Chatroom.Seat) => { return item.seq == seq }).isMute = isMute
+            break
+          }
+
+          case Chatroom.MsgType.SeatOn: {
+            let data = it.data as Chatroom.SeatContent
+            let seq = (it.data as Chatroom.SeatContent).seq
+            let profile: User.Profile = { uid: data.uid, name: data.name, avatar: data.avatar }
+            this.curRoom.seats.find((it: Chatroom.Seat) => { return it.seq == seq }).userInfo = profile
+            break
+          }
+          case Chatroom.MsgType.SeatDown: {
+            let seq = (it.data as Chatroom.SeatContent).seq
+            this.curRoom.seats.find((it: Chatroom.Seat) => { return it.seq == seq }).userInfo = null
+            break
+          }
           case Chatroom.MsgType.Enter:
             break
           case Chatroom.MsgType.Reward:
@@ -87,12 +125,7 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
       })
     },
     mockMessages() {
-      this.messages = []
-      this.messages.push({
-        from: 'string',
-        type: Chatroom.MsgType.Sys,
-        data: { content: `💗欢迎(*｀∀´*)ノ走进久违播客\n💗锁定ノ 久违播客 💗 唤醒你内心的悸动` } as Chatroom.SysInfoContent
-      })
+
 
       this.messages.push({
         from: '8f4e7438-4285-4268-910c-3898fb8d6d96',

@@ -20,6 +20,8 @@
           v-model="roomInfo.title" />
         <van-field :label="$t('square.room.create.notice')" :placeholder="$t('square.room.create.noticePlaceholder')"
           type="textarea" rows="2" maxlength="100" show-word-limit v-model="roomInfo.notice" />
+        <van-field :label="$t('square.room.create.welcome')" :placeholder="$t('square.room.create.welcomePlaceholder')"
+          type="textarea" rows="2" maxlength="100" show-word-limit v-model="roomInfo.welcome" />
         <van-field :label="$t('square.room.create.cover')" input-align="right">
           <template #input>
             <van-uploader width="4rem" height="4rem" v-model="cover" :max-count="1" closeImagePreview
@@ -54,7 +56,7 @@
   </van-popup>
 </template>
 <script lang="ts" setup>
-import { showConfirmDialog, showToast, UploaderFileListItem } from 'vant';
+import { showToast, UploaderFileListItem } from 'vant';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { Chatroom, CommonApi, User } from '../../models';
 import { ChatroomApi } from '../../models/chatroom.api';

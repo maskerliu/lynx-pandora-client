@@ -10,7 +10,7 @@
       <span class="seat-item-mute iconfont icon-mute" v-if="(seatInfo && seatInfo.isMute)"></span>
     </div>
     <div class="seat-item-name">
-      {{ seatInfo.userInfo ? seatInfo.userInfo.name : seatInfo.seq + '号麦' }}
+      {{ seatInfo.userInfo ? seatInfo.userInfo.name : (seatInfo.seq == 0 ? '主持' : `${seatInfo.seq}号麦`) }}
     </div>
   </van-col>
 </template>

@@ -142,15 +142,17 @@
         "cover": "封面",
         "notice": "公告",
         "noticePlaceholder": "您可以把频道规则、公告发布在这里",
+        "welcome": "欢迎语",
+        "welcomePlaceholder": "每个进入频道的小伙伴将看到您给他们精心准备的欢迎语👏👏",
         "tags": "标签",
         "master": "管理",
         "submit": "创建频道"
       },
       "seatMgr": {
         "title": "当前麦序",
-        "mute": "闭麦",
         "on": "抱上麦",
         "down": "抱下麦",
+        "downSelf": "下麦",
         "request": "申请上麦",
         "onDirectly": "上麦"
       },

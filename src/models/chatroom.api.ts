@@ -39,7 +39,7 @@ export namespace ChatroomApi {
     return get<Array<Chatroom.SeatReq & User.Profile>>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.SeatRequests, { roomId })
   }
 
-  export function seatOpt(roomId: string, seq: number, code: Chatroom.MsgType) {
+  export function seatReq(roomId: string, seq: number, code: Chatroom.MsgType) {
     return post<string>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.SeatReq, { roomId, seq, code })
   }
 

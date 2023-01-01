@@ -90,7 +90,6 @@ const offsetHeight = ref(325)
 const curSeatInfo = ref<Chatroom.Seat>(null)
 const showEffect = ref(false)
 
-let isMyRoom = false
 let timer = null
 
 const back = inject(NavBack)

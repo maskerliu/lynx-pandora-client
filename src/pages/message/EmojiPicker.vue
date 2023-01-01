@@ -12,7 +12,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import emojis from '../components/emojis'
+import emojis from './emojis'
 
 withDefaults(defineProps<{
   emoji: String
