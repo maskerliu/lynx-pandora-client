@@ -96,7 +96,7 @@ onMounted(async () => {
     msgClient.init(commonStore, imStore, iotStore, useChatroomStore())
   })
 
-  router.replace("/square")
+  router.replace("/message")
   active.value = 1
 
 })

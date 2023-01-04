@@ -18,15 +18,6 @@ export namespace ChatroomApi {
     return get<Array<Chatroom.Room>>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.MyRooms)
   }
 
-  export function myCollections() {
-    return get<Array<Chatroom.Room>>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.MyCollections)
-  }
-
-  export function recommends() {
-    return get<Array<Chatroom.Room>>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.Recommend)
-  }
-
-
   export function roomInfo(roomId: string) {
     return get<Chatroom.Room>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.Enter, { roomId })
   }

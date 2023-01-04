@@ -17,7 +17,7 @@
 </template>
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { useChatroomStore } from '../../../store';
+import { useChatroomStore } from '../../../../store';
 import Seat from './Seat.vue';
 
 const emits = defineEmits(['seatClick'])

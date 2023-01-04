@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import msgClient from '../common/PahoMsgClient'
 import { Chatroom, User } from '../models'
 import { ChatroomApi } from '../models/chatroom.api'
+import { useCommonStore } from './Common'
 
 export type ChatroomState = {
   gifts: Array<Chatroom.Gift>
@@ -11,6 +12,7 @@ export type ChatroomState = {
 }
 
 export interface ChatroomAction {
+  isMaster(uid: string): boolean
   isOnSeat(uid: string): boolean
   enterRoom(roomId: string): Promise<void>
   leaveRoom(uid: string): Promise<void>
@@ -34,6 +36,9 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
     }
   },
   actions: {
+    isMaster(uid: string) {
+      return this.curRoom?.masters.includes(uid) || this.curRoom?.owner == uid
+    },
     isOnSeat(uid: string) {
       return this.curRoom.seats.find((it: Chatroom.Seat) => { return it.userInfo?.uid == uid }) != null
     },
@@ -107,6 +112,7 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
       await ChatroomApi.seatMgr(this.curRoom._id, uid, seq, Chatroom.MsgType.SeatOn)
     },
     async onMessageArrived(msgs: Chatroom.Message[]) {
+      let commonStore = useCommonStore()
       msgs.forEach(it => {
         switch (it.type) {
           case Chatroom.MsgType.SeatLock:
@@ -143,7 +149,6 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
             break
           case Chatroom.MsgType.Reward:
             this.effects.push(it)
-            // this.messages.push()
             break
           case Chatroom.MsgType.ChatText:
           case Chatroom.MsgType.ChatEmoji:

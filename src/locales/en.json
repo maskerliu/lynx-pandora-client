@@ -14,7 +14,7 @@
     "upload": "Upload",
     "submit": "Submit",
     "bind": "Bind",
-    "pin": "Pin",
+    "send": "Send",
     "searchPlaceholder": "please enter whatever your want"
   },
   "iot": {
@@ -62,6 +62,10 @@
     "createCompany": "Create Your Company",
     "bindDevice": "Bind Device",
     "myChatrooms": "My Channels",
+    "myMoments": "My Moments",
+    "myPosts": "My Posts",
+    "myWallet": "Wallet",
+    "myFellow": "My Fellow",
     "settings": "Settings",
     "profile": {
       "title": "Profile",
@@ -106,9 +110,9 @@
   },
   "message": {
     "title": "Message Center",
-    "session": {
-
-    },
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "session": {},
     "sys": {
       "title": "System Message"
     },
@@ -129,6 +133,51 @@
       "cleanTips": "Are you sure to clean this chat's history messages?",
       "cleanConfirm": "Clean",
       "complain": "Complain"
+    }
+  },
+  "square": {
+    "title": "Channel",
+    "myCollections": "My Starred",
+    "collectionEmptyTips": "No Starred yet, find your like channel or person, starred～～",
+    "recommend": "Recommend",
+    "room": {
+      "create": {
+        "title": "Create Your Channel",
+        "name": "Name",
+        "namePlaceholder": "给您的频道取一个有个性的名字吧",
+        "type": "Type",
+        "cover": "Cover",
+        "notice": "Notice",
+        "noticePlaceholder": "您可以把频道规则、公告发布在这里",
+        "welcome": "Welcome",
+        "welcomePlaceholder": "每个进入频道的小伙伴将看到您给他们精心准备的欢迎语👏👏",
+        "tags": "Tags",
+        "master": "Master",
+        "submit": "Create Channel"
+      },
+      "seatMgr": {
+        "title": "Current Seat Seq",
+        "on": "Seat On",
+        "down": "Seat Down",
+        "downSelf": "Seat Down",
+        "request": "On Seat",
+        "onDirectly": "Seat On"
+      },
+      "reward": "Reward",
+      "inputPlaceholder": "say something!"
+    },
+    "myRooms": {
+      "title": "My Channels"
+    }
+  },
+  "payment": {
+    "wallet": {
+      "recharge": "Rechage",
+      "diamonds": "diamonds",
+      "purse": "Purse"
+    },
+    "purchase": {
+      "pay": "Pay"
     }
   }
 }

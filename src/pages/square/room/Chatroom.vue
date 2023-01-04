@@ -1,14 +1,14 @@
 <template>
 
   <van-col :style="{
-  background: `${chatroomStore.curRoom?.background ? 'url(' + chatroomStore.curRoom?.background + ')' : '#0a3d62'}`,
-  backgroundSize: 'cover',
-  height: '100%'
-}">
+    background: `${chatroomStore.curRoom?.background ? 'url(' + chatroomStore.curRoom?.background + ')' : '#0a3d62'}`,
+    backgroundSize: 'cover',
+    height: '100%'
+  }">
     <van-row justify="space-between" style="padding: 5px 0;">
       <van-col class="room-info">
-        <van-image round radius="1.25rem" width="2.5rem" height="2.5rem" style="margin:auto 0;"
-          :src="chatroomStore.curRoom?.cover" />
+        <van-image round radius="1.25rem" width="2.5rem" height="2.5rem" fit="cover" style="margin:auto 0;"
+          :src="'//' + commonStore.appConfig.staticServer + chatroomStore.curRoom?.cover" />
         <div style="width: calc(100% - 80px); padding: 5px 15px;">
           {{ chatroomStore.curRoom?.title }}
           <div class="van-ellipsis" style="font-size: 0.6rem; color: burlywood; margin-top: 5px;">
@@ -67,9 +67,9 @@
 import parseAPNG from 'apng-js'
 import { onMounted, onUnmounted, ref, watch, inject } from 'vue'
 import { useRouter } from 'vue-router'
-import { Chatroom, ChatroomApi } from '../../models'
-import { useChatroomStore, useCommonStore } from '../../store'
-import { NavBack } from '../components/misc'
+import { Chatroom, ChatroomApi } from '../../../models'
+import { useChatroomStore, useCommonStore } from '../../../store'
+import { NavBack } from '../../components/misc'
 import ChatInputBar from './ChatInputBar.vue'
 import ChatroomMessage from './ChatroomMessage.vue'
 import RoomInfo from './RoomInfo.vue'

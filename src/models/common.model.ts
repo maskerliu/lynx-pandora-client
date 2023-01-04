@@ -9,6 +9,7 @@ export namespace Common {
 
   export interface AppConfig {
     broker: string
+    staticServer: string
   }
 
   export interface DBInfo {

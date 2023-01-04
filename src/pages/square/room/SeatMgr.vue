@@ -3,23 +3,22 @@
 
     <template v-if="seatInfo.userInfo">
       <div class="seat-box" style="margin-top: 15px;">
-        <van-image class="seat-item-avatar" :src="seatInfo.userInfo.avatar" fit="cover" round radius="36" />
+        <van-image class="seat-item-avatar" fit="cover" round radius="36"
+          :src="'//' + commonStore.appConfig?.staticServer + seatInfo.userInfo.avatar" />
         <span class="seat-item-mute iconfont icon-mute" v-if="(seatInfo && seatInfo.isMute)"></span>
       </div>
       <div class="seat-item-name">
         {{ seatInfo.userInfo.name }}
       </div>
 
-      <div style="text-align: center; margin: 15px;"
-        v-if="chatroomStore.curRoom?.masters?.includes(commonStore.profile.uid) || seatInfo.userInfo.uid == commonStore.profile.uid">
+      <div v-if="isMaster || isMyself" style="text-align: center; margin: 15px;">
         <van-button plain type="warning" size="small" @click="mute">
           <template #icon>
             <van-icon class="iconfont" :class="seatInfo.isMute ? 'icon-volume' : 'icon-mute'" />
           </template>
         </van-button>
-        <van-button plain type="danger" size="small" style="margin: 0 10px;"
-          :text="$t(seatInfo.userInfo.uid == commonStore.profile.uid ? 'square.room.seatMgr.downSelf' : 'square.room.seatMgr.down')"
-          @click="seatDown">
+        <van-button plain type="danger" size="small" style="margin: 0 10px;" @click="seatDown"
+          :text="$t(isMyself ? 'square.room.seatMgr.downSelf' : 'square.room.seatMgr.down')">
         </van-button>
       </div>
     </template>
@@ -27,15 +26,14 @@
       <van-row style="padding: 5px; font-size: 0.9rem; color: #bdc3c7; margin-left: 10px;" justify="space-between">
         <div style="margin: auto 0;">{{ seatInfo.seq }}号麦</div>
         <van-row>
-          <van-button plain type="danger" size="small" @click="lock"
-            v-if="chatroomStore.curRoom?.masters?.includes(commonStore.profile.uid)">
+          <van-button v-if="isMaster" plain type="danger" size="small" @click="lock">
             <template #icon>
               <van-icon class="iconfont" :class="seatInfo.isLocked ? 'icon-unlock' : 'icon-lock'" />
             </template>
           </van-button>
 
-          <van-button plain type="warning" size="small" @click="mute" style="margin: 0 10px;"
-            v-if="chatroomStore.curRoom?.masters?.includes(commonStore.profile.uid) || seatInfo.userInfo?.uid == commonStore.profile.uid">
+          <van-button v-if="isMaster || isMyself" plain type="warning" size="small" @click="mute"
+            style="margin: 0 10px;">
             <template #icon>
               <van-icon class="iconfont" :class="seatInfo.isMute ? 'icon-volume' : 'icon-mute'" />
             </template>
@@ -45,24 +43,24 @@
       <van-list style="width:100%; height: 240px; overflow-y: auto;">
         <van-cell :title="item.name" :label="$d(new Date(item.timestamp), 'short')" v-for="item in seatReqs" clickable>
           <template #value>
-            <van-button plain type="primary" size="small" :text="$t('square.room.seatMgr.on')"
-              v-if="chatroomStore.curRoom?.masters?.includes(commonStore.profile.uid)" @click="allowSeatOn(item)" />
-            <van-button plain type="warning" size="small" :text="$t('common.cancel')" style="margin-left: 15px;"
-              v-if="item.uid == commonStore.profile.uid" @click="seatOnReqCancel" />
+            <van-button plain type="primary" size="small" :text="$t('square.room.seatMgr.on')" v-if="isMaster"
+              @click="allowSeatOn(item)" />
+            <van-button v-if="item.uid == commonStore.profile.uid" plain type="warning" size="small"
+              :text="$t('common.cancel')" style="margin-left: 15px;" @click="seatOnReqCancel" />
           </template>
         </van-cell>
       </van-list>
       <van-button type="primary" style="width: calc(100% - 30px); margin: 15px;" @click="seatOnReq"
         :disabled="seatInfo.isLocked"
-        :text="$t(chatroomStore.curRoom?.masters?.includes(commonStore.profile.uid) ? 'square.room.seatMgr.onDirectly' : 'square.room.seatMgr.request')" />
+        :text="$t(isMaster ? 'square.room.seatMgr.onDirectly' : 'square.room.seatMgr.request')" />
     </template>
   </van-popup>
 </template>
 <script lang="ts" setup>
 import { showToast } from 'vant';
 import { onMounted, ref, watch } from 'vue';
-import { Chatroom, ChatroomApi, User } from '../../models';
-import { useChatroomStore, useCommonStore } from '../../store';
+import { Chatroom, ChatroomApi, User } from '../../../models';
+import { useChatroomStore, useCommonStore } from '../../../store';
 
 const props = defineProps<{
   show: boolean,
@@ -75,9 +73,12 @@ const commonStore = useCommonStore()
 const chatroomStore = useChatroomStore()
 const seatReqs = ref<Array<Chatroom.SeatReq & User.Profile>>([])
 
+let isMyself = false, isMaster = false
 
 onMounted(async () => {
   seatReqs.value = await ChatroomApi.seatRequests(chatroomStore.curRoom._id)
+  isMaster = chatroomStore.isMaster(commonStore.profile.uid)
+  isMyself = props.seatInfo?.userInfo.uid == commonStore.profile?.uid
 })
 
 watch(() => props.show, async () => {
@@ -113,8 +114,16 @@ async function seatOnReq() {
     showToast('您已经在麦上了，请先下麦')
     return
   }
+  try {
+    if (isMaster) {
+      await chatroomStore.allowSeatOn(commonStore.profile.uid, props.seatInfo.seq)
+    } else {
+      await chatroomStore.seatOnReq(props.seatInfo, commonStore.profile.uid)
+    }
+  } catch (err) {
+    showToast(err)
+  }
 
-  await chatroomStore.seatOnReq(props.seatInfo, commonStore.profile.uid)
   emits('update:show', false)
 }
 

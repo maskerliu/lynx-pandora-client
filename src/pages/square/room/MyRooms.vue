@@ -3,7 +3,8 @@
     <van-list>
       <van-cell :title="room.title" :label="room.ownerName" v-for="room in myRooms" clickable @click="enterRoom(room)">
         <template #icon>
-          <van-image :src="room.cover" width="4rem" height="4rem" round radius="8px" style="margin-right: 15px;" />
+          <van-image :src="'//' + commonStore.appConfig.staticServer + room.cover" width="4rem" height="4rem" round fit="cover"
+            radius="8px" style="margin-right: 15px;" />
         </template>
       </van-cell>
     </van-list>
@@ -15,9 +16,9 @@ import { showToast } from 'vant'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { Chatroom } from '../../models'
-import { ChatroomApi } from '../../models/chatroom.api'
-import { useChatroomStore, useCommonStore } from '../../store'
+import { Chatroom } from '../../../models'
+import { ChatroomApi } from '../../../models/chatroom.api'
+import { useChatroomStore, useCommonStore } from '../../../store'
 import RoomInfo from './RoomInfo.vue'
 
 const i18n = useI18n()

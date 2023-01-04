@@ -58,9 +58,9 @@
 <script lang="ts" setup>
 import { showToast, UploaderFileListItem } from 'vant';
 import { onMounted, onUnmounted, ref } from 'vue';
-import { Chatroom, CommonApi, User } from '../../models';
-import { ChatroomApi } from '../../models/chatroom.api';
-import { useChatroomStore, useCommonStore } from '../../store';
+import { Chatroom, CommonApi, User } from '../../../models';
+import { ChatroomApi } from '../../../models/chatroom.api';
+import { useChatroomStore, useCommonStore } from '../../../store';
 
 const props = defineProps<{
   show: boolean

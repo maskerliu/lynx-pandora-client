@@ -27,7 +27,7 @@ export namespace Chatroom {
     title?: string
     cover?: string
     frame?: string
-    owner?: string
+    owner: string
     ownerName?: string
     status?: RoomStatus
     isStared?: boolean

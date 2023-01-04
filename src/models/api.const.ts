@@ -51,8 +51,6 @@ export namespace RemoteAPI {
 
   export const Chatroom = {
     BasePath: '/room',
-    Recommend: '/recommend', // 推荐房间
-    MyCollections: '/myCollections',
     MyRooms: '/myRooms',
     RoomInfo: '/info', // 房间基础信息
     RoomSave: '/save',
@@ -67,5 +65,25 @@ export namespace RemoteAPI {
     Leave: '/leave',
     Reward: '/reward',
     SendMsg: '/sendMsg',
+  }
+
+  export const Timeline = {
+    BasePath: '/timeline',
+    MyPosts: '/post/my',
+    PostPub: '/post/pub',
+    PostDel: '/post/del',
+    MyMoments: '/moment/my',
+    MomentPub: '/moment/pub',
+    MomentDel: '/moment/del',
+    MomentLike: '/moment/like',
+    Comments: '/comments', // 评论
+    CommentPub: '/comment/pub', // 发表评论
+    CommentDel: '/comment/del', // 删除评论
+  }
+
+  export const Square = {
+    BasePath: '/square',
+    Recommend: '/recommend',
+    MyCollections: '/myCollections',
   }
 }

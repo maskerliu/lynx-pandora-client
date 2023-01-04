@@ -2,8 +2,8 @@
   <van-col span="6" class="seat-item">
     <div class="seat-box" @click="onSeatClick">
       <img v-show="showSoundWave" class="sound-wave" :src="SoundWave" />
-      <van-image v-if="seatInfo.userInfo" :src="seatInfo.userInfo.avatar" fit="cover" round radius="36"
-        class="seat-item-avatar" />
+      <van-image v-if="seatInfo.userInfo" class="seat-item-avatar" fit="cover" round radius="36"
+        :src="'//' + commonStore.appConfig?.staticServer + seatInfo.userInfo.avatar" />
       <van-icon class="seat-item-icon iconfont icon-lock" v-else-if="seatInfo.isLocked" size="24" />
       <van-icon class="seat-item-icon iconfont icon-add" size="24" v-else />
       <img class="seat-item-frame" :src="seatFrames[seatInfo.seq].url" />
@@ -16,9 +16,11 @@
 </template>
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { Chatroom } from '../../../models';
-import SoundWave from '../../../asserts/sound_wave.png';
+import SoundWave from '../../../../asserts/sound_wave.png';
+import { Chatroom } from '../../../../models';
+import { useCommonStore } from '../../../../store';
 
+const commonStore = useCommonStore()
 const showSoundWave = ref(true)
 const seatIsLock = ref(false)
 

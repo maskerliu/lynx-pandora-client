@@ -49,6 +49,17 @@ const i18n = createI18n({
         second: '2-digit'
       }
     }
+  },
+  numberFormats: {
+    'zh-CN': {
+      currency: {
+        style: 'decimal',
+        currency: 'RMB',
+        currencyDisplay: 'code',
+        // maximumSignificantDigits: 3,
+        signDisplay: 'never'
+      }
+    }
   }
 })
 const pinia = createPinia()

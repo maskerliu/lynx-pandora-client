@@ -1,6 +1,7 @@
 <template>
   <van-row class="message">
-    <van-image radius="5" class="user-avatar from" fit="cover" v-if="isFrom" :src="avatar" />
+    <van-image radius="5" class="user-avatar from" fit="cover" v-if="isFrom"
+      :src="'//' + commonStore.appConfig?.staticServer + avatar" />
     <div class="message-content" v-bind:class="isFrom ? 'from' : 'to'">
       <div class="message-text" v-bind:class="isFrom ? 'from' : 'to'">
         <template v-if="(message.type == IM.MessageType.TEXT || message.type == IM.MessageType.EMOJI)">
@@ -32,7 +33,8 @@
         <div v-else-if="!isFrom && message.sent == 0" class="message-loading"></div>
       </div>
     </div>
-    <van-image radius="5" class="user-avatar to" fit="cover" :src="commonStore.profile.avatar" v-if="!isFrom" />
+    <van-image radius="5" class="user-avatar to" fit="cover" v-if="!isFrom"
+      :src="'//' + commonStore.appConfig?.staticServer + commonStore.profile.avatar" />
   </van-row>
 </template>
 <script lang="ts" setup>

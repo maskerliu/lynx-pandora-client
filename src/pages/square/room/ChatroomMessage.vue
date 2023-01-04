@@ -1,36 +1,33 @@
 <template>
   <van-row class="message">
     <van-image round radius="2rem" width="2rem" height="2rem" class="user-avatar" fit="cover"
-      :src="(message.data as Chatroom.ChatContent).avatar"
+      :src="'//' + commonStore.appConfig.staticServer + (message.data as Chatroom.ChatContent).avatar"
       v-if="message.type == Chatroom.MsgType.ChatText||message.type == Chatroom.MsgType.ChatEmoji" />
     <div class="message-content">
 
       <template v-if="message.type == Chatroom.MsgType.ChatText">
-        <!-- 文字 -->
         <div class="chat-content">
           <span ref="msg-content">{{ (message.data as Chatroom.ChatContent).content }}</span>
         </div>
       </template>
       <template v-else-if="(message.type == Chatroom.MsgType.ChatEmoji)">
         <div class="chat-content">
-          <van-image ref="image" block width="4rem" height="4rem"
+          <van-image ref="image" block width="4rem" height="4rem" fit="cover"
             :src="(message.data as Chatroom.ChatContent).content" />
         </div>
       </template>
 
       <template v-else-if="(message.type == Chatroom.MsgType.Sys)">
-        <!-- 视频 -->
         <div class="sys-info" v-html="(message.data as Chatroom.SysInfoContent).content"></div>
       </template>
     </div>
   </van-row>
 </template>
 <script lang="ts" setup>
-import { showImagePreview } from 'vant'
 import { onMounted, ref } from 'vue'
-import { getScaleSize } from '../../common/image.util'
-import { Chatroom } from '../../models'
-import { useCommonStore, useIMStore } from '../../store'
+import { getScaleSize } from '../../../common/image.util'
+import { Chatroom } from '../../../models'
+import { useCommonStore, useIMStore } from '../../../store'
 
 const props = defineProps<{
   message: Chatroom.Message,

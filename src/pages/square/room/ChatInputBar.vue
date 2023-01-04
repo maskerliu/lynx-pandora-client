@@ -26,8 +26,8 @@
 </template>
 <script lang ="ts" setup>
 import { onMounted, ref, watch } from 'vue'
-import { Chatroom } from '../../models'
-import { useChatroomStore, useCommonStore } from '../../store'
+import { Chatroom } from '../../../models'
+import { useChatroomStore, useCommonStore } from '../../../store'
 import EmojiPanel from './EmojiPanel.vue'
 import GiftPanel from './GiftPanel.vue'
 

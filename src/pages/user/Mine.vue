@@ -5,7 +5,8 @@
         v-bind:style="{backgroundColor: doShake? '#d6303188': 'white'}" style="padding-top: 15px;" center is-link
         :to="`profile/uid`">
         <template #icon>
-          <van-image :radius="5" width="8rem" height="8rem" fit="cover" :src="commonStore.profile?.avatar" />
+          <van-image :radius="5" width="8rem" height="8rem" fit="cover"
+            :src="'//' + commonStore.appConfig.staticServer + commonStore.profile?.avatar" />
         </template>
         <template #value>
           <div style="margin-left: 15px; text-align: left;" v-if="commonStore.profile">
@@ -25,7 +26,7 @@
     <van-cell-group title="  ">
       <van-cell :title="$t('mine.company')" :title-style="{ 'max-width': '100px' }" center is-link @click="goCompany">
         <template #icon>
-          <van-icon class="iconfont icon-company" size="24" color="#34495e" style="margin-right: 10px;" />
+          <van-icon class="iconfont icon-company" size="24" color="#3867d6" style="margin-right: 10px;" />
         </template>
         <template #value>
           <div class="van-ellipsis" style="max-width: 100%; text-align: right;">
@@ -35,7 +36,7 @@
       </van-cell>
       <van-cell :title="$t('mine.bindDevice')" center is-link @click="goBind">
         <template #icon>
-          <van-icon class="iconfont icon-zhongjiqi" size="24" color="#27ae60" style="margin-right: 10px;" />
+          <van-icon class="iconfont icon-zhongjiqi" size="24" color="#3867d6" style="margin-right: 10px;" />
         </template>
       </van-cell>
     </van-cell-group>
@@ -43,7 +44,30 @@
     <van-cell-group title="  ">
       <van-cell :title="$t('mine.myChatrooms')" is-link to="/square/myRooms">
         <template #icon>
-          <van-icon class="iconfont icon-channel" size="24" color="#2980b9" style="margin-right: 10px;" />
+          <van-icon class="iconfont icon-channel" size="24" color="#9b59b6" style="margin-right: 10px;" />
+        </template>
+      </van-cell>
+      <van-cell :title="$t('mine.myMoments')" is-link to="/square/myMoments">
+        <template #icon>
+          <van-icon class="iconfont icon-moment" size="24" color="#009432" style="margin-right: 10px;" />
+        </template>
+      </van-cell>
+      <van-cell :title="$t('mine.myPosts')" is-link to="/square/myPosts">
+        <template #icon>
+          <van-icon class="iconfont icon-post" size="24" color="#2c3e50" style="margin-right: 10px;" />
+        </template>
+      </van-cell>
+    </van-cell-group>
+
+    <van-cell-group title="  ">
+      <van-cell :title="$t('mine.myWallet')" is-link to="/payment/myWallet">
+        <template #icon>
+          <van-icon class="iconfont icon-wallet" size="24" color="#3498db" style="margin-right: 10px;" />
+        </template>
+      </van-cell>
+      <van-cell :title="$t('mine.myFellow')" is-link to="/mine/fellow">
+        <template #icon>
+          <van-icon class="iconfont icon-fellow" size="24" color="#f39c12" style="margin-right: 10px;" />
         </template>
       </van-cell>
     </van-cell-group>

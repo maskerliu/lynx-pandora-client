@@ -35,7 +35,7 @@ onMounted(() => {
   commonStore.navbar.title = i18n.t('mine.profile.title')
 
   if (commonStore.profile.avatar) {
-    avatar.value.push({ url: commonStore.profile.avatar })
+    avatar.value.push({ url: '//' + commonStore.appConfig.staticServer + commonStore.profile.avatar })
   }
 
   if (window.argus) {

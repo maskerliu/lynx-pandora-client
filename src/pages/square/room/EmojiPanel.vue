@@ -21,9 +21,9 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
-import { Chatroom, ChatroomApi } from '../../models'
-import { useChatroomStore } from '../../store'
+import { onMounted, ref } from 'vue';
+import { Chatroom, ChatroomApi } from '../../../models';
+import { useChatroomStore } from '../../../store';
 
 const chatroomStore = useChatroomStore()
 const showEmojiPanel = ref(false)

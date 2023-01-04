@@ -3,7 +3,8 @@
     <van-cell-group title=" ">
       <van-row style="padding: 15px 0 10px 0;">
         <div v-for="user in members" style="text-align: center; width: 3.5rem; margin-left: 15px;">
-          <van-image radius="5" fit="cover" :src="user.avatar" width="3.5rem" height="3.5rem" style="" />
+          <van-image radius="5" fit="cover" width="3.5rem" height="3.5rem"
+            :src="'//' + commonStore.appConfig?.staticServer + user.avatar" />
           <div class="van-ellipsis" style="font-size: 0.7rem; color: grey;">{{ user.name }}</div>
         </div>
         <div style="text-align: center; width: 3.5rem; margin-left: 15px;">
@@ -105,6 +106,7 @@ onMounted(async () => {
 
   for (let uid of session.value.members) {
     let profile = await imStore.user(uid)
+    console.log(profile.avatar)
     members.value.push(profile)
   }
 })

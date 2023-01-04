@@ -11,7 +11,8 @@
         <div class="seats-panel">
           <van-image v-for="seat in chatroomStore.curRoom?.seats.filter(it => it.userInfo != null)" fit="cover"
             radius="2rem" class="seat-item" :class="selectedSeats.includes(seat.userInfo.uid) ? 'active' : ''"
-            :src="seat.userInfo.avatar" @click="onSeatClicked(seat.userInfo.uid)" />
+            :src="'//' + commonStore.appConfig?.staticServer + seat.userInfo.avatar"
+            @click="onSeatClicked(seat.userInfo.uid)" />
         </div>
       </van-row>
       <van-swipe class="gift-swiper" lazy-render>
@@ -57,8 +58,9 @@
 </template>
 <script lang="ts" setup>
 import { onMounted, ref, watch } from 'vue';
-import { useChatroomStore } from '../../store';
+import { useChatroomStore, useCommonStore } from '../../../store';
 
+const commonStore = useCommonStore()
 const chatroomStore = useChatroomStore()
 const showGiftPanel = ref(false)
 const showGiftCount = ref(false)

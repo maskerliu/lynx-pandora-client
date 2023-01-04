@@ -70,7 +70,7 @@ onMounted(async () => {
   --van-nav-bar-height: 55px;
   --van-nav-bar-arrow-size: 1.5rem;
   --van-nav-bar-icon-color: rgb(159, 159, 159);
-  --van-nav-bar-title-font-size: 1.0rem;
+  --van-nav-bar-title-font-size: .9rem;
   --van-tabbar-height: 55px;
   --van-tabbar-background-color: rgb(240, 240, 240);
   --van-tabbar-item-active-background-color: rgb(240, 240, 240);
@@ -89,6 +89,7 @@ onMounted(async () => {
   --van-collapse-item-content-padding: 0;
   --van-collapse-item-content-background: transparent;
   --van-tabs-card-height: 2.5rem;
+  --van-popover-radius: 3px;
   
 }
 

@@ -91,22 +91,46 @@ export default createRouter({
       children: [
         {
           path: 'home',
-          name: 'ChannelList',
-          component: require('../pages/square/ChannelList.vue').default,
+          name: 'Square',
+          component: require('../pages/square/Square.vue').default,
           meta: { navBar: false, tabBar: true }
         },
         {
           path: 'room',
           name: 'Chatroom',
-          component: require('../pages/square/Chatroom.vue').default,
+          component: require('../pages/square/room/Chatroom.vue').default,
           meta: { navBar: false, tabBar: false }
         },
         {
           path: 'myRooms',
           name: 'MyRooms',
-          component: require('../pages/square/MyRooms.vue').default,
+          component: require('../pages/square/room/MyRooms.vue').default,
           meta: { navBar: true, tabBar: false }
         },
+        {
+          path: 'post',
+          name: 'Post',
+          component: require('../pages/square/timeline/Post.vue').default,
+          meta: { navBar: true, tabBar: false }
+        },
+        {
+          path: 'myPosts',
+          name: 'MyPosts',
+          component: require('../pages/square/timeline/MyPosts.vue').default,
+          meta: { navBar: true, tabBar: false }
+        }, 
+        {
+          path: 'createMoment',
+          name: 'CreateMoment',
+          component: require('../pages/square/timeline/CreateMoment.vue').default,
+          meta: { navBar: true, tabBar: false }
+        },
+        {
+          path: 'moments/:uid',
+          name: 'Moments',
+          component: require('../pages/square/timeline/Moments.vue').default,
+          meta: { navBar: true, tabBar: false }
+        }
       ]
     },
     {
@@ -125,6 +149,30 @@ export default createRouter({
           name: 'UserProfile',
           component: require('../pages/user/UserProfile.vue').default,
           meta: { navBar: true }
+        },
+        {
+          path: 'fellow',
+          name: 'Fellow',
+          component: require('../pages/user/Fellow.vue').default,
+          meta: { navBar: true }
+        }
+      ]
+    },
+    {
+      path: '/payment',
+      redirect: '/payment/myWallet',
+      children: [
+        {
+          path: 'myWallet',
+          name: 'MyWallet',
+          component: require('../pages/payment/MyWallet.vue').default,
+          meta: { navBar: true, tabBar: false }
+        },
+        {
+          path: 'incomeDetail',
+          name: '/payment/incomeDetail',
+          component: require('../pages/payment/IncomeDetail.vue').default,
+          meta: { navBar: true, tabBar: false }
         }
       ]
     },

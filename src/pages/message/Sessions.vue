@@ -17,8 +17,8 @@
           label-class="van-multi-ellipsis--l2" value-class="timestamp" center clickable
           @click="gotoSession(session.sid, session.title)">
           <template #icon>
-            <van-image :src="session.thumb" radius="5" fit="cover" width="3rem" height="3rem"
-              style="margin-right: 15px;" />
+            <van-image radius="5" fit="cover" width="3rem" height="3rem" style="margin-right: 15px;"
+              :src="'//' + commonStore.appConfig?.staticServer + session.thumb" />
           </template>
           <template #value>
             <van-row justify="end">

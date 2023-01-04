@@ -14,7 +14,7 @@
     "upload": "上传",
     "submit": "提交",
     "bind": "绑定",
-    "pin": "置顶",
+    "send": "发送",
     "searchPlaceholder": "请输入搜索关键词"
   },
   "iot": {
@@ -62,6 +62,10 @@
     "createCompany": "尚未绑定公司，请去创建或联系管理员",
     "bindDevice": "绑定设备",
     "myChatrooms": "我的频道",
+    "myMoments": "我的动态",
+    "myPosts": "我的帖子",
+    "myWallet": "我的钱包",
+    "myFellow": "会员",
     "settings": "设置",
     "profile": {
       "title": "个人资料",
@@ -133,6 +137,9 @@
   },
   "square": {
     "title": "频道",
+    "myCollections":"我的关注",
+    "collectionEmptyTips": "空空如野，快去关注您喜欢的频道和小可爱吧～～",
+    "recommend":"推荐",
     "room": {
       "create": {
         "title": "创建个人频道",
@@ -159,8 +166,24 @@
       "reward": "赠送",
       "inputPlaceholder": "说点什么吧"
     },
+    "post": {
+
+    },
+    "moment": {
+
+    },
     "myRooms": {
       "title": "我的个人频道"
+    }
+  },
+  "payment": {
+    "wallet": {
+      "recharge": "充值",
+      "diamonds": "钻石",
+      "purse": "收入"
+    },
+    "purchase": {
+      "pay": "支付"
     }
   }
 }

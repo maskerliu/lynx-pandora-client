@@ -2,6 +2,7 @@
 import { Store } from 'pinia'
 import { InjectionKey } from 'vue'
 import { Router } from 'vue-router'
+import { Timeline, User } from '../../models'
 import { CommonAction, CommonState, IMAction, IMState, IOTAction, IOTState } from '../../store'
 
 export const VueRouter = Symbol() as InjectionKey<Router>
@@ -12,3 +13,4 @@ export const IOTStore = Symbol() as InjectionKey<Store<string, IOTState, {}, IOT
 export const I18n = Symbol() as InjectionKey<any>
 
 export const NavBack = Symbol() as InjectionKey<() => void>
+export const ShowCommentInputBar = Symbol() as InjectionKey<(comment?: Timeline.Comment) => void>
