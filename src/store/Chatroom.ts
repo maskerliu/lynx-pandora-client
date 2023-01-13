@@ -1,29 +1,31 @@
+import { count } from 'console'
 import { defineStore } from 'pinia'
 import msgClient from '../common/PahoMsgClient'
 import { Chatroom, User } from '../models'
 import { ChatroomApi } from '../models/chatroom.api'
-import { useCommonStore } from './Common'
 
 export type ChatroomState = {
   gifts: Array<Chatroom.Gift>
   curRoom: Chatroom.Room
   effects: Array<Chatroom.Message>
   messages: Array<Chatroom.Message>
+  showPurchase: boolean
 }
 
 export interface ChatroomAction {
   isMaster(uid: string): boolean
   isOnSeat(uid: string): boolean
   enterRoom(roomId: string): Promise<void>
-  leaveRoom(uid: string): Promise<void>
+  leaveRoom(): Promise<void>
   reward(giftId: string, count: number, receivers: Array<string>): Promise<void>
-  sendMessage(content: string, type: Chatroom.MsgType): Promise<void>
+  sendMessage(content: string, type: Chatroom.MsgType, userInfo: User.Profile & Chatroom.UserPropInfo): Promise<void>
   seatOnReq(seatInfo: Chatroom.Seat, uid: string): Promise<void>
-  seatDown(seatInfo: Chatroom.Seat, uid: string): Promise<void>
+  seatDown(seatInfo: Chatroom.Seat, uid: string, myUid?: string): Promise<void>
   mute(seatInfo: Chatroom.Seat): Promise<void>
   lock(seatInfo: Chatroom.Seat): Promise<void>
   allowSeatOn(uid: string, seq: number): Promise<void>
   onMessageArrived(msgs: Chatroom.Message[]): Promise<void>
+  mockMessages(): void
 }
 
 export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomAction>('Chatroom', {
@@ -33,6 +35,7 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
       curRoom: null,
       effects: [],
       messages: [],
+      showPurchase: false,
     }
   },
   actions: {
@@ -43,39 +46,35 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
       return this.curRoom.seats.find((it: Chatroom.Seat) => { return it.userInfo?.uid == uid }) != null
     },
     async enterRoom(roomId: string) {
-      this.curRoom = await ChatroomApi.enter(roomId)
-      if (this.gifts.length == 0) {
-        this.gifts = await ChatroomApi.gifts()
-      }
-      if (!msgClient.subscribe(`_room/${this.curRoom._id}`)) {
+      if (!msgClient.subscribe(`_room/${roomId}`)) {
         this.curRoom = null
         throw 'cant subscribe room'
+      }
+
+      this.curRoom = await ChatroomApi.enter(roomId)
+
+      if (this.gifts.length == 0) {
+        this.gifts = await ChatroomApi.gifts()
       }
 
       this.messages = []
       if (this.curRoom.welcome != null) {
         this.messages.push({
-          from: 'string',
+          from: 'sys',
           type: Chatroom.MsgType.Sys,
-          data: { content: this.curRoom.welcome } as Chatroom.SysInfoContent
+          content: this.curRoom.welcome
         })
       }
-
-      this.mockMessages()
     },
-    async leaveRoom(uid: string) {
+    async leaveRoom() {
       await ChatroomApi.leave(this.curRoom._id)
 
       this.curRoom = null
       this.messages = []
       this.effects = []
     },
-    async sendMessage(content: string, type: Chatroom.MsgType) {
-      let msg: Chatroom.Message = {
-        type,
-        data: { content } as Chatroom.ChatContent
-      }
-      await ChatroomApi.sendMsg(this.curRoom._id, msg)
+    async sendMessage(content: string, type: Chatroom.MsgType, userInfo: User.Profile & Chatroom.UserPropInfo) {
+      await ChatroomApi.sendMsg(this.curRoom._id, { type, content, userInfo })
     },
     async reward(giftId: string, count: number, receivers: Array<string>) {
       // let messages = receivers.map(it => {
@@ -89,16 +88,16 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
       await ChatroomApi.reward(this.curRoom._id, giftId, count, receivers)
     },
     async seatOnReq(seatInfo: Chatroom.Seat, uid: string) {
-      if (this.curRoom?.masters?.includes(uid)) { // 有权限直接上麦
+      if (this.isMaster(uid)) { // 有权限直接上麦
         await ChatroomApi.seatMgr(this.curRoom._id, uid, seatInfo.seq, Chatroom.MsgType.SeatOn)
       } else { // 发送上麦请求
-        await ChatroomApi.seatReq(this.curRoom._id, seatInfo.seq, Chatroom.MsgType.SeatReq)
+        await ChatroomApi.seatReq(this.curRoom._id, seatInfo.seq, Chatroom.MsgType.SeatOnReq)
       }
     },
     async seatDown(seatInfo: Chatroom.Seat, uid: string) {
       if (uid == seatInfo.userInfo.uid) {
         await ChatroomApi.seatReq(this.curRoom._id, seatInfo.seq, Chatroom.MsgType.SeatDown)
-      } else if (this.curRoom?.masters?.includes(uid)) {
+      } else if (this.isMaster(uid)) {
         await ChatroomApi.seatMgr(this.curRoom._id, seatInfo.userInfo.uid, seatInfo.seq, Chatroom.MsgType.SeatDown)
       }
     },
@@ -112,13 +111,13 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
       await ChatroomApi.seatMgr(this.curRoom._id, uid, seq, Chatroom.MsgType.SeatOn)
     },
     async onMessageArrived(msgs: Chatroom.Message[]) {
-      let commonStore = useCommonStore()
+      // TODO 加强校验，topic's room id is same with current room id
       msgs.forEach(it => {
         switch (it.type) {
           case Chatroom.MsgType.SeatLock:
           case Chatroom.MsgType.SeatUnlock: {
             let isLock = it.type == Chatroom.MsgType.SeatLock
-            let seq = (it.data as Chatroom.SeatContent).seq
+            let seq = it.seq
             this.curRoom.seats.find((item: Chatroom.Seat) => { return item.seq == seq }).isLocked = isLock
             break
           }
@@ -126,22 +125,17 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
           case Chatroom.MsgType.SeatMute:
           case Chatroom.MsgType.SeatUnmute: {
             let isMute = it.type == Chatroom.MsgType.SeatMute
-            let seq = (it.data as Chatroom.SeatContent).seq
-            this.curRoom.seats.find((item: Chatroom.Seat) => { return item.seq == seq }).isMute = isMute
+            this.curRoom.seats.find((item: Chatroom.Seat) => { return item.seq == it.seq }).isMute = isMute
             break
           }
 
           case Chatroom.MsgType.SeatOn: {
-            let data = it.data as Chatroom.SeatContent
-            let seq = (it.data as Chatroom.SeatContent).seq
-            let profile: User.Profile = { uid: data.uid, name: data.name, avatar: data.avatar }
-            this.curRoom.seats.find((it: Chatroom.Seat) => { return it.seq == seq }).userInfo = profile
+            this.curRoom.seats.find((seat: Chatroom.Seat) => { return it.seq == seat.seq }).userInfo = it.userInfo
             break
           }
           case Chatroom.MsgType.SeatDown: {
-            let seq = (it.data as Chatroom.SeatContent).seq
             if (this.curRoom) {
-              this.curRoom.seats.find((it: Chatroom.Seat) => { return it.seq == seq }).userInfo = null
+              this.curRoom.seats.find((seat: Chatroom.Seat) => { return it.seq == seat.seq }).userInfo = null
             }
             break
           }
@@ -159,19 +153,74 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
       })
     },
     mockMessages() {
-
-
-      this.messages.push({
-        from: '8f4e7438-4285-4268-910c-3898fb8d6d96',
-        type: Chatroom.MsgType.ChatText,
-        data: { content: `hello world` }
-      })
-
-      this.messages.push({
-        from: 'string',
+      let sysMsg: Chatroom.Message = {
         type: Chatroom.MsgType.Sys,
-        data: { content: `<span style="font-size: 0.8rem; font-style: italic; color: #8e44ad;"> 章三 </span> 向 <span style="font-size: 0.8rem; font-style: italic; color: #e67e22;"> 里斯 </span> 赠送了 <span style="font-size: 1rem; font-style: italic; font-weight: bold; color: #f39c12;"> 1 </span> 个 <span>棒棒糖</span>` } as Chatroom.SysInfoContent
-      })
+        content: `<span style="font-size: 0.8rem; font-style: italic; color: #8e44ad;"> 章三 </span> 向 <span style="font-size: 0.8rem; font-style: italic; color: #e67e22;"> 里斯 </span> 赠送了 <span style="font-size: 1rem; font-style: italic; font-weight: bold; color: #f39c12;"> 1 </span> 个 <span>棒棒糖</span>`
+      }
+ 
+      let rewardMsg: Chatroom.Message = {
+        type: Chatroom.MsgType.Reward,
+        giftId: this.gifts[Math.ceil(Math.random() * (this.gifts.length - 1))]._id,
+        count: 1
+      }
+
+      let chatTxtMsg: Chatroom.Message = {
+        type: Chatroom.MsgType.ChatText,
+        userInfo: {
+          uid: 'f947ed55-7e34-4a82-a9db-8a9cf6f2e608',
+          name: '刘大毛',
+          avatar: "/_res/a9032c164574a174aa854dc91c3d8913.jpg",
+          msgFrame: '/_res/8d04d0e0df2c484e84da11b667725074.png'
+        },
+        content: `所以${Math.random()}--${new Date()}`
+      }
+
+      let chatEmojiMsg: Chatroom.Message = {
+        type: Chatroom.MsgType.ChatEmoji,
+        userInfo: {
+          uid: 'f947ed55-7e34-4a82-a9db-8a9cf6f2e608',
+          name: '刘大毛',
+          avatar: "/_res/a9032c164574a174aa854dc91c3d8913.jpg",
+          msgFrame: '/_res/8d04d0e0df2c484e84da11b667725074.png'
+        },
+        content: 'https://yppphoto.hellobixin.com/upload/70c942c4f14e4669b0a844e24517a451.gif'
+      }
+
+      let enterMsg: Chatroom.Message = {
+        type: Chatroom.MsgType.Enter,
+        userInfo: {
+          uid: 'f947ed55-7e34-4a82-a9db-8a9cf6f2e608',
+          name: '刘大毛',
+          avatar: "/_res/a9032c164574a174aa854dc91c3d8913.jpg",
+          msgFrame: '/_res/8d04d0e0df2c484e84da11b667725074.png'
+        }
+      }
+
+      let mockMsgs = []
+
+      let sysCount = Math.random() * 5 + 1
+      let rewardCount = Math.random() * 5 + 1
+      let chatTxtCount = Math.random() * 5 + 1
+      let chatEmojiCount = Math.random() * 5 + 1
+      let enterCount = Math.random() * 5 + 1
+
+      for (let i = 0; i < sysCount; ++i) {
+        mockMsgs.push(sysMsg)
+      }
+      for (let i = 0; i < rewardCount; ++i) {
+        mockMsgs.push(rewardMsg)
+      }
+      for (let i = 0; i < chatTxtCount; ++i) {
+        mockMsgs.push(chatTxtMsg)
+      }
+      for (let i = 0; i < chatEmojiCount; ++i) {
+        mockMsgs.push(chatEmojiMsg)
+      }
+      for (let i = 0; i < enterCount; ++i) {
+        mockMsgs.push(enterMsg)
+      }
+
+      this.onMessageArrived(mockMsgs)
     }
   }
 })

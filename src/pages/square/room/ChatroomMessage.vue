@@ -1,24 +1,26 @@
 <template>
   <van-row class="message">
     <van-image round radius="2rem" width="2rem" height="2rem" class="user-avatar" fit="cover"
-      :src="'//' + commonStore.appConfig.staticServer + (message.data as Chatroom.ChatContent).avatar"
+      :src="'//' + commonStore.appConfig.staticServer + message.userInfo?.avatar"
       v-if="message.type == Chatroom.MsgType.ChatText||message.type == Chatroom.MsgType.ChatEmoji" />
     <div class="message-content">
 
+      <div class="message-frame" :style="{
+        borderImageSource: `url('//${commonStore.appConfig?.staticServer}${message.userInfo?.msgFrame}')`,
+      }" v-if="message.userInfo?.msgFrame"></div>
       <template v-if="message.type == Chatroom.MsgType.ChatText">
-        <div class="chat-content">
-          <span ref="msg-content">{{ (message.data as Chatroom.ChatContent).content }}</span>
+        <div class="chat-content" :style="{ background: commonStore.profile.msgFrame ? 'transparent' : '#0807077d' }">
+          <span ref="msg-content">{{ message.content }}</span>
         </div>
       </template>
       <template v-else-if="(message.type == Chatroom.MsgType.ChatEmoji)">
-        <div class="chat-content">
-          <van-image ref="image" block width="4rem" height="4rem" fit="cover"
-            :src="(message.data as Chatroom.ChatContent).content" />
+        <div class="chat-content" :style="{ background: commonStore.profile.msgFrame ? 'transparent' : '#0807077d' }">
+          <van-image ref="image" block width="4rem" height="4rem" fit="cover" :src="message.content" />
         </div>
       </template>
 
       <template v-else-if="(message.type == Chatroom.MsgType.Sys)">
-        <div class="sys-info" v-html="(message.data as Chatroom.SysInfoContent).content"></div>
+        <div class="sys-info" v-html="message.content"></div>
       </template>
     </div>
   </van-row>
@@ -70,32 +72,28 @@ function calcImageSize(e: any) {
 }
 
 .message-content {
+  max-width: 80%;
+  position: relative;
   display: flex;
   justify-content: flex-start;
   flex-direction: column;
-  flex-grow: 1;
+  /* flex-grow: 1; */
   align-items: flex-start;
 }
 
-.message-timestamp {
-  padding: 2px;
-  margin: 0;
-  overflow-wrap: break-word;
-  font-size: 10px;
-  color: #bdb8b8;
-  width: 100px;
-  display: flex;
-  flex-flow: row;
-  flex-direction: row-reverse;
+.message-frame {
+  position: absolute;
+  width: calc(100% - 50px);
+  height: calc(100% - 50px);
+  border: 25px solid transparent;
+  border-image-slice: 47% fill;
+  border-image-repeat: repeat;
 }
 
 .chat-content {
   color: #ecf0f1;
-  background: #0807077d;
-  padding: 10px;
+  padding: 15px;
   border-radius: 0 15px 0 15px;
-  margin: 5px 0;
-  max-width: 70%;
   font-size: 0.8rem;
   overflow-wrap: break-word;
   white-space: pre-wrap;

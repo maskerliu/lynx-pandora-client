@@ -1,5 +1,5 @@
 <template>
-  <van-popup :show="show" @close="emits('update:show', false)" position="bottom" round style="height: 350px;">
+  <van-popup :show="show" position="bottom" round @close="emits('update:show', false)">
 
     <template v-if="seatInfo.userInfo">
       <div class="seat-box" style="margin-top: 15px;">
@@ -41,7 +41,8 @@
         </van-row>
       </van-row>
       <van-list style="width:100%; height: 240px; overflow-y: auto;">
-        <van-cell :title="item.name" :label="$d(new Date(item.timestamp), 'short')" v-for="item in seatReqs" clickable>
+        <van-cell :title="item.name" :label="`[${item.seatSeq}号麦] \t \t ${$d(new Date(item.timestamp), 'short')}`"
+          v-for="item in seatReqs" clickable>
           <template #value>
             <van-button plain type="primary" size="small" :text="$t('square.room.seatMgr.on')" v-if="isMaster"
               @click="allowSeatOn(item)" />
@@ -73,17 +74,22 @@ const commonStore = useCommonStore()
 const chatroomStore = useChatroomStore()
 const seatReqs = ref<Array<Chatroom.SeatReq & User.Profile>>([])
 
-let isMyself = false, isMaster = false
+const isMyself = ref(false)
+let isMaster = false
 
 onMounted(async () => {
-  seatReqs.value = await ChatroomApi.seatRequests(chatroomStore.curRoom._id)
-  isMaster = chatroomStore.isMaster(commonStore.profile.uid)
-  isMyself = props.seatInfo?.userInfo.uid == commonStore.profile?.uid
+  // seatReqs.value = await ChatroomApi.seatRequests(chatroomStore.curRoom?._id)
+  isMaster = chatroomStore.isMaster(commonStore.profile?.uid)
 })
 
 watch(() => props.show, async () => {
-  if (props.show && props.seatInfo.userInfo == null) {
+  if (!props.show) return
+
+  if (props.seatInfo.userInfo == null) {
     seatReqs.value = await ChatroomApi.seatRequests(chatroomStore.curRoom._id)
+    isMyself.value = false
+  } else {
+    isMyself.value = props.seatInfo.userInfo.uid == commonStore.profile?.uid
   }
 })
 
@@ -100,6 +106,7 @@ async function lock() {
 async function allowSeatOn(item: Chatroom.SeatReq) {
   await chatroomStore.allowSeatOn(item.uid, item.seatSeq)
   seatReqs.value = await ChatroomApi.seatRequests(chatroomStore.curRoom._id)
+  emits('update:show', false)
 }
 // 抱下麦 or 主动下麦
 async function seatDown() {
@@ -128,7 +135,7 @@ async function seatOnReq() {
 }
 
 async function seatOnReqCancel() {
-  await ChatroomApi.seatReq(chatroomStore.curRoom._id, props.seatInfo.seq, Chatroom.MsgType.SeatReqCancel)
+  await ChatroomApi.seatReq(chatroomStore.curRoom._id, props.seatInfo.seq, Chatroom.MsgType.SeatOnReqCancel)
   seatReqs.value = await ChatroomApi.seatRequests(chatroomStore.curRoom._id)
   emits('update:show', false)
 }

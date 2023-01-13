@@ -1,6 +1,6 @@
 <template>
   <van-col>
-    <span>{{ post.title }}</span>
+    <span>{{ `TODO` }}</span>
   </van-col>
 </template>
 <script lang="ts" setup>

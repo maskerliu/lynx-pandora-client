@@ -65,14 +65,18 @@ export namespace RemoteAPI {
     Leave: '/leave',
     Reward: '/reward',
     SendMsg: '/sendMsg',
+    PropStore: '/propStore',
+    BuyProp: '/propStore/buy',
+    UseProp: '/useProp',
+    MyProps: '/myProps',
   }
 
   export const Timeline = {
     BasePath: '/timeline',
-    MyPosts: '/post/my',
+    Posts: '/posts',
     PostPub: '/post/pub',
     PostDel: '/post/del',
-    MyMoments: '/moment/my',
+    Moments: '/moments',
     MomentPub: '/moment/pub',
     MomentDel: '/moment/del',
     MomentLike: '/moment/like',
@@ -85,5 +89,15 @@ export namespace RemoteAPI {
     BasePath: '/square',
     Recommend: '/recommend',
     MyCollections: '/myCollections',
+  }
+
+  export const Payment = {
+    BasePath: '/payment',
+    MyWallet: '/myWallet',
+    RechargeConfig: '/rechargeConfig',
+    Recharge: '/recharge', // 充值
+    ExchangeConfig: '/exchangeConfig',
+    Exchange: '/exchange', // 魅力值兑换钻石
+    PurseRecords: '/purseRecords',
   }
 }

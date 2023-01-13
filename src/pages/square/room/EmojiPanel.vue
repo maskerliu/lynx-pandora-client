@@ -11,7 +11,7 @@
         <van-tab :title="group.name" v-for="group in emojis">
           <van-grid :column-num="5" clickable :gutter="10" :border="false">
             <van-grid-item v-for="item in group.emojis" @click="sendEmoji(item)">
-              <van-image :src="item.snap" width="3.5rem" height="3.5rem" />
+              <van-image :src="`//${commonStore.appConfig?.staticServer}${item.snap}`" width="3.5rem" height="3.5rem" />
             </van-grid-item>
           </van-grid>
         </van-tab>
@@ -23,8 +23,9 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
 import { Chatroom, ChatroomApi } from '../../../models';
-import { useChatroomStore } from '../../../store';
+import { useChatroomStore, useCommonStore } from '../../../store';
 
+const commonStore = useCommonStore()
 const chatroomStore = useChatroomStore()
 const showEmojiPanel = ref(false)
 const activeTab = ref(0)
@@ -35,7 +36,7 @@ onMounted(async () => {
 })
 
 async function sendEmoji(item: Chatroom.Emoji) {
-  await chatroomStore.sendMessage(item.gif, Chatroom.MsgType.ChatEmoji)
+  await chatroomStore.sendMessage(item.gif, Chatroom.MsgType.ChatEmoji, commonStore.profile)
   showEmojiPanel.value = false
 }
 

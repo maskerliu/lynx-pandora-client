@@ -1,25 +1,32 @@
 <template>
 
   <van-col>
-    <van-field type="textarea" row="2" maxlength="200" v-model:input="moment.desc" placeholder="这一刻的想法" />
-    <van-uploader v-model="images" :max-count="9" @click-upload="openFileSelector" />
+    <van-field type="textarea" row="2" maxlength="200" v-model="moment.desc"
+      :placeholder="$t('square.moment.create.placeholder')" />
+    <van-uploader v-model="images" :max-count="9" @click-upload="openFileSelector" style="padding: 15px;" />
 
     <van-button type="success" style="width: calc(100% - 30px); margin: 15px; position: fixed; bottom: 0; left: 0;"
-      text="发表" />
+      :text="$t('square.moment.create.submit')" @click="submitMoment" />
   </van-col>
 </template>
 <script lang="ts" setup>
-import { UploaderFileListItem } from 'vant'
-import { onMounted, onUnmounted, ref } from 'vue'
-import { Timeline } from '../../../models'
+import { showToast, UploaderFileListItem } from 'vant'
+import { inject, onMounted, onUnmounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { Timeline, TimelineApi } from '../../../models'
 import { useCommonStore } from '../../../store'
+import { NavBack } from '../../components/misc'
 
+const navBack = inject(NavBack)
+
+const i18n = useI18n()
 const commonStore = useCommonStore()
+
 const images = ref<Array<UploaderFileListItem>>([])
 const moment = ref<Timeline.Moment>({ uid: commonStore.profile?.uid })
 
 onMounted(() => {
-  commonStore.navbar.title = '发表想法'
+  commonStore.navbar.title = i18n.t('square.moment.create.title')
 
   if (window.argus) {
     window.webApp.register(onFileSelect)
@@ -46,6 +53,18 @@ async function onFileSelect(...args: string[]) {
     let file = new File([blob], 'test.jpeg', { type: blob.type })
     images.value.push({ file, content: item })
   })
+}
+
+async function submitMoment() {
+  let imgs = images.value.map(it => { return it.file })
+
+  if (imgs.length == 0 && moment.value.desc?.length == 0) {
+    showToast('请至少发布一张图片或说点什么')
+    return
+  }
+  
+  await TimelineApi.momentPub(moment.value, imgs)
+  navBack()
 }
 
 </script>

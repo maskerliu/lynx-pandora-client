@@ -1,5 +1,5 @@
 <template>
-  <van-row class="comment" style="width:100%; padding: 2px; font-size: 0.9rem;" @click="showCommentInputBar(comment)">
+  <van-row class="comment" style="width:100%; padding: 2px; font-size: 0.9rem;">
     <span class="comment-user">{{ comment.name }}</span>
     <template v-if="comment.mentionName">
       回复 <span class="comment-user">{{ comment.mentionName }}</span>
@@ -9,12 +9,8 @@
   </van-row>
 </template>
 <script lang="ts" setup>
-import { onMounted, inject } from 'vue';
+import { onMounted } from 'vue';
 import { Timeline } from '../../../models';
-import { ShowCommentInputBar } from '../../components/misc';
-
-
-const showCommentInputBar = inject(ShowCommentInputBar)
 
 defineProps<{
   comment: Timeline.Comment

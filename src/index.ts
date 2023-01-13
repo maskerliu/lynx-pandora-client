@@ -26,19 +26,30 @@ const i18n = createI18n({
         hour: '2-digit',
         minute: '2-digit',
       },
-      long: {
-        year: 'numeric',
+      middle: {
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
+        minute: '2-digit'
+      },
+      long: {
+        year: '2-digit',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
       }
     },
     'en': {
       short: {
         hour: '2-digit',
         minute: '2-digit',
+      },
+      middle: {
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
       },
       long: {
         year: 'numeric',
@@ -55,6 +66,15 @@ const i18n = createI18n({
       currency: {
         style: 'decimal',
         currency: 'RMB',
+        currencyDisplay: 'code',
+        // maximumSignificantDigits: 3,
+        signDisplay: 'never'
+      }
+    },
+    'en': {
+      currency: {
+        style: 'decimal',
+        currency: 'USD',
         currencyDisplay: 'code',
         // maximumSignificantDigits: 3,
         signDisplay: 'never'

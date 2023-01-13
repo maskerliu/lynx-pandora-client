@@ -5,8 +5,8 @@
         v-bind:style="{backgroundColor: doShake? '#d6303188': 'white'}" style="padding-top: 15px;" center is-link
         :to="`profile/uid`">
         <template #icon>
-          <van-image :radius="5" width="8rem" height="8rem" fit="cover"
-            :src="'//' + commonStore.appConfig.staticServer + commonStore.profile?.avatar" />
+          <van-image :radius="12" width="6rem" height="6rem" fit="cover"
+            :src="commonStore.profile ? `//${commonStore.appConfig?.staticServer}${commonStore.profile?.avatar}` : ''" />
         </template>
         <template #value>
           <div style="margin-left: 15px; text-align: left;" v-if="commonStore.profile">
@@ -47,7 +47,7 @@
           <van-icon class="iconfont icon-channel" size="24" color="#9b59b6" style="margin-right: 10px;" />
         </template>
       </van-cell>
-      <van-cell :title="$t('mine.myMoments')" is-link to="/square/myMoments">
+      <van-cell :title="$t('mine.myMoments')" is-link :to="`/square/moments/${commonStore.profile?.uid}`">
         <template #icon>
           <van-icon class="iconfont icon-moment" size="24" color="#009432" style="margin-right: 10px;" />
         </template>
@@ -63,6 +63,11 @@
       <van-cell :title="$t('mine.myWallet')" is-link to="/payment/myWallet">
         <template #icon>
           <van-icon class="iconfont icon-wallet" size="24" color="#3498db" style="margin-right: 10px;" />
+        </template>
+      </van-cell>
+      <van-cell :title="$t('mine.propStore')" is-link to="/square/propStore">
+        <template #icon>
+          <van-icon class="iconfont icon-dress-up" size="24" color="#FC427B" style="margin-right: 10px;" />
         </template>
       </van-cell>
       <van-cell :title="$t('mine.myFellow')" is-link to="/mine/fellow">
@@ -96,8 +101,6 @@ const doShake = ref(false)
 
 onMounted(() => {
   userProfile.value.$el.addEventListener('animationend', () => { doShake.value = false })
-
-  // await commonStore.updateUserInfo()
 })
 
 function goBind() {

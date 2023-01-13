@@ -72,7 +72,10 @@ const emits = defineEmits(['update:show'])
 const commonStore = useCommonStore()
 const chatroomStore = useChatroomStore()
 const cover = ref<Array<UploaderFileListItem>>([])
-const roomInfo = ref<Chatroom.Room>({})
+const roomInfo = ref<Chatroom.Room>({
+  owner: commonStore.profile?.uid,
+  displayMasters: []
+})
 const active = ref(0)
 const searchKey = ref('')
 
@@ -135,7 +138,6 @@ async function removeMaster(user: User.Profile) {
 
 async function submit() {
   roomInfo.value.type = active.value
-  roomInfo.value.owner = commonStore.profile.uid
   roomInfo.value.masters = roomInfo.value.displayMasters.map(it => { return it.uid })
   await ChatroomApi.saveRoom(roomInfo.value, cover.value[0]?.file)
   emits('update:show', false)

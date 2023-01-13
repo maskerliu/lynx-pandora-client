@@ -12,6 +12,16 @@
         </template>
       </van-cell>
 
+      <van-cell title="互动消息" label="10号机异常" center clickable to="/message/sysMessages">
+        <template #icon>
+          <van-icon class="iconfont icon-notification" size="26" color="#4fc08d" style="margin: 10px 20px 10px 12px;" />
+        </template>
+        <template #value>
+          <div style="font-size: 0.7rem;">10:23</div>
+          <van-badge :content="2" style=" margin: 15px 15px 0 15px;" />
+        </template>
+      </van-cell>
+
       <van-swipe-cell v-for="session in sessions">
         <van-cell :title="session.title" title-class="van-ellipsis" :label="session.snapshot"
           label-class="van-multi-ellipsis--l2" value-class="timestamp" center clickable

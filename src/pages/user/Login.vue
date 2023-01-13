@@ -25,12 +25,16 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import msgClient from '../../common/PahoMsgClient';
 import { CommonApi } from '../../models';
-import { useCommonStore } from '../../store';
+import { useChatroomStore, useCommonStore, useIMStore, useIOTStore } from '../../store';
 
 
 const router = useRouter()
 const commonStore = useCommonStore()
+const imStore = useIMStore()
+const iotStore = useIOTStore()
+const chatroomStore = useChatroomStore()
 
 const phone = ref('')
 const verifyCode = ref('')
@@ -95,6 +99,9 @@ async function login() {
   phone.value = ''
   isLogining.value = false
   commonStore.needLogin = false
+
+  if (msgClient && msgClient.isConnected()) { msgClient.close() }
+  msgClient.init(commonStore, imStore, iotStore, chatroomStore)
 
   if (commonStore.forword) {
     router.push(commonStore.forword)

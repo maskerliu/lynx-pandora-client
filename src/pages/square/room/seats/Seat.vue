@@ -6,7 +6,8 @@
         :src="'//' + commonStore.appConfig?.staticServer + seatInfo.userInfo.avatar" />
       <van-icon class="seat-item-icon iconfont icon-lock" v-else-if="seatInfo.isLocked" size="24" />
       <van-icon class="seat-item-icon iconfont icon-add" size="24" v-else />
-      <img class="seat-item-frame" :src="seatFrames[seatInfo.seq].url" />
+      <img class="seat-item-frame" :src="`//${commonStore.appConfig.staticServer}${seatInfo.userInfo.seatFrame}`"
+        v-if="seatInfo.userInfo?.seatFrame != null" />
       <span class="seat-item-mute iconfont icon-mute" v-if="(seatInfo && seatInfo.isMute)"></span>
     </div>
     <div class="seat-item-name">
@@ -15,7 +16,7 @@
   </van-col>
 </template>
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import SoundWave from '../../../../asserts/sound_wave.png';
 import { Chatroom } from '../../../../models';
 import { useCommonStore } from '../../../../store';
@@ -24,39 +25,17 @@ const commonStore = useCommonStore()
 const showSoundWave = ref(true)
 const seatIsLock = ref(false)
 
-const menuTextMap = {
-  handleSitDownMaster: '自己上麦',
-  handleSitUpMaster: '自己下麦',
-  hugSitUpMaster: '抱下麦',
-  handlePick: '抱上麦',
-  selfSitUp: '自己下麦',
-  setUserSitUp: '抱下麦',
-  setSeatMute: '静音',
-  setSeatUumute: '取消静音',
-  lockSeat: '封闭座位',
-  unlockSeat: '打开座位',
-}
-
-const seatFrames = [
-  { name: '冰雪世界', url: 'https://yppphoto.hibixin.com/yppphoto/7a0affe10a9946c09ca334e81bcd469c.png' },
-  { name: '圣诞快乐', url: 'https://yppphoto.hibixin.com/yppphoto/17e9091cbf1f4e9896c9d09ae31ac55d.png' },
-  { name: '大神', url: 'https://yppphoto.hibixin.com/yppphoto/ab614afd8f2e41f88b9fcc6b40d0ef3e.png' },
-  { name: '冬日回忆', url: 'https://yppphoto.hibixin.com/yppphoto/b8e363e137804c10ad5e8da569e017b8.png' },
-  { name: '圣诞帽', url: 'https://yppphoto.hibixin.com/yppphoto/83867fc3e37442e0abe9fd28158ecae4.png' },
-  { name: '林深见鹿', url: 'https://yppphoto.hibixin.com/yppphoto/6f88334cb220407b83960d27fa352a74.png' },
-  { name: '月光坠落', url: 'https://yppphoto.hibixin.com/yppphoto/3497d525a4e84bc7912c275fc484aebd.png' },
-  { name: '绿松石', url: 'https://yppphoto.hibixin.com/yppphoto/cd1fa8defb904ac7986bed61d20cf1ac.png' },
-]
-
 const props = defineProps<{
   seatInfo: Chatroom.Seat
 }>()
 
+const seatFrame = ref(null)
+
 const emits = defineEmits(['seatClick'])
 
 onMounted(() => {
-
 })
+
 
 function onSeatClick() {
   emits('seatClick')

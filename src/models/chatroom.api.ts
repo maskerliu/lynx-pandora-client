@@ -3,6 +3,11 @@ import { Chatroom, User } from '.'
 import { RemoteAPI } from './api.const'
 import { formPost, get, post } from './base.api'
 
+type MyPropOrderGroup = {
+  title: string
+  orders: Array<Chatroom.PropOrder>
+}
+
 export namespace ChatroomApi {
 
   export function saveRoom(room: Chatroom.Room, cover?: File) {
@@ -60,5 +65,21 @@ export namespace ChatroomApi {
 
   export function sendMsg(roomId: string, msg: Chatroom.Message) {
     return post<string>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.SendMsg, msg, { roomId })
+  }
+
+  export function propStore() {
+    return get<Array<Chatroom.PropGroup>>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.PropStore)
+  }
+
+  export function myProps() {
+    return get<Array<MyPropOrderGroup>>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.MyProps)
+  }
+
+  export function buyProp(propId: string, count: number) {
+    return post<string>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.BuyProp, { propId, count })
+  }
+
+  export function updatePropOrderStatus(orderId: string, propId: string, status: Chatroom.PropOrderStatus) {
+    return post<string>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.UseProp, { orderId, propId, status })
   }
 }

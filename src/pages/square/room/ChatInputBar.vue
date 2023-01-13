@@ -19,9 +19,19 @@
 
       <emoji-panel />
 
-      <gift-panel />
-    </template>
+      <van-button round style="width: 35px; height: 35px; margin-left: 10px;" @click="showPropStore = !showPropStore">
+        <template #icon>
+          <van-icon class="iconfont icon-prop-store" size="20" color="#f39c12" />
+        </template>
+      </van-button>
 
+      <gift-panel />
+
+      <van-popup position="bottom" v-model:show="showPropStore" style="width: 100%; height: 70%;">
+        <prop-store />
+      </van-popup>
+
+    </template>
   </van-field>
 </template>
 <script lang ="ts" setup>
@@ -30,19 +40,16 @@ import { Chatroom } from '../../../models'
 import { useChatroomStore, useCommonStore } from '../../../store'
 import EmojiPanel from './EmojiPanel.vue'
 import GiftPanel from './GiftPanel.vue'
-
-const props = defineProps<{
-  roomId: string
-}>()
+import PropStore from './PropStore.vue'
 
 const commonStore = useCommonStore()
 const chatroomStore = useChatroomStore()
-
+const showPropStore = ref(false)
 const textInput = ref(null)
 const emoji = ref('')
 
 onMounted(async () => {
-  
+
 })
 
 watch(emoji, () => {
@@ -52,7 +59,7 @@ watch(emoji, () => {
 })
 
 async function sendMessage(type: Chatroom.MsgType) {
-  await chatroomStore.sendMessage(textInput.value, type)
+  await chatroomStore.sendMessage(textInput.value, type, commonStore.profile)
   textInput.value = null
 }
 

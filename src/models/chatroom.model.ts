@@ -3,9 +3,9 @@ import { Common, User } from '.'
 export namespace Chatroom {
 
   export enum RoomType {
-    DianTai,
-    JiaoYou,
-    YuLe,
+    DianTai, // 2 seats
+    JiaoYou, // 4 seats
+    YuLe, // 8 seat
   }
 
   export enum RoomStatus {
@@ -17,10 +17,6 @@ export namespace Chatroom {
 
   export interface RoomTag extends Common.DBDoc {
     title: string
-  }
-
-  export interface RoomRole extends Common.DBDoc {
-
   }
 
   export interface Room extends Common.DBDoc {
@@ -41,6 +37,12 @@ export namespace Chatroom {
     displayMasters?: Array<User.Profile>
   }
 
+  export interface UserPropInfo {
+    seatFrame?: string
+    msgFrame?: string
+    enterEffect?: string
+  }
+
   // 上麦请求
   export interface SeatReq extends Common.DBDoc {
     uid: string
@@ -58,19 +60,38 @@ export namespace Chatroom {
   }
 
   export interface Seat extends Common.DBDoc {
-    roomId: string
+    roomId?: string
     seq: number // 麦序
     type: SeatType
     isMute: boolean // 是否闭麦
     isLocked: boolean
-    userInfo?: User.Profile
+    seatFrame?: string
+    userInfo?: User.Profile & UserPropInfo
+  }
+
+  export enum GiftType {
+    Normal,
+    VIP,
+  }
+
+  export enum GiftStatus {
+    On,
+    Off
   }
 
   export interface Gift extends Common.DBDoc {
     title: string
     snap: string
     effect?: string
-    priceDesc: string
+    price: number
+    type: GiftType
+    status?: GiftStatus
+  }
+
+  export interface RoomCollection extends Common.DBDoc {
+    uid: string
+    roomId: string
+    timestamp: number
   }
 
   export enum MsgType {
@@ -79,8 +100,8 @@ export namespace Chatroom {
     Enter = 2001, // 进入房间
     Exit = 2009, // 离开房间
     Reward = 3000, // 打赏
-    SeatReq = 4001, // 排麦
-    SeatReqCancel = 4002, // 取消排麦
+    SeatOnReq = 4001, // 排麦
+    SeatOnReqCancel = 4002, // 取消排麦
     SeatOn = 4003, // 上麦
     SeatDown = 4004, // 下麦
     SeatMute = 4005, // 闭麦
@@ -90,39 +111,13 @@ export namespace Chatroom {
     Sys = 6000, // 系统消息
   }
 
-  export interface ChatContent {
-    name?: string
-    avatar?: string
-    content: string
-  }
-
-  export interface RewardContent {
-    to: string
-    giftId: string
-    count: number
-  }
-
-  export interface SysInfoContent {
-    content: string
-  }
-
-  export interface EnterContent {
-    uid: string
-    content: string // 进入
-    effect: string
-  }
-
-  export interface SeatContent {
-    uid?: string
-    name?: string
-    avatar?: string
-    seq: number
-  }
-
   export interface Message extends Common.DBDoc {
     type: MsgType
-    from?: string
-    data?: ChatContent | RewardContent | SysInfoContent | EnterContent | SeatContent
+    userInfo?: User.Profile & UserPropInfo
+    content?: string
+    seq?: number
+    giftId?: string
+    count?: number
   }
 
   export interface EmojiGroup {
@@ -134,5 +129,60 @@ export namespace Chatroom {
     name: string
     snap: string
     gif: string
+  }
+
+  export enum PropType {
+    SeatFrame,
+    EnterEffect,
+    MsgFrame
+  }
+
+  export interface Prop extends Common.DBDoc {
+    type: PropType
+    name: string
+    snap: string
+    effect: string
+    price: number
+    expired: number
+  }
+
+  export interface PropGroup {
+    title: string
+    props: Array<Prop>
+  }
+
+  export interface RewardRecord extends Common.DBDoc {
+    from: string
+    to: string
+    giftOrderId: string
+    giftId: string
+    count: number
+    timestamp: number
+  }
+
+  export interface GiftOrder extends Common.DBDoc {
+    uid: string
+    giftId: string
+    gift?: Gift
+    count: number
+    payId: string // 支付订单号
+    timestamp: number
+    expired: number
+  }
+
+  export enum PropOrderStatus {
+    On, // 道具生效中
+    Off, // 道具未应用
+  }
+
+  export interface PropOrder extends Common.DBDoc {
+    uid: string
+    propId: string
+    prop?: Prop
+    count: number
+    status: PropOrderStatus
+    payId: string // 支付订单号
+    timestamp: number
+    expired: number // 失效时间
   }
 }

@@ -61,11 +61,12 @@
     "company": "Company",
     "createCompany": "Create Your Company",
     "bindDevice": "Bind Device",
-    "myChatrooms": "My Channels",
-    "myMoments": "My Moments",
-    "myPosts": "My Posts",
+    "myChatrooms": "Channels",
+    "myMoments": "Moments",
+    "myPosts": "Posts",
     "myWallet": "Wallet",
-    "myFellow": "My Fellow",
+    "propStore": "DressUp Center",
+    "myFellow": "VIP",
     "settings": "Settings",
     "profile": {
       "title": "Profile",
@@ -166,18 +167,35 @@
       "reward": "Reward",
       "inputPlaceholder": "say something!"
     },
+    "propStore": {
+      "title": "Prop Store",
+      "purchase": "Buy ",
+      "dressUp": "Dress Up",
+      "dressOff": "Dress Off"
+    },
     "myRooms": {
       "title": "My Channels"
-    }
+    },
+    "moment": {
+      "like": "Like",
+      "comment": "Comment",
+      "myMoments": "My Moments",
+      "create": {
+        "title": "create a moment",
+        "placeholder": "your thought at current moment",
+        "submit": "Po"
+      }
+    },
+    "post": {}
   },
   "payment": {
     "wallet": {
-      "recharge": "Rechage",
+      "recharge": "Recharge",
       "diamonds": "diamonds",
       "purse": "Purse"
     },
-    "purchase": {
-      "pay": "Pay"
-    }
+    "purseDetail": "Pusre Recored",
+    "pay": "Pay",
+    "exchange": "Exchange Diamonds"
   }
 }

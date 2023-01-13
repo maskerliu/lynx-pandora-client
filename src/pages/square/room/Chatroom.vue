@@ -8,7 +8,7 @@
     <van-row justify="space-between" style="padding: 5px 0;">
       <van-col class="room-info">
         <van-image round radius="1.25rem" width="2.5rem" height="2.5rem" fit="cover" style="margin:auto 0;"
-          :src="'//' + commonStore.appConfig.staticServer + chatroomStore.curRoom?.cover" />
+          :src="commonStore.appConfig ? `//${commonStore.appConfig?.staticServer}${chatroomStore.curRoom?.cover}` : ''" />
         <div style="width: calc(100% - 80px); padding: 5px 15px;">
           {{ chatroomStore.curRoom?.title }}
           <div class="van-ellipsis" style="font-size: 0.6rem; color: burlywood; margin-top: 5px;">
@@ -55,18 +55,18 @@
 
     <room-info v-model:show="showRoomInfo" :room="chatroomStore.curRoom" />
     <seat-mgr v-model:show="showSeatMgr" :seat-info="curSeatInfo" />
+    <purchase v-model:show="chatroomStore.showPurchase" />
 
     <div class="effect" :style="{ display: showEffect ? 'block' : 'none' }">
       <img ref="effectContainer" style="width: 100%; height: 100%; object-fit: cover;" />
     </div>
-    <chat-input-bar room-id="" />
+    <chat-input-bar />
 
   </van-col>
 </template>
 <script lang="ts" setup>
 import parseAPNG from 'apng-js'
-import { onMounted, onUnmounted, ref, watch, inject } from 'vue'
-import { useRouter } from 'vue-router'
+import { inject, onMounted, onUnmounted, ref, watch } from 'vue'
 import { Chatroom, ChatroomApi } from '../../../models'
 import { useChatroomStore, useCommonStore } from '../../../store'
 import { NavBack } from '../../components/misc'
@@ -77,8 +77,11 @@ import SeatMgr from './SeatMgr.vue'
 import DianTaiSeatsPanel from './seats/DianTaiSeatsPanel.vue'
 import JiaoYouSeatsPanel from './seats/JiaoYouSeatsPanel.vue'
 import YuleSeatsPanel from './seats/YuleSeatsPanel.vue'
+import Purchase from '../../payment/Purchase.vue'
 
-const router = useRouter()
+
+const navBack = inject(NavBack)
+
 const commonStore = useCommonStore()
 const chatroomStore = useChatroomStore()
 
@@ -87,17 +90,17 @@ const msgContainer = ref()
 const effectContainer = ref<HTMLImageElement>()
 const showRoomInfo = ref(false)
 const showSeatMgr = ref(false)
+const showPurchase = ref(false)
 const offsetHeight = ref(325)
 const curSeatInfo = ref<Chatroom.Seat>(null)
 const showEffect = ref(false)
 
 let timer = null
 
-const back = inject(NavBack)
 onMounted(async () => {
 
-  isStared.value = chatroomStore.curRoom.isStared
-  offsetHeight.value = chatroomStore.curRoom.notice ? 365 : 325
+  isStared.value = chatroomStore.curRoom?.isStared
+  offsetHeight.value = chatroomStore.curRoom?.notice ? 365 : 325
   timer = setInterval(async () => {
     await playGiftEffect()
   }, 200)
@@ -115,9 +118,11 @@ async function playGiftEffect() {
   if (showEffect.value || chatroomStore.effects.length == 0) { return }
 
   let effectMsg = chatroomStore.effects.shift()
-  let effect = chatroomStore.gifts[(effectMsg.data as Chatroom.RewardContent).giftId].effect
 
-  let img = await fetch(effect)
+  let effect = chatroomStore.gifts.find(it => { return it._id == effectMsg.giftId })?.effect
+  if (effect == null) return
+
+  let img = await fetch(`//${commonStore.appConfig?.staticServer}${effect}`)
   let blob = await img.blob()
   let buf = await blob.arrayBuffer()
   let apng = parseAPNG(buf)
@@ -152,8 +157,8 @@ async function collectRoom() {
 }
 
 async function leaveRoom() {
-  await chatroomStore.leaveRoom(commonStore.profile.uid)
-  back()
+  await chatroomStore.leaveRoom()
+  navBack()
 }
 
 </script>

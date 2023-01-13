@@ -94,11 +94,9 @@ onMounted(async () => {
   Promise.all([commonStore.init(), imStore.init()]).then(() => {
     if (msgClient && msgClient.isConnected()) { msgClient.close() }
     msgClient.init(commonStore, imStore, iotStore, useChatroomStore())
+
+    router.replace("/mine")
   })
-
-  router.replace("/message")
-  active.value = 1
-
 })
 
 onUnmounted(() => {

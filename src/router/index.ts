@@ -108,6 +108,12 @@ export default createRouter({
           meta: { navBar: true, tabBar: false }
         },
         {
+          path: 'propStore',
+          name: 'PropStore',
+          component: require('../pages/square/room/PropStore.vue').default,
+          meta: { navBar: true, tabBar: false }
+        },
+        {
           path: 'post',
           name: 'Post',
           component: require('../pages/square/timeline/Post.vue').default,
@@ -129,6 +135,12 @@ export default createRouter({
           path: 'moments/:uid',
           name: 'Moments',
           component: require('../pages/square/timeline/Moments.vue').default,
+          meta: { navBar: true, tabBar: false }
+        },
+        {
+          path: 'moment/:mid',
+          name: 'Moment',
+          component: require('../pages/square/timeline/Moment.vue').default,
           meta: { navBar: true, tabBar: false }
         }
       ]
@@ -169,9 +181,9 @@ export default createRouter({
           meta: { navBar: true, tabBar: false }
         },
         {
-          path: 'incomeDetail',
-          name: '/payment/incomeDetail',
-          component: require('../pages/payment/IncomeDetail.vue').default,
+          path: 'purseDetail',
+          name: 'PurseDetail',
+          component: require('../pages/payment/PurseDetail.vue').default,
           meta: { navBar: true, tabBar: false }
         }
       ]

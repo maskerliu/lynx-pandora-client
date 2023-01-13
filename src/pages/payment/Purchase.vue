@@ -1,14 +1,16 @@
 <template>
-
-  <van-popup :show="show" @close="emits('update:show', false)" position="bottom" round>
-    <van-grid column-num="3" style="margin: 15px;" :border="false" :gutter="10">
-      <van-grid-item class="purchase-item" :class="selectedItem?._id == item._id ? 'active' : ''"
-        v-for="item in purchaseItems" @click="selectedItem = item">
+  <van-popup :show="show" position="bottom" round @close="emits('update:show', false)">
+    <van-grid column-num="3" style="margin: 15px; padding: 0;" :border="false" :gutter="10">
+      <van-grid-item class="purchase-item" :class="selectedItem?._id == item._id ? 'purchase-item-active' : ''"
+        style="padding: 10px 5px;" v-for="item in purchaseItems" @click="selectedItem = item">
         <van-row>
-          <van-icon class="iconfont icon-diamonds" size="1rem" color="#00a8ff" style="margin: auto 5px;" />
-          <span style="font-size: 1.5rem"> {{ item.name }}</span>
+          <van-icon class="iconfont icon-diamonds" size="0.8rem" color="#00a8ff" style="margin: auto 2px;" />
+          <span style="font-size: 1rem; font-weight: bold;"> {{ $n(item.diamonds, 'currency') }}</span>
         </van-row>
-        <div style="font-size: 0.8rem; color: #bdc3c7">{{ item.discount }}</div>
+        <div class="purchase-item-info">
+          <span class="purchase-item-price" v-if="item.price != item.discount">{{ item.price }}</span>
+          {{ item.discount }}
+        </div>
       </van-grid-item>
     </van-grid>
 
@@ -27,75 +29,57 @@
       </van-cell-group>
     </van-radio-group>
 
-    <van-button style="width: calc(100% - 30px); background-color: #0097e6; margin: 15px; color: white;"
-      :text="$t('payment.purchase.pay') + `${selectedItem ? selectedItem.discount : ''}`" />
+    <van-button class="pay-btn" @click="purchase"
+      :text="$t('payment.pay') + `  ${selectedItem ? selectedItem.discount : ''}`" />
   </van-popup>
 
 </template>
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
+import { showNotify, showToast } from 'vant';
+import { onMounted, ref } from 'vue';
 import { Payment } from '../../models';
+import { PaymentApi } from '../../models/payment.api';
+import { useCommonStore } from '../../store';
 
-const props = defineProps<{
+defineProps<{
   show: boolean
 }>()
 
 const emits = defineEmits(['update:show'])
 
+const commonStore = useCommonStore()
 const purchaseItems = ref<Array<Payment.PurchaseItem>>([])
 const payChannels = ref<Array<Payment.PayChannel>>([])
-const payChannel = ref('1')
+const payChannel = ref(null)
 const selectedItem = ref<Payment.PurchaseItem>(null)
 
-onMounted(() => {
-  mockPurchaseItems()
+onMounted(async () => {
+  let config = await PaymentApi.rechargeConfig()
+  payChannels.value = config.channels
+  purchaseItems.value = config.purchases
+  payChannel.value = config.channels[0]._id
 })
 
-function mockPurchaseItems() {
+async function purchase() {
 
-  payChannels.value.push({ _id: '1', name: '微信支付', icon: 'icon-weixinzhifu', color: '#4cd137' })
-  payChannels.value.push({ _id: '2', name: '支付宝', icon: 'icon-zhifubao', color: '#3498db' })
+  if (selectedItem.value == null) {
+    showToast('请选择充值项')
+    return
+  }
 
-  purchaseItems.value.push({
-    _id: 'd1111',
-    name: '10',
-    discount: '10'
-  })
-
-  purchaseItems.value.push({
-    _id: 'd1112',
-    name: '20',
-    discount: '20'
-  })
-
-  purchaseItems.value.push({
-    _id: 'd1113',
-    name: '30',
-    discount: '30'
-  })
-
-  purchaseItems.value.push({
-    _id: 'd1114',
-    name: '50',
-    discount: '48'
-  })
-
-  purchaseItems.value.push({
-    _id: 'd1115',
-    name: '100',
-    discount: '90'
-  })
-
+  try {
+    commonStore.wallet = await PaymentApi.recharge(selectedItem.value._id, payChannel.value)
+    emits('update:show', false)
+  } catch (err) {
+    showNotify({ type: 'danger', message: err.toString(), duration: 500 })
+  }
 }
 </script>
 <style scoped>
-.purchase-item {
-  border: solid 2px #f39c1200;
-  border-radius: 8px;
-  padding: 5px;
-}
-
-.active {
-  border: solid 2px #f39c12;
+.pay-btn {
+  width: calc(100% - 30px);
+  background-color: #0097e6;
+  margin: 15px;
+  color: white;
 }
 </style>

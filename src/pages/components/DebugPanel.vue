@@ -21,6 +21,9 @@
 
         <van-button plain block type="danger" size="small" text="IM(group) Mock" @click="genMockGroupMessages"
           style="margin-top: 15px;" />
+
+        <van-button plain block type="success" size="small" text="Chatroom Msg Mock" @click="mockChatroomMsgs"
+          style="margin-top: 15px;" />
       </van-col>
     </van-popover>
   </div>
@@ -30,7 +33,7 @@
 import { ref } from 'vue'
 import PouchDB from 'pouchdb'
 import { CommonApi, IM } from '../../models'
-import { useCommonStore, useIMStore } from '../../store'
+import { useChatroomStore, useCommonStore, useIMStore } from '../../store'
 import md5 from 'md5';
 
 const dragBall = ref()
@@ -38,6 +41,7 @@ const showDebugPanel = ref(false)
 const compacting = ref(false)
 
 const commonStore = useCommonStore()
+const chatroomStore = useChatroomStore()
 const imStore = useIMStore()
 
 let canDrag = false
@@ -206,7 +210,11 @@ async function genMockP2PMessages() {
 }
 
 async function genMockGroupMessages() {
+  showDebugPanel.value = false
+}
 
+async function mockChatroomMsgs() {
+  chatroomStore.mockMessages()
   showDebugPanel.value = false
 }
 

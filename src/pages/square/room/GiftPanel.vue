@@ -22,14 +22,15 @@
               <template #default style="background: transparent;">
                 <div v-if="((i - 1) * 8 + j - 1) >= chatroomStore.gifts.length" style="width: 100%; height: 0;"></div>
                 <div v-else class="gift-item" :class="selectedGift == ((i - 1) * 8 + j - 1) ? 'active' : ''">
-                  <van-image :src="chatroomStore.gifts[(i - 1) * 8 + j - 1]?.snap" fit="cover"
-                    style="width: 4rem; height: 4rem;" />
+                  <van-image
+                    :src="`//${commonStore.appConfig?.staticServer}${chatroomStore.gifts[(i - 1) * 8 + j - 1]?.snap}`"
+                    fit="cover" style="width: 4rem; height: 4rem;" />
                   <div style="width: 100%; text-align: center;">
                     <div style="font-size: 0.7rem; color: #ecf0f1">
                       {{ chatroomStore.gifts[(i - 1) * 8 + j - 1]?.title }}
                     </div>
-                    <div style="font-size: 0.6rem; color: #bdc3c7">
-                      {{ chatroomStore.gifts[(i - 1) * 8 + j - 1]?.priceDesc }}
+                    <div style="font-size: 0.6rem; color: #e67e22">
+                      {{ chatroomStore.gifts[(i - 1) * 8 + j - 1]?.price }}
                     </div>
                   </div>
                 </div>
@@ -57,6 +58,7 @@
   </span>
 </template>
 <script lang="ts" setup>
+import { showToast } from 'vant';
 import { onMounted, ref, watch } from 'vue';
 import { useChatroomStore, useCommonStore } from '../../../store';
 
@@ -100,9 +102,17 @@ function onGiftCountSelect(count: number) {
 }
 
 async function reward() {
-  if (selectedGift.value != -1 && selectedSeats.value.length > 0 && giftCount.value > 0) {
-    await chatroomStore.reward(selectedGift.value + '', giftCount.value, selectedSeats.value)
-    showGiftPanel.value = false
+  let giftId = chatroomStore.gifts[selectedGift.value]._id
+  if (giftId != null && selectedSeats.value.length > 0 && giftCount.value > 0) {
+    try {
+      await chatroomStore.reward(giftId, giftCount.value, selectedSeats.value)
+    } catch (err) {
+      chatroomStore.showPurchase = true
+    } finally {
+      showGiftPanel.value = false
+    }
+  } else {
+    showToast('请选择要打赏的麦位，挑选合适数量的礼物再打赏')
   }
 }
 
