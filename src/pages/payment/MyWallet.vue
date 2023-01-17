@@ -14,7 +14,7 @@
       </template>
       <template #right-icon>
         <van-button type="primary" size="small" style="width: 60px;" :text="$t('payment.wallet.recharge')"
-          @click="showPurchase = true" />
+          @click="commonStore.showPurchase = true" />
       </template>
     </van-cell>
 
@@ -31,31 +31,21 @@
         </van-row>
       </template>
     </van-cell>
-
-    <purchase v-model:show="showPurchase" />
   </van-col>
 
 </template>
 <script lang="ts" setup>
-import { onMounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useCommonStore } from '../../store'
-import Purchase from './Purchase.vue'
+import { onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useCommonStore } from '../../store';
+
 
 const i18n = useI18n()
 const commonStore = useCommonStore()
 
-const showPurchase = ref(false)
-
 onMounted(async () => {
   commonStore.navbar.title = i18n.t('mine.myWallet')
   await commonStore.updateMyWallet()
-})
-
-watch(showPurchase, async () => {
-  if (!showPurchase.value) {
-    await commonStore.updateMyWallet()
-  }
 })
 
 </script>

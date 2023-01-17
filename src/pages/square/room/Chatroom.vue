@@ -55,9 +55,16 @@
 
     <room-info v-model:show="showRoomInfo" :room="chatroomStore.curRoom" />
     <seat-mgr v-model:show="showSeatMgr" :seat-info="curSeatInfo" />
-    <purchase v-model:show="chatroomStore.showPurchase" />
 
-    <div class="effect" :style="{ display: showEffect ? 'block' : 'none' }">
+    <van-col ref="enterEffect" class="enter-msg animate__animated"
+      v-bind:class="doEnter ? 'animate__bounceInLeft' : 'animate__fadeOut'" :style="{
+        borderImageSource: enterMsg ? `url('//${commonStore.appConfig?.staticServer}${enterMsg?.userInfo.enterEffect}')` : '',
+      }">
+      <div style="margin: 22px; color: white; font-size: 0.8rem;">{{ enterMsg? `${enterMsg?.userInfo.name} 来啦`: '' }}
+      </div>
+    </van-col>
+
+    <div class="gift-effect" :style="{ display: showEffect ? 'block' : 'none' }">
       <img ref="effectContainer" style="width: 100%; height: 100%; object-fit: cover;" />
     </div>
     <chat-input-bar />
@@ -77,7 +84,6 @@ import SeatMgr from './SeatMgr.vue'
 import DianTaiSeatsPanel from './seats/DianTaiSeatsPanel.vue'
 import JiaoYouSeatsPanel from './seats/JiaoYouSeatsPanel.vue'
 import YuleSeatsPanel from './seats/YuleSeatsPanel.vue'
-import Purchase from '../../payment/Purchase.vue'
 
 
 const navBack = inject(NavBack)
@@ -90,20 +96,28 @@ const msgContainer = ref()
 const effectContainer = ref<HTMLImageElement>()
 const showRoomInfo = ref(false)
 const showSeatMgr = ref(false)
-const showPurchase = ref(false)
 const offsetHeight = ref(325)
 const curSeatInfo = ref<Chatroom.Seat>(null)
+const enterEffect = ref()
+const doEnter = ref(false)
+const enterMsg = ref<Chatroom.Message>(null)
 const showEffect = ref(false)
 
 let timer = null
 
-onMounted(async () => {
+onMounted(() => {
 
   isStared.value = chatroomStore.curRoom?.isStared
   offsetHeight.value = chatroomStore.curRoom?.notice ? 365 : 325
   timer = setInterval(async () => {
     await playGiftEffect()
+    await playEnterEffect()
   }, 200)
+
+  enterEffect.value?.$el.addEventListener('animationend', () => {
+    doEnter.value = false
+    enterMsg.value = null
+  })
 })
 
 onUnmounted(() => {
@@ -119,7 +133,7 @@ async function playGiftEffect() {
 
   let effectMsg = chatroomStore.effects.shift()
 
-  let effect = chatroomStore.gifts.find(it => { return it._id == effectMsg.giftId })?.effect
+  let effect = chatroomStore.giftEffect(effectMsg.giftId)
   if (effect == null) return
 
   let img = await fetch(`//${commonStore.appConfig?.staticServer}${effect}`)
@@ -139,6 +153,14 @@ async function playGiftEffect() {
       }
     }, apng.playTime)
   }
+}
+
+async function playEnterEffect() {
+
+  if (doEnter.value) return
+
+  enterMsg.value = chatroomStore.enterMsgs.shift()
+  doEnter.value = enterMsg.value != null
 }
 
 function scrollToBottom(smooth: boolean) {
@@ -185,7 +207,7 @@ async function leaveRoom() {
   margin: 5px;
 }
 
-.effect {
+.gift-effect {
   width: 100%;
   height: calc(100% - 60px);
   position: absolute;
@@ -194,5 +216,14 @@ async function leaveRoom() {
   pointer-events: none;
   font-style: italic;
   font-weight: bold;
+}
+
+.enter-msg {
+  position: absolute;
+  top: 35%;
+  left: 0;
+  width: 180px;
+  height: 60px;
+  border-image-slice: 0 fill;
 }
 </style>

@@ -32,6 +32,11 @@ const i18n = createI18n({
         hour: '2-digit',
         minute: '2-digit'
       },
+      day: {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      },
       long: {
         year: '2-digit',
         month: '2-digit',
@@ -50,6 +55,11 @@ const i18n = createI18n({
         day: '2-digit',
         hour: '2-digit',
         minute: '2-digit'
+      },
+      day: {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
       },
       long: {
         year: 'numeric',

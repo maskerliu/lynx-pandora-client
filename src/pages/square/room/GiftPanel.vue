@@ -5,9 +5,9 @@
         <van-icon class="iconfont icon-gift" size="24" color="#f39c12" />
       </template>
     </van-button>
-    <van-popup v-model:show="showGiftPanel" position="bottom" round class="gift-panel" style="background: #34495e;">
-      <van-row style="width: calc(100% - 30px); overflow: hidden; margin: 15px;">
-        <div style="font-size: 0.8rem; margin: auto;">麦序</div>
+    <van-popup v-model:show="showGiftPanel" position="bottom" round style="background: #34495e;">
+      <van-row style="width: calc(100% - 30px); overflow: hidden; margin: 15px; font-size: 0.8rem;">
+        <div style="margin: auto;">{{ $t('square.room.to') }}</div>
         <div class="seats-panel">
           <van-image v-for="seat in chatroomStore.curRoom?.seats.filter(it => it.userInfo != null)" fit="cover"
             radius="2rem" class="seat-item" :class="selectedSeats.includes(seat.userInfo.uid) ? 'active' : ''"
@@ -15,22 +15,28 @@
             @click="onSeatClicked(seat.userInfo.uid)" />
         </div>
       </van-row>
+      <van-tabs v-model:active="activeTab" shrink background="transparent" title-active-color="#ecf0f1"
+        title-inactive-colo="#bdc3c7">
+        <van-tab title="普通"></van-tab>
+        <van-tab title="特权"></van-tab>
+      </van-tabs>
       <van-swipe class="gift-swiper" lazy-render>
-        <van-swipe-item v-for="i in Math.ceil(chatroomStore.gifts.length / 8)">
+        <van-swipe-item v-for="i in Math.ceil(gifts.length / 8)">
           <van-grid :column-num="4" :border="false">
-            <van-grid-item v-for="j in 8" style="padding: 0;" @click="onGiftSelected((i - 1) * 8 + j - 1)">
+            <van-grid-item v-for="j in 8" class="gift-item"
+              :class="selectedGift == ((i - 1) * 8 + j - 1) ? 'active' : ''"
+              @click="onGiftSelected((i - 1) * 8 + j - 1)">
               <template #default style="background: transparent;">
-                <div v-if="((i - 1) * 8 + j - 1) >= chatroomStore.gifts.length" style="width: 100%; height: 0;"></div>
-                <div v-else class="gift-item" :class="selectedGift == ((i - 1) * 8 + j - 1) ? 'active' : ''">
-                  <van-image
-                    :src="`//${commonStore.appConfig?.staticServer}${chatroomStore.gifts[(i - 1) * 8 + j - 1]?.snap}`"
+                <div v-if="((i - 1) * 8 + j - 1) >= gifts.length" style="width: 100%; height: 0;"></div>
+                <div v-else>
+                  <van-image :src="`//${commonStore.appConfig?.staticServer}${gifts[(i - 1) * 8 + j - 1]?.snap}`"
                     fit="cover" style="width: 4rem; height: 4rem;" />
-                  <div style="width: 100%; text-align: center;">
-                    <div style="font-size: 0.7rem; color: #ecf0f1">
-                      {{ chatroomStore.gifts[(i - 1) * 8 + j - 1]?.title }}
+                  <div class="gift-item-info">
+                    <div class="gift-item-name">
+                      {{ gifts[(i - 1) * 8 + j - 1]?.title }}
                     </div>
-                    <div style="font-size: 0.6rem; color: #e67e22">
-                      {{ chatroomStore.gifts[(i - 1) * 8 + j - 1]?.price }}
+                    <div class="gift-item-price">
+                      {{ gifts[(i - 1) * 8 + j - 1]?.price }}
                     </div>
                   </div>
                 </div>
@@ -60,24 +66,37 @@
 <script lang="ts" setup>
 import { showToast } from 'vant';
 import { onMounted, ref, watch } from 'vue';
+import { Chatroom } from '../../../models';
 import { useChatroomStore, useCommonStore } from '../../../store';
 
 const commonStore = useCommonStore()
 const chatroomStore = useChatroomStore()
+
+const gifts = ref<Array<Chatroom.Gift>>([])
+const activeTab = ref(0)
 const showGiftPanel = ref(false)
 const showGiftCount = ref(false)
-const giftCount = ref(0)
+const giftCount = ref(1)
 const selectedSeats = ref<Array<string>>([])
 const selectedGift = ref(-1)
 
 onMounted(async () => {
-
+  gifts.value = chatroomStore.gifts(Chatroom.GiftType.Normal)
 })
 
+watch(activeTab, async () => {
+  selectedGift.value = -1
+  if (activeTab.value == 1) {
+    await chatroomStore.getVIPGifts()
+    gifts.value = chatroomStore.gifts(Chatroom.GiftType.VIP)
+  } else {
+    gifts.value = chatroomStore.gifts(Chatroom.GiftType.Normal)
+  }
+})
 
 watch(showGiftPanel, () => {
   if (!showGiftPanel) {
-    giftCount.value = 0
+    giftCount.value = 1
     selectedGift.value = -1
     selectedSeats.value = []
   }
@@ -102,12 +121,12 @@ function onGiftCountSelect(count: number) {
 }
 
 async function reward() {
-  let giftId = chatroomStore.gifts[selectedGift.value]._id
+  let giftId = gifts.value[selectedGift.value]._id
   if (giftId != null && selectedSeats.value.length > 0 && giftCount.value > 0) {
     try {
       await chatroomStore.reward(giftId, giftCount.value, selectedSeats.value)
     } catch (err) {
-      chatroomStore.showPurchase = true
+      commonStore.showPurchase = true
     } finally {
       showGiftPanel.value = false
     }
@@ -136,8 +155,8 @@ async function reward() {
 
 .gift-swiper {
   width: calc(100vw - 30px);
-  margin: 0 15px;
-  padding-bottom: 20px;
+  margin: 5px 15px;
+  padding-bottom: 30px;
 }
 
 .custom-indicator {
@@ -150,14 +169,26 @@ async function reward() {
   background: rgba(0, 0, 0, 0.1);
 }
 
-.gift-panel {
-  background: linear-gradient(94deg, rgba(192, 160, 105, 1), rgba(233, 214, 172, 1)) !important;
-}
-
 .gift-item {
   border: solid 2px #f39c1200;
   border-radius: 8px;
-  padding: 5px;
+}
+
+.gift-item-info {
+  width: 100%;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #ecf0f1;
+}
+
+.gift-item-name {
+  margin-top: -0.4rem;
+}
+
+.gift-item-price {
+  font-size: 0.6rem;
+  color: #e67e22;
+  margin-top: -0.3rem;
 }
 
 .active {

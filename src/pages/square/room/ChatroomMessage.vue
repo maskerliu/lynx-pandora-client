@@ -10,12 +10,13 @@
       }" v-if="message.userInfo?.msgFrame"></div>
       <template v-if="message.type == Chatroom.MsgType.ChatText">
         <div class="chat-content" :style="{ background: commonStore.profile.msgFrame ? 'transparent' : '#0807077d' }">
-          <span ref="msg-content">{{ message.content }}</span>
+          <span>{{ message.content }}</span>
         </div>
       </template>
       <template v-else-if="(message.type == Chatroom.MsgType.ChatEmoji)">
         <div class="chat-content" :style="{ background: commonStore.profile.msgFrame ? 'transparent' : '#0807077d' }">
-          <van-image ref="image" block width="4rem" height="4rem" fit="cover" :src="message.content" />
+          <van-image ref="image" block width="2.5rem" height="2.5rem" fit="cover"
+            :src="`//${commonStore.appConfig?.staticServer}${message.content}`" />
         </div>
       </template>
 

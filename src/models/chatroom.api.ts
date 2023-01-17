@@ -43,8 +43,8 @@ export namespace ChatroomApi {
     return post<string>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.SeatMgr, { roomId, uid, seq, code })
   }
 
-  export function gifts() {
-    return get<Array<Chatroom.Gift>>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.Gifts)
+  export function gifts(roomId: string, type: Chatroom.GiftType) {
+    return get<Array<Chatroom.Gift>>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.Gifts, { roomId, type })
   }
 
   export function emojis() {
@@ -79,7 +79,7 @@ export namespace ChatroomApi {
     return post<string>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.BuyProp, { propId, count })
   }
 
-  export function updatePropOrderStatus(orderId: string, propId: string, status: Chatroom.PropOrderStatus) {
-    return post<string>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.UseProp, { orderId, propId, status })
+  export function updatePropOrderStatus(orderId: string, propId: string, status: Chatroom.PropOrderStatus, type: Chatroom.PropType) {
+    return post<Chatroom.UserPropInfo>(RemoteAPI.Chatroom.BasePath + RemoteAPI.Chatroom.UseProp, { orderId, propId, status, type })
   }
 }

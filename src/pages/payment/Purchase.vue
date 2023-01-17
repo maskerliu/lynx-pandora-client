@@ -36,12 +36,12 @@
 </template>
 <script lang="ts" setup>
 import { showNotify, showToast } from 'vant';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { Payment } from '../../models';
 import { PaymentApi } from '../../models/payment.api';
 import { useCommonStore } from '../../store';
 
-defineProps<{
+const props = defineProps<{
   show: boolean
 }>()
 
@@ -53,11 +53,18 @@ const payChannels = ref<Array<Payment.PayChannel>>([])
 const payChannel = ref(null)
 const selectedItem = ref<Payment.PurchaseItem>(null)
 
-onMounted(async () => {
-  let config = await PaymentApi.rechargeConfig()
-  payChannels.value = config.channels
-  purchaseItems.value = config.purchases
-  payChannel.value = config.channels[0]._id
+onMounted(() => {
+
+})
+
+watch(() => props.show, async () => {
+
+  if (props.show) {
+    let config = await PaymentApi.rechargeConfig()
+    payChannels.value = config.channels
+    purchaseItems.value = config.purchases
+    payChannel.value = config.channels[0]._id
+  }
 })
 
 async function purchase() {

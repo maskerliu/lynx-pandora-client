@@ -66,7 +66,8 @@
     "myPosts": "Posts",
     "myWallet": "Wallet",
     "propStore": "DressUp Center",
-    "myFellow": "VIP",
+    "vip": "VIP",
+    "grade": "My Grade",
     "settings": "Settings",
     "profile": {
       "title": "Profile",
@@ -164,6 +165,7 @@
         "request": "On Seat",
         "onDirectly": "Seat On"
       },
+      "to": "To",
       "reward": "Reward",
       "inputPlaceholder": "say something!"
     },

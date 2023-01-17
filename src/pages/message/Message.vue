@@ -6,7 +6,7 @@
       <div class="message-text" v-bind:class="isFrom ? 'from' : 'to'">
         <template v-if="(message.type == IM.MessageType.TEXT || message.type == IM.MessageType.EMOJI)">
           <!-- 文字 -->
-          <span ref="msg-content">{{ message.content }}</span>
+          <span>{{ message.content }}</span>
         </template>
         <template v-else-if="(message.type == IM.MessageType.IMAGE)">
           <van-image ref="image" block :width="width" :height="height" :src="message.content"
@@ -14,7 +14,7 @@
         </template>
         <template v-else-if="(message.type == IM.MessageType.AUDIO)">
           <!-- 语音 -->
-          <van-row ref="msg-content" style="width: 80px; flex: 1;" @click="play">
+          <van-row style="width: 80px; flex: 1;" @click="play">
             <audio ref="audioRef" :src="message.content" />
             <van-icon class="iconfont icon-audio" color="grey" size="20" />
             <div>{{ audioRef?.duration }} '</div>
@@ -22,7 +22,7 @@
         </template>
         <template v-else-if="(message.type == IM.MessageType.VIDEO)">
           <!-- 视频 -->
-          <p ref="msg-content">{{ message.content }}</p>
+          <p>{{ message.content }}</p>
         </template>
       </div>
       <div class="message-timestamp"

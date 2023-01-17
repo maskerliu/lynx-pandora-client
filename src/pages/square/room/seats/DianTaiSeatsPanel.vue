@@ -1,6 +1,6 @@
 <template>
 
-  <van-col class="bg-border top-panel" style="border: 0; margin-top: 0; padding-bottom: 15px;">
+  <van-col class="bg-border top-panel">
 
     <van-row justify="center" style="margin-bottom: 15px;">
       <seat :seat-info="chatroomStore.curRoom?.seats[0]"
@@ -31,6 +31,9 @@ onMounted(() => { })
 </script>
 <style scoped>
 .top-panel {
+  border: 0;
+  margin-top: 0;
+  padding-bottom: 15px;
   background: linear-gradient(85deg, #0057fb88, #22937388, #92ff2a88);
 }
 </style>

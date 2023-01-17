@@ -124,7 +124,7 @@ export default createRouter({
           name: 'MyPosts',
           component: require('../pages/square/timeline/MyPosts.vue').default,
           meta: { navBar: true, tabBar: false }
-        }, 
+        },
         {
           path: 'createMoment',
           name: 'CreateMoment',
@@ -163,9 +163,15 @@ export default createRouter({
           meta: { navBar: true }
         },
         {
-          path: 'fellow',
-          name: 'Fellow',
-          component: require('../pages/user/Fellow.vue').default,
+          path: 'vip',
+          name: 'VIP',
+          component: require('../pages/user/VIP.vue').default,
+          meta: { navBar: true }
+        },
+        {
+          path: 'grade',
+          name: 'Grade',
+          component: require('../pages/user/Grade.vue').default,
           meta: { navBar: true }
         }
       ]

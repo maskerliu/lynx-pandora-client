@@ -3,7 +3,7 @@
 import { defineStore } from 'pinia'
 import { NavBarProps } from 'vant'
 import { default as msgClient } from '../common/PahoMsgClient'
-import { Chatroom, ChatroomApi, Common, CommonApi, IOT, IOTApi, Payment, updateAccessToken, updateBaseDomain, User } from '../models'
+import { Chatroom, ChatroomApi, Common, CommonApi, IOT, IOTApi, Payment, updateAccessToken, updateBaseDomain, User, VIP, VIPApi } from '../models'
 import { PaymentApi } from '../models/payment.api'
 
 export type CommonState = {
@@ -15,12 +15,13 @@ export type CommonState = {
   appConfig?: Common.AppConfig,
   locale: string,
   accessToken?: string,
-  profile?: User.Account & User.Profile & Chatroom.UserPropInfo,
+  profile?: User.Account & User.Profile & VIP.UserVIPInfo & Chatroom.UserPropInfo,
   wallet?: Payment.Wallet,
   operator?: IOT.Operator,
   company?: IOT.Company,
   sharePrefs: SharePref,
   forword?: any,
+  showPurchase: boolean,
 }
 
 export type CommonAction = {
@@ -28,6 +29,7 @@ export type CommonAction = {
   updateUserInfo(): Promise<void>
   updateMyWallet(): Promise<void>
   updateMyProps(orders: Array<Chatroom.PropOrder>): void
+  updateVIP(vipType?: VIP.VIPType): void
   logout(): Promise<void>
 }
 
@@ -53,6 +55,7 @@ export const useCommonStore = defineStore<string, CommonState, {}, CommonAction>
       company: null,
       sharePrefs: {} as SharePref,
       forword: null,
+      showPurchase: false,
     }
   },
   actions: {
@@ -85,26 +88,32 @@ export const useCommonStore = defineStore<string, CommonState, {}, CommonAction>
         })
       })
       this.updateMyProps(dressupOrders)
+
+      let vip = await VIPApi.myVIP()
+      if (vip) {
+        this.updateVIP(vip.type)
+      }
     },
     async updateMyWallet() {
       this.wallet = await PaymentApi.myWallet()
     },
     updateMyProps(orders: Array<Chatroom.PropOrder>) {
-      this.props = orders
-
       orders.forEach(order => {
         switch (order.prop.type) {
           case Chatroom.PropType.EnterEffect:
-            this.profile.enterEffect = order.status == Chatroom.PropOrderStatus.On ? order.prop.snap : null
+            this.profile.enterEffect = order.prop.snap
             break
           case Chatroom.PropType.MsgFrame:
-            this.profile.msgFrame = order.status == Chatroom.PropOrderStatus.On ? order.prop.effect : null
+            this.profile.msgFrame = order.prop.effect
             break
           case Chatroom.PropType.SeatFrame:
-            this.profile.seatFrame = order.status == Chatroom.PropOrderStatus.On ? order.prop.snap : null
+            this.profile.seatFrame = order.prop.snap
             break
         }
       })
+    },
+    updateVIP(vipType?: VIP.VIPType) {
+      this.profile = Object.assign(this.profile, { vipType })
     },
     async logout() {
       this.accessToken = null

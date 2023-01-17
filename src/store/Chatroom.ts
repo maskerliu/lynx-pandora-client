@@ -5,16 +5,21 @@ import { Chatroom, User } from '../models'
 import { ChatroomApi } from '../models/chatroom.api'
 
 export type ChatroomState = {
-  gifts: Array<Chatroom.Gift>
+  // gifts: Array<Chatroom.Gift>
+  normalGifts: Array<Chatroom.Gift>
+  vipGifts: Array<Chatroom.Gift>
   curRoom: Chatroom.Room
   effects: Array<Chatroom.Message>
+  enterMsgs: Array<Chatroom.Message>
   messages: Array<Chatroom.Message>
-  showPurchase: boolean
 }
 
 export interface ChatroomAction {
   isMaster(uid: string): boolean
   isOnSeat(uid: string): boolean
+  gifts(type: Chatroom.GiftType): Array<Chatroom.Gift>
+  giftEffect(giftId: string): string
+  getVIPGifts(): Promise<void>
   enterRoom(roomId: string): Promise<void>
   leaveRoom(): Promise<void>
   reward(giftId: string, count: number, receivers: Array<string>): Promise<void>
@@ -31,11 +36,12 @@ export interface ChatroomAction {
 export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomAction>('Chatroom', {
   state: () => {
     return {
-      gifts: [],
+      normalGifts: [],
+      vipGifts: [],
       curRoom: null,
       effects: [],
+      enterMsgs: [],
       messages: [],
-      showPurchase: false,
     }
   },
   actions: {
@@ -45,6 +51,26 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
     isOnSeat(uid: string) {
       return this.curRoom.seats.find((it: Chatroom.Seat) => { return it.userInfo?.uid == uid }) != null
     },
+    gifts(type: Chatroom.GiftType) {
+      return type == Chatroom.GiftType.Normal ? this.normalGifts : this.vipGifts
+    },
+    giftEffect(giftId: string) {
+      let effect = this.normalGifts.find((it: Chatroom.Gift) => { return it._id == giftId })?.effect
+      if (effect == null) {
+        effect = this.vipGifts.find((it: Chatroom.Gift) => { return it._id == giftId })?.effect
+      }
+      return effect
+    },
+    async getNormalGifts() {
+      if (this.normalGifts.length == 0) {
+        this.normalGifts = await ChatroomApi.gifts(this.curRoom._id, Chatroom.GiftType.Normal)
+      }
+    },
+    async getVIPGifts() {
+      if (this.vipGifts.length == 0) {
+        this.vipGifts = await ChatroomApi.gifts(this.curRoom._id, Chatroom.GiftType.VIP)
+      }
+    },
     async enterRoom(roomId: string) {
       if (!msgClient.subscribe(`_room/${roomId}`)) {
         this.curRoom = null
@@ -53,9 +79,7 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
 
       this.curRoom = await ChatroomApi.enter(roomId)
 
-      if (this.gifts.length == 0) {
-        this.gifts = await ChatroomApi.gifts()
-      }
+      await this.getNormalGifts()
 
       this.messages = []
       if (this.curRoom.welcome != null) {
@@ -140,6 +164,7 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
             break
           }
           case Chatroom.MsgType.Enter:
+            this.enterMsgs.push(it)
             break
           case Chatroom.MsgType.Reward:
             this.effects.push(it)
@@ -157,7 +182,7 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
         type: Chatroom.MsgType.Sys,
         content: `<span style="font-size: 0.8rem; font-style: italic; color: #8e44ad;"> 章三 </span> 向 <span style="font-size: 0.8rem; font-style: italic; color: #e67e22;"> 里斯 </span> 赠送了 <span style="font-size: 1rem; font-style: italic; font-weight: bold; color: #f39c12;"> 1 </span> 个 <span>棒棒糖</span>`
       }
- 
+
       let rewardMsg: Chatroom.Message = {
         type: Chatroom.MsgType.Reward,
         giftId: this.gifts[Math.ceil(Math.random() * (this.gifts.length - 1))]._id,
@@ -183,7 +208,7 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
           avatar: "/_res/a9032c164574a174aa854dc91c3d8913.jpg",
           msgFrame: '/_res/8d04d0e0df2c484e84da11b667725074.png'
         },
-        content: 'https://yppphoto.hellobixin.com/upload/70c942c4f14e4669b0a844e24517a451.gif'
+        content: '/_res/70c942c4f14e4669b0a844e24517a451.gif'
       }
 
       let enterMsg: Chatroom.Message = {
@@ -192,7 +217,7 @@ export const useChatroomStore = defineStore<string, ChatroomState, {}, ChatroomA
           uid: 'f947ed55-7e34-4a82-a9db-8a9cf6f2e608',
           name: '刘大毛',
           avatar: "/_res/a9032c164574a174aa854dc91c3d8913.jpg",
-          msgFrame: '/_res/8d04d0e0df2c484e84da11b667725074.png'
+          enterEffect: '/_res/4fd9f7e7c4774ca7ad8f8f058909d022.png'
         }
       }
 

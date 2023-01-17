@@ -53,6 +53,7 @@
   </van-row>
 </template>
 <script lang="ts" setup>
+import { group } from 'console';
 import { showToast } from 'vant';
 import { onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -102,9 +103,18 @@ async function buyProp() {
 
 async function useProp(order: Chatroom.PropOrder) {
   let status = order.status == Chatroom.PropOrderStatus.On ? Chatroom.PropOrderStatus.Off : Chatroom.PropOrderStatus.On
-  await ChatroomApi.updatePropOrderStatus(order._id, order.propId, status)
+  let propInfo = await ChatroomApi.updatePropOrderStatus(order._id, order.propId, status, order.prop.type)
+  commonStore.profile = Object.assign(commonStore.profile, propInfo)
   order.status = status
-  commonStore.updateMyProps([order])
+  
+  let i = 0
+  for (i = 0; i < myProps.value.length; ++i) {
+    if (myProps.value[i].orders[0].prop.type == order.prop.type) break
+  }
+
+  myProps.value[i].orders.forEach(it => {
+    if (it._id != order._id) it.status = Chatroom.PropOrderStatus.Off
+  })
 }
 
 </script>

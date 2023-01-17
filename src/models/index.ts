@@ -12,4 +12,6 @@ export * from './iot.api'
 export * from './iot.model'
 export * from './user.model'
 export * from './payment.model'
+export * from './vip.api'
+export * from './vip.model'
 

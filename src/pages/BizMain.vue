@@ -51,6 +51,8 @@
 
     <login />
 
+    <purchase v-model:show="commonStore.showPurchase" />
+
     <debug-panel />
 
   </van-col>
@@ -65,6 +67,7 @@ import { useChatroomStore, useCommonStore, useIMStore, useIOTStore } from '../st
 import DebugPanel from './components/DebugPanel.vue'
 import { NavBack } from './components/misc'
 import Login from './user/Login.vue'
+import Purchase from './payment/Purchase.vue'
 
 const router = useRouter()
 const commonStore = useCommonStore()
@@ -95,7 +98,7 @@ onMounted(async () => {
     if (msgClient && msgClient.isConnected()) { msgClient.close() }
     msgClient.init(commonStore, imStore, iotStore, useChatroomStore())
 
-    router.replace("/mine")
+    router.replace("/square/myRooms")
   })
 })
 

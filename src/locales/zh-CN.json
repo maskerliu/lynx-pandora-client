@@ -66,7 +66,8 @@
     "myPosts": "帖子",
     "myWallet": "钱包",
     "propStore": "装扮中心",
-    "myFellow": "会员",
+    "vip": "会员",
+    "grade": "我的等级",
     "settings": "设置",
     "profile": {
       "title": "个人资料",
@@ -164,6 +165,7 @@
         "request": "申请上麦",
         "onDirectly": "上麦"
       },
+      "to": "送给",
       "reward": "赠送",
       "inputPlaceholder": "说点什么吧"
     },

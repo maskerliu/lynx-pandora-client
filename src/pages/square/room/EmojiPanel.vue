@@ -9,9 +9,9 @@
     <van-popup position="bottom" v-model:show="showEmojiPanel" style="width: 100%; height: 300px;">
       <van-tabs v-model:active="activeTab" shrink>
         <van-tab :title="group.name" v-for="group in emojis">
-          <van-grid :column-num="5" clickable :gutter="10" :border="false">
+          <van-grid :column-num="5" clickable :gutter="10" :border="false" style="margin-top: 10px;">
             <van-grid-item v-for="item in group.emojis" @click="sendEmoji(item)">
-              <van-image :src="`//${commonStore.appConfig?.staticServer}${item.snap}`" width="3.5rem" height="3.5rem" />
+              <van-image :src="`//${commonStore.appConfig?.staticServer}${item.snap}`" width="3rem" height="3rem" />
             </van-grid-item>
           </van-grid>
         </van-tab>

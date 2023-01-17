@@ -19,6 +19,7 @@
   </van-popup>
 </template>
 <script lang="ts" setup>
+import { showToast } from 'vant';
 import { onMounted, ref } from 'vue'
 import { Payment } from '../../models';
 import { PaymentApi } from '../../models/payment.api';
@@ -40,8 +41,12 @@ onMounted(async () => {
 })
 
 async function exchange() {
-  commonStore.wallet = await PaymentApi.exchange(selectedItem.value._id)
-  emits('update:show', false)
+  try {
+    commonStore.wallet = await PaymentApi.exchange(selectedItem.value._id)
+    emits('update:show', false)
+  } catch (err) {
+    showToast(err)
+  }
 }
 
 </script>
