@@ -94,7 +94,7 @@ onMounted(() => {
     roomInfo.value = props.room
     active.value = props.room.type
     cover.value[0] = {
-      url: props.room.cover
+      url: `//${commonStore.appConfig?.staticServer + props.room.cover}`
     }
   }
 

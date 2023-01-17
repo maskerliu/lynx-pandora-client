@@ -8,7 +8,7 @@
     <van-row justify="space-between" style="padding: 5px 0;">
       <van-col class="room-info">
         <van-image round radius="1.25rem" width="2.5rem" height="2.5rem" fit="cover" style="margin:auto 0;"
-          :src="commonStore.appConfig ? `//${commonStore.appConfig?.staticServer}${chatroomStore.curRoom?.cover}` : ''" />
+          :src="commonStore.appConfig ? `//${commonStore.appConfig?.staticServer + chatroomStore.curRoom?.cover}` : ''" />
         <div style="width: calc(100% - 80px); padding: 5px 15px;">
           {{ chatroomStore.curRoom?.title }}
           <div class="van-ellipsis" style="font-size: 0.6rem; color: burlywood; margin-top: 5px;">
@@ -67,8 +67,8 @@
     <div class="gift-effect" :style="{ display: showEffect ? 'block' : 'none' }">
       <img ref="effectContainer" style="width: 100%; height: 100%; object-fit: cover;" />
     </div>
-    <chat-input-bar />
 
+    <chat-input-bar />
   </van-col>
 </template>
 <script lang="ts" setup>
@@ -136,7 +136,7 @@ async function playGiftEffect() {
   let effect = chatroomStore.giftEffect(effectMsg.giftId)
   if (effect == null) return
 
-  let img = await fetch(`//${commonStore.appConfig?.staticServer}${effect}`)
+  let img = await fetch(`//${commonStore.appConfig?.staticServer + effect}`)
   let blob = await img.blob()
   let buf = await blob.arrayBuffer()
   let apng = parseAPNG(buf)

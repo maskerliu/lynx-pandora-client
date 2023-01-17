@@ -9,8 +9,8 @@
           <van-grid-item class="prop" :class="activeProp == idx ? 'active' : ''" @click="activeProp = idx"
             v-for="(item, idx) of groups[activeGroup].props">
             <template #default style="background: transparent;">
-              <van-image :src="`//${commonStore.appConfig?.staticServer}${item.snap}`" width="3rem" height="3rem"
-                fit="contain" />
+              <van-image width="3rem" height="3rem" fit="contain"
+                :src="`//${commonStore.appConfig?.staticServer + item.snap}`" />
               <div style="font-size: 0.9rem; color: #34495e; margin-top: 5px;">
                 {{ item.name }}
               </div>
@@ -32,8 +32,8 @@
           <van-grid column-num="3" :border="false">
             <van-grid-item class="prop" v-for="(item, idx) of group.orders" @click="activeProp = idx">
               <template #default style="background: transparent;">
-                <van-image :src="`//${commonStore.appConfig?.staticServer}${item.prop.snap}`" width="3rem" height="3rem"
-                  fit="contain" />
+                <van-image width="3rem" height="3rem" fit="contain"
+                  :src="`//${commonStore.appConfig?.staticServer + item.prop.snap}`" />
                 <div style="font-size: 0.8rem; color: #34495e;">
                   {{ item.prop.name }}
                 </div>
@@ -106,7 +106,7 @@ async function useProp(order: Chatroom.PropOrder) {
   let propInfo = await ChatroomApi.updatePropOrderStatus(order._id, order.propId, status, order.prop.type)
   commonStore.profile = Object.assign(commonStore.profile, propInfo)
   order.status = status
-  
+
   let i = 0
   for (i = 0; i < myProps.value.length; ++i) {
     if (myProps.value[i].orders[0].prop.type == order.prop.type) break

@@ -2,12 +2,20 @@
   <van-field class="inputbar" v-model="textInput" :placeholder="$t('square.room.inputPlaceholder')" type="textarea"
     autosize rows="1" center clearable>
     <template #left-icon>
-      <van-button style="width: 35px; height: 30px; margin-right: 15px; text-align: center;">
-        <template #icon>
-          <van-icon class="iconfont icon-room-setting" size="20" color="grey" />
+      <van-popover v-model:show="showRoomSetting" placement="top-start">
+        <template #reference>
+          <van-button style="width: 35px; height: 30px; margin-right: 15px; text-align: center;">
+            <template #icon>
+              <van-icon class="iconfont icon-room-setting" size="20" color="grey" />
+            </template>
+            <audio ref="audioRecord" autoplay></audio>
+          </van-button>
         </template>
-        <audio ref="audioRecord" autoplay></audio>
-      </van-button>
+        <van-checkbox-group class="room-setting-panel" v-model="roomSettings">
+          <van-checkbox name="a" style="margin-top: 10px;">屏蔽礼物特效播放</van-checkbox>
+          <van-checkbox name="b" style="margin-top: 10px;">屏蔽麦下消息</van-checkbox>
+        </van-checkbox-group>
+      </van-popover>
     </template>
     <template #right-icon style="width: 100px;">
       <van-button type="success" plain @click="sendMessage(Chatroom.MsgType.ChatText)"
@@ -45,6 +53,9 @@ import PropStore from './PropStore.vue'
 const commonStore = useCommonStore()
 const chatroomStore = useChatroomStore()
 const showPropStore = ref(false)
+
+const showRoomSetting = ref(false)
+const roomSettings = ref([])
 const textInput = ref(null)
 const emoji = ref('')
 
@@ -70,6 +81,15 @@ async function sendMessage(type: Chatroom.MsgType) {
   position: absolute;
   bottom: 0;
   background: #ffffffcc;
+}
+
+.room-setting-panel {
+  width: 200px;
+  height: 100px;
+  overflow-y: auto;
+  background: white;
+  padding: 10px;
+  font-size: 0.9rem;
 }
 
 .emoji-panel {

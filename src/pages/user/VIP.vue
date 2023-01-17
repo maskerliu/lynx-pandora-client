@@ -5,7 +5,9 @@
     </div>
 
     <div class="bg-border vip-card" :class="selectedItem?.type == VIP.VIPType.Normal ? 'normal' : 'svip'">
-      
+      <div style="font-size: 1.6rem; font-style: italic;  color: #67725c; margin: 20px; ">
+        {{ selectedItem? selectedItem.name: '' }}
+      </div>
       <div class="vip-card-expired">到期时间：{{ $d(expired, 'day') }}</div>
     </div>
 
@@ -19,11 +21,16 @@
             }">
               {{ item.name }}
             </div>
-            <van-row class="vip-item-price">
+            <van-row class="vip-item-discount">
               <van-icon class="iconfont icon-diamonds" size="15" color="#00a8ff" style="margin: auto 5px;" />
-              <div :style="{ color: selectedItem == item ? '#e74c3c' : '#95a5a6' }">{{ $n(item.price, 'currency') }}
+              <div :style="{ color: selectedItem == item ? '#e74c3c' : '#95a5a6' }">
+                {{ $n(item.discount, 'currency') }}
               </div>
             </van-row>
+            <div class="vip-item-price" v-if="item.price != item.discount">
+              {{ $n(item.price, 'currency') }}
+            </div>
+            <div style="padding-bottom: 25px;"></div>
           </template>
         </van-grid-item>
       </van-grid>
@@ -125,6 +132,7 @@ a {
 }
 
 .vip-card-expired {
+  font-size: 0.9rem;
   color: #b3841d;
   position: absolute;
   bottom: 10px;
@@ -153,9 +161,14 @@ a {
   padding: 15px 0;
 }
 
-.vip-item-price {
-  padding: 25px 0;
+.vip-item-discount {
+  padding: 25px 0 0 0;
   font-size: 1.6rem;
   color: #95a5a6
+}
+
+.vip-item-price {
+  color: #bdc3c7;
+  text-decoration: line-through;
 }
 </style>

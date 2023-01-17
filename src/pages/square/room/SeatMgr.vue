@@ -4,7 +4,7 @@
     <template v-if="seatInfo.userInfo">
       <div class="seat-box" style="margin-top: 15px;">
         <van-image class="seat-item-avatar" fit="cover" round radius="36"
-          :src="'//' + commonStore.appConfig?.staticServer + seatInfo.userInfo.avatar" />
+          :src="`//${commonStore.appConfig?.staticServer + seatInfo.userInfo.avatar}`" />
         <span class="seat-item-mute iconfont icon-mute" v-if="(seatInfo && seatInfo.isMute)"></span>
       </div>
       <div class="seat-item-name">

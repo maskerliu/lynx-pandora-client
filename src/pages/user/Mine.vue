@@ -6,7 +6,7 @@
         :to="`profile/uid`">
         <template #icon>
           <van-image :radius="12" width="6rem" height="6rem" fit="cover"
-            :src="commonStore.profile ? `//${commonStore.appConfig?.staticServer}${commonStore.profile?.avatar}` : ''" />
+            :src="commonStore.profile ? `//${commonStore.appConfig?.staticServer + commonStore.profile?.avatar}` : ''" />
         </template>
         <template #value>
           <div style="margin-left: 15px; text-align: left;" v-if="commonStore.profile">

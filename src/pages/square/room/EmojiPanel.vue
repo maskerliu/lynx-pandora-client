@@ -11,7 +11,7 @@
         <van-tab :title="group.name" v-for="group in emojis">
           <van-grid :column-num="5" clickable :gutter="10" :border="false" style="margin-top: 10px;">
             <van-grid-item v-for="item in group.emojis" @click="sendEmoji(item)">
-              <van-image :src="`//${commonStore.appConfig?.staticServer}${item.snap}`" width="3rem" height="3rem" />
+              <van-image width="3rem" height="3rem" :src="`//${commonStore.appConfig?.staticServer + item.snap}`" />
             </van-grid-item>
           </van-grid>
         </van-tab>

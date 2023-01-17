@@ -98,7 +98,7 @@ onMounted(async () => {
     if (msgClient && msgClient.isConnected()) { msgClient.close() }
     msgClient.init(commonStore, imStore, iotStore, useChatroomStore())
 
-    router.replace("/square/myRooms")
+    router.replace("/mine")
   })
 })
 

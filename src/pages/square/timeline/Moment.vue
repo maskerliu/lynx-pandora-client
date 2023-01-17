@@ -1,18 +1,18 @@
 <template>
   <van-row class="moment">
     <van-image class="moment-avatar" round radius="5px"
-      :src="`//${commonStore.appConfig?.staticServer}${commonStore.profile?.avatar}`" />
+      :src="`//${commonStore.appConfig?.staticServer + commonStore.profile?.avatar}`" />
     <van-col style="flex: 1;">
       <div v-if="moment.desc" class="van-multi-ellipsis--l2 moment-text">{{ moment.desc }}</div>
       <template v-if="moment.images?.length == 1">
         <img class="moment-single-image" @load="calcImageSize" @error="calcImageSize"
-          :src="`//${commonStore.appConfig?.staticServer}${moment.images[0]}`" />
+          :src="`//${commonStore.appConfig?.staticServer + moment.images[0]}`" />
       </template>
       <template v-else-if="moment.images?.length > 1">
         <van-grid column-num="3" :border="false" gutter="1" style="padding: 10px 15px 0 0;">
           <van-grid-item v-for="img in moment.images">
             <van-image :width="ItemWidth" :height="ItemWidth" fit="cover"
-              :src="`//${commonStore.appConfig?.staticServer}${img}`" />
+              :src="`//${commonStore.appConfig?.staticServer + img}`" />
           </van-grid-item>
         </van-grid>
       </template>

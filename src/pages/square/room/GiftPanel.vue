@@ -11,7 +11,7 @@
         <div class="seats-panel">
           <van-image v-for="seat in chatroomStore.curRoom?.seats.filter(it => it.userInfo != null)" fit="cover"
             radius="2rem" class="seat-item" :class="selectedSeats.includes(seat.userInfo.uid) ? 'active' : ''"
-            :src="'//' + commonStore.appConfig?.staticServer + seat.userInfo.avatar"
+            :src="`//${commonStore.appConfig?.staticServer + seat.userInfo.avatar}`"
             @click="onSeatClicked(seat.userInfo.uid)" />
         </div>
       </van-row>
@@ -29,8 +29,8 @@
               <template #default style="background: transparent;">
                 <div v-if="((i - 1) * 8 + j - 1) >= gifts.length" style="width: 100%; height: 0;"></div>
                 <div v-else>
-                  <van-image :src="`//${commonStore.appConfig?.staticServer}${gifts[(i - 1) * 8 + j - 1]?.snap}`"
-                    fit="cover" style="width: 4rem; height: 4rem;" />
+                  <van-image fit="cover" style="width: 4rem; height: 4rem;"
+                    :src="`//${commonStore.appConfig?.staticServer + gifts[(i - 1) * 8 + j - 1]?.snap}`" />
                   <div class="gift-item-info">
                     <div class="gift-item-name">
                       {{ gifts[(i - 1) * 8 + j - 1]?.title }}
