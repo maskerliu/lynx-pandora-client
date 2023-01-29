@@ -4,9 +4,12 @@
     <div style="width: 100%; height: 50px; background: white; border-radius: 15px 15px 0 0; margin-top: 150px;">
     </div>
 
-    <div class="bg-border vip-card" :class="selectedItem?.type == VIP.VIPType.Normal ? 'normal' : 'svip'">
+    <div class="bg-border vip-card" :class="selectedItem?.type == User.VIPType.Normal ? 'normal' : 'svip'">
       <div style="font-size: 1.6rem; font-style: italic;  color: #67725c; margin: 20px; ">
-        {{ selectedItem? selectedItem.name: '' }}
+        {{ selectedItem? selectedItem.name : '' }}
+      </div>
+      <div style="margin: 0 20px; font-size: 1rem; color: #7f8c8d;">
+        {{ commonStore.profile?.vipId == selectedItem?._id ? '' : '未购买' }}
       </div>
       <div class="vip-card-expired">到期时间：{{ $d(expired, 'day') }}</div>
     </div>
@@ -52,7 +55,7 @@
       </van-col>
     </div>
     <van-col style="font-size: 0.8rem; color: #34495e; margin: 15px;">
-      <h4>会员特权</h4>
+      <h4>会员权益</h4>
       <li>全面展示个人信息</li>
       <li>开启频道会员专属表情包</li>
       <li>开启频道会员专属礼物</li>
@@ -62,16 +65,18 @@
 
 </template>
 <script lang="ts" setup>
-import { onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { VIP, VIPApi } from '../../models'
-import { useCommonStore } from '../../store'
+import { showToast } from 'vant';
+import { onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { BizFail, User } from '../../models';
+import { UserApi } from '../../models/user.api';
+import { useCommonStore } from '../../store';
 
 const router = useRouter()
 const commonStore = useCommonStore()
 
-const vipItems = ref<Array<VIP.VIPItem>>([])
-const selectedItem = ref<VIP.VIPItem>(null)
+const vipItems = ref<Array<User.VIPItem>>([])
+const selectedItem = ref<User.VIPItem>(null)
 const agreement = ref()
 const checked = ref(false)
 const doShake = ref(false)
@@ -80,12 +85,18 @@ const expired = ref(0)
 onMounted(async () => {
   commonStore.navbar.title = '会员等级'
   agreement.value.$el.addEventListener('animationend', () => { doShake.value = false })
-  vipItems.value = await VIPApi.config()
-  selectedItem.value = vipItems.value[0]
+  vipItems.value = await UserApi.vipConfig()
+  let idx = vipItems.value.findIndex(it => { return it._id == commonStore.profile?.vipId })
+  if (idx == -1) idx = 0
+  selectedItem.value = vipItems.value[idx]
 })
 
 watch(selectedItem, () => {
-  expired.value = new Date().getTime() + selectedItem.value.expired * 24 * 60 * 60 * 1000
+  if (selectedItem.value._id == commonStore.profile?.vipId) {
+    expired.value = commonStore.profile?.vipExpired
+  } else {
+    expired.value = new Date().getTime() + selectedItem.value.expired * 24 * 60 * 60 * 1000
+  }
 })
 
 async function buy() {
@@ -95,10 +106,15 @@ async function buy() {
   }
 
   try {
-    let order = await VIPApi.buy(selectedItem.value._id)
-    commonStore.updateVIP(order.type)
+    let order = await UserApi.buyVIP(selectedItem.value._id)
+    commonStore.updateMyVIP(order)
   } catch (err) {
-
+    if (typeof err == 'string') {
+      showToast(err)
+    } else {
+      let msg = err as BizFail
+      showToast(msg.msg)
+    }
   }
 }
 
@@ -144,12 +160,12 @@ a {
 }
 
 .svip {
-  background: linear-gradient(95deg, #c0910e, #f0c10b, #ffbc13);
+  background: linear-gradient(95deg, #c0910e, #f0c10b, #fbbd22d7);
 }
 
 .agreement {
-  width: 320px;
-  font-size: 0.9rem;
+  width: 280px;
+  font-size: 0.8rem;
   margin: 0 auto;
 }
 

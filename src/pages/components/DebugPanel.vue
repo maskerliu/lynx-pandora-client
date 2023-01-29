@@ -9,9 +9,12 @@
         </van-button>
       </template>
       <van-col style="width: calc(100vw - 100px); height: 300px; padding: 10px;">
+        <van-button plain block type="primary" size="small" text="Clear Local Data" @click="cleanLocalData"
+          style="margin-top: 15px;" />
+
         <van-button plain block type="primary" size="small" text="Clear Local DB" @click="cleanLocalDB"
           style="margin-top: 15px;" />
-        <van-button block type="primary" size="small" text="Compact LocalStorage" @click="compactStorage"
+        <van-button plain block type="primary" size="small" text="Compact LocalStorage" @click="compactStorage"
           :loading="compacting" style="margin-top: 15px;" />
         <van-button plain block type="danger" size="small" text="Mock Users" @click="genMockUsers"
           style="margin-top: 15px;" />
@@ -30,11 +33,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
-import PouchDB from 'pouchdb'
-import { CommonApi, IM } from '../../models'
-import { useChatroomStore, useCommonStore, useIMStore } from '../../store'
 import md5 from 'md5';
+import PouchDB from 'pouchdb';
+import { ref } from 'vue';
+import { IM, UserApi } from '../../models';
+import { useChatroomStore, useCommonStore, useIMStore } from '../../store';
 
 const dragBall = ref()
 const showDebugPanel = ref(false)
@@ -153,6 +156,11 @@ function getPosition(source: any) {
   return { left: left, top: top }
 }
 
+async function cleanLocalData() {
+  await commonStore.logout()
+  showDebugPanel.value = false
+}
+
 async function cleanLocalDB() {
   let dbs = ['im-sessions.db', 'im-messages.db']
   for (let i = 0; i < dbs.length; ++i) {
@@ -183,29 +191,7 @@ async function genMockUsers() {
 }
 
 async function genMockP2PMessages() {
-  // let sessions = await imStore.sessions()
-  let mockUsers = await CommonApi.getContact()
-  let messages: Array<IM.Message> = []
-  mockUsers.forEach(it => {
-    let members = [it.uid, commonStore.profile.uid]
-    let sid = md5(members.sort().join(';'))
-
-    let count = Math.random() * 10
-    for (let i = 0; i < count; ++i) {
-      let seed = Math.random()
-      messages.push({
-        sid,
-        uid: it.uid,
-        content: `${it.name}++${i}++`,
-        timestamp: new Date().getTime() - Math.floor(seed * 10000000),
-        type: 1 + Math.round(seed) + Math.round(seed * 10 - Math.floor(seed * 10)),
-        sent: 1 - Math.round(seed) - Math.round(seed * 10 - Math.floor(seed * 10)),
-        read: false,
-      } as IM.Message)
-    }
-  })
-
-  await imStore.onMessageArrived(messages)
+  await imStore.mockMessages(commonStore.profile.uid)
   showDebugPanel.value = false
 }
 

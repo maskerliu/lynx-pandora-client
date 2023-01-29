@@ -26,7 +26,7 @@
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import msgClient from '../../common/PahoMsgClient';
-import { CommonApi } from '../../models';
+import { UserApi } from '../../models';
 import { useChatroomStore, useCommonStore, useIMStore, useIOTStore } from '../../store';
 
 
@@ -92,7 +92,7 @@ watch(verifyCode, () => {
 
 async function login() {
   isLogining.value = true
-  commonStore.accessToken = await CommonApi.login(phone.value.replaceAll(' ', ''), verifyCode.value)
+  commonStore.accessToken = await UserApi.login(phone.value.replaceAll(' ', ''), verifyCode.value)
   await commonStore.updateUserInfo()
   input.value = ''
   verifyCode.value = ''

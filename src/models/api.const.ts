@@ -15,9 +15,7 @@ export namespace RemoteAPI {
     Register: '/register',
     Contact: '/contact',
     Search: '/search',
-    ProfileAvatar: '/uploadAvatar',
     ProfileSave: '/profile/save',
-    ProfileMyself: '/profile/myself',
     ProfileInfo: '/profile/info',
     ProfileSearch: '/profile/search',
   }
@@ -28,25 +26,36 @@ export namespace RemoteAPI {
     DeviceInfo: '/device/info',
     DeviceSave: '/device/save',
     DeviceDelete: '/device/remove',
+  }
+
+  export const Organization = {
+    BasePath: '/organization',
+    CompanySearch: '/company/search',
     CompanyInfo: '/company/info',
     CompanySave: '/company/save',
     RoleAll: '/company/role/all',
     RoleSave: '/company/role/save',
     RoleDelete: '/company/role/delete',
     PagedOperators: '/company/operator/paged',
-    OperatorMyself: '/company/operator/myself',
+    Operator: '/company/operator/info',
     OperatorSave: '/company/operator/save',
     OperatorDelete: '/company/operator/delete',
-    MyPrivileges: '/company/privileges/myself',
   }
+
 
   export const IM = {
     BasePath: '/im',
+    MyEmojis: '/myEmojis',
+    EmojiAdd: '/emoji/add',
+    EmojiDel: '/emoji/del',
     SyncFrom: '/sync/get',
     BulkSyncFrom: '/sync/bulkGet',
     SyncTo: '/sync/save',
     SendMsg: '/sendMsg',
     GetOfflineMessages: '/sync/messages',
+    CreateRedPacket: '/redpacket/create',
+    ClaimRedPacket: '/redpacket/claim',
+    ClaimedRedPackets: '/redpacket/claimed'
   }
 
   export const Chatroom = {

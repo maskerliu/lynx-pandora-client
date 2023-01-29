@@ -22,14 +22,22 @@ export namespace IM {
     muted?: boolean
   }
 
+  export interface IMEmoji extends Common.DBDoc {
+    name: string
+    snap: string
+    gif?: string
+  }
+
   export enum MessageType {
     TEXT = 1, // 文字
     EMOJI = 2, // 表情
     IMAGE = 3, // 图片
     AUDIO = 4, // 语音
     VIDEO = 5, // 视频
-    SYSTEM = 6 // 系统通知
+    SYSTEM = 6,// 系统通知
+    RedPacket = 7 // 红包
   }
+
 
   export interface Message extends Common.DBDoc {
     sid?: string // Seesion Id
@@ -38,6 +46,44 @@ export namespace IM {
     sent?: number // 是否已发送 0: 发送中，-1:发送失败，1发送成功
     read?: boolean // 是否已读
     type: MessageType
-    content?: any
+    content?: any | RedPacketOrder
+  }
+
+
+  export enum RedPacketType {
+    Random, // 拼手气
+    Quota, // 定额
+    P2P, // 定向
+  }
+
+  export enum RedPacketStatus {
+    Unclaimed, // 待领取
+    WrittenOff, // 被领取
+    Pullback, // 退回
+  }
+
+  export interface RedPacketOrder extends Common.DBDoc {
+    sid: string
+    uid: string
+    name: string
+    avatar: string
+    note: string
+    type: RedPacketType
+    amount: number
+    count: number
+    payId?: string
+    timestamp?: number
+  }
+
+  export interface RedPacket extends Common.DBDoc {
+    uid?: string
+    name?: string
+    avatar?: string
+    comment?: string
+    amount: number
+    status: RedPacketStatus
+    orderId: string
+    createTime: number
+    updateTime: number
   }
 }

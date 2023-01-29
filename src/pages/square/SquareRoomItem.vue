@@ -2,7 +2,7 @@
   <div class="feed-item" :key="room._id" @click="enterRoom(room)">
     <img class="item-frame" src="https://yppphoto.hibixin.com/yppphoto/e3e10912ee3847b0a2af20e6ec848fa2.apng" />
     <img v-if="room.cover" class="item-cover" fit="cover" @load="calcImageHeight" @error="calcImageHeight"
-      :src="'//' + commonStore.appConfig?.staticServer + room.cover" />
+      :src="`//${commonStore.appConfig?.staticServer + room.cover}`" />
     <div class="item-info">
       <div class="item-text van-ellipsis">
         {{ room.title }}

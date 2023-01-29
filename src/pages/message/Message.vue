@@ -1,30 +1,38 @@
 <template>
   <van-row class="message">
     <van-image radius="5" class="user-avatar from" fit="cover" v-if="isFrom"
-      :src="'//' + commonStore.appConfig?.staticServer + avatar" />
+      :src="`//${commonStore.appConfig?.staticServer + avatar}`" />
     <div class="message-content" v-bind:class="isFrom ? 'from' : 'to'">
-      <div class="message-text" v-bind:class="isFrom ? 'from' : 'to'">
-        <template v-if="(message.type == IM.MessageType.TEXT || message.type == IM.MessageType.EMOJI)">
-          <!-- 文字 -->
-          <span>{{ message.content }}</span>
-        </template>
-        <template v-else-if="(message.type == IM.MessageType.IMAGE)">
-          <van-image ref="image" block :width="width" :height="height" :src="message.content"
-            :show-loading="message.sent < 1" @load="calcImageSize" @error="calcImageSize" @click="onPreview" />
-        </template>
-        <template v-else-if="(message.type == IM.MessageType.AUDIO)">
-          <!-- 语音 -->
-          <van-row style="width: 80px; flex: 1;" @click="play">
-            <audio ref="audioRef" :src="message.content" />
-            <van-icon class="iconfont icon-audio" color="grey" size="20" />
-            <div>{{ audioRef?.duration }} '</div>
-          </van-row>
-        </template>
-        <template v-else-if="(message.type == IM.MessageType.VIDEO)">
-          <!-- 视频 -->
-          <p>{{ message.content }}</p>
-        </template>
-      </div>
+      <template v-if="message.type == IM.MessageType.RedPacket">
+        <div v-bind:class="isFrom ? 'from' : 'to'">
+          <red-packet-msg :message="message" />
+        </div>
+      </template>
+      <template v-else>
+        <div class="message-text" v-bind:class="isFrom ? 'from' : 'to'">
+          <template v-if="(message.type == IM.MessageType.TEXT || message.type == IM.MessageType.EMOJI)">
+            <!-- 文字 -->
+            <span>{{ message.content }}</span>
+          </template>
+          <template v-else-if="(message.type == IM.MessageType.IMAGE)">
+            <van-image ref="image" block :width="width" :height="height" :src="message.content"
+              :show-loading="message.sent < 1" @load="calcImageSize" @error="calcImageSize" @click="onPreview" />
+          </template>
+          <template v-else-if="(message.type == IM.MessageType.AUDIO)">
+            <!-- 语音 -->
+            <van-row style="width: 80px; flex: 1;" @click="play">
+              <audio ref="audioRef" :src="message.content" />
+              <van-icon class="iconfont icon-audio" color="grey" size="20" />
+              <div>{{ audioRef?.duration }} '</div>
+            </van-row>
+          </template>
+          <template v-else-if="(message.type == IM.MessageType.VIDEO)">
+            <!-- 视频 -->
+            <p>{{ message.content }}</p>
+          </template>
+        </div>
+      </template>
+
       <div class="message-timestamp"
         :style="{ 'justify-content': 'baseline', 'flex-direction': isFrom ? 'row' : 'row-reverse' }">
         <div>{{ $d(new Date(message.timestamp), 'short') }}</div>
@@ -34,7 +42,7 @@
       </div>
     </div>
     <van-image radius="5" class="user-avatar to" fit="cover" v-if="!isFrom"
-      :src="'//' + commonStore.appConfig?.staticServer + commonStore.profile.avatar" />
+      :src="`//${commonStore.appConfig?.staticServer + commonStore.profile.avatar}`" />
   </van-row>
 </template>
 <script lang="ts" setup>
@@ -43,6 +51,7 @@ import { onMounted, ref } from 'vue'
 import { getScaleSize } from '../../common/image.util'
 import { IM } from '../../models'
 import { useCommonStore, useIMStore } from '../../store'
+import RedPacketMsg from './RedPacketMsg.vue'
 
 const props = defineProps<{
   message: IM.Message,
@@ -107,12 +116,12 @@ function onPreview() {
 }
 
 .message-content.from {
-  margin-left: 60px;
+  margin-left: 10px;
   align-items: flex-start;
 }
 
 .message-content.to {
-  margin-right: 60px;
+  margin-right: 10px;
   align-items: flex-end;
 }
 
@@ -123,8 +132,7 @@ function onPreview() {
 .user-avatar {
   width: 45px;
   height: 45px;
-  position: absolute;
-  bottom: 5px;
+  margin-top: 5px;
   border-radius: 50%;
 }
 

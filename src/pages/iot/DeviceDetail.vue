@@ -17,7 +17,7 @@
         </template>
       </van-cell>
       <van-cell :title="$t('iot.device.company')" :title-style="{ maxWidth: '80px', textAlign: 'right' }" center is-link
-        to="/iot/company">
+        to="/organization/company">
         <template #value>
           <div class="van-ellipsis" style="margin-left: 15px;">{{ commonStore.company.name }}</div>
         </template>

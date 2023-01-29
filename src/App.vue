@@ -113,4 +113,9 @@ onMounted(async () => {
   border: 1px solid #efefef;
   box-shadow: 0px 12px 8px -12px #000;
 }
+
+.bg-border:active {
+  background: #5558;
+}
+
 </style>

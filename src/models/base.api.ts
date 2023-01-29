@@ -31,14 +31,11 @@ async function request<T>(method: string, url: string, baseURL?: string, headers
   switch (bizResp.code) {
     case BizCode.SUCCESS:
       return bizResp.data
-    case BizCode.FAIL:
-      // Notify({ message: bizResp.msg, type: "warning" })
-      return null
     case BizCode.ERROR:
       // Notify({ message: bizResp.msg, type: "danger" })
       throw bizResp.msg
     default:
-      break
+      throw bizResp
   }
 }
 

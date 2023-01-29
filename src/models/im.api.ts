@@ -4,6 +4,21 @@ import { formPost, get, post } from './base.api'
 
 export namespace IMApi {
 
+
+  export function myEmojis() {
+    return get<Array<IM.IMEmoji>>(RemoteAPI.IM.BasePath + RemoteAPI.IM.MyEmojis)
+  }
+
+  export function addEmoji(file: File) {
+    let data = new FormData()
+    data.append('file', file)
+    return formPost<string>(RemoteAPI.IM.BasePath + RemoteAPI.IM.EmojiAdd, data)
+  }
+
+  export function delEmoji(eid: string) {
+    return post<string>(RemoteAPI.IM.BasePath + RemoteAPI.IM.EmojiDel, { eid })
+  }
+
   export function syncFrom(sid: string) {
     return get<IM.Session>(RemoteAPI.IM.BasePath + RemoteAPI.IM.SyncFrom, { sid })
   }
@@ -38,5 +53,17 @@ export namespace IMApi {
 
   export function syncOfflineMessages() {
     return get<Array<IM.Message>>(RemoteAPI.IM.BasePath + RemoteAPI.IM.GetOfflineMessages)
+  }
+
+  export function createRedPacket(order: IM.RedPacketOrder) {
+    return post<string>(RemoteAPI.IM.BasePath + RemoteAPI.IM.CreateRedPacket, order)
+  }
+
+  export function claimRedPacket(orderId: string) {
+    return get<Array<IM.RedPacket>>(RemoteAPI.IM.BasePath + RemoteAPI.IM.ClaimRedPacket, { orderId })
+  }
+
+  export function claimedRedPackets(orderId: string) {
+    return get<Array<IM.RedPacket>>(RemoteAPI.IM.BasePath + RemoteAPI.IM.ClaimedRedPackets, { orderId })
   }
 }

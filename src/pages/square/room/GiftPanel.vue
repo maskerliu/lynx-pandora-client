@@ -20,26 +20,13 @@
         <van-tab title="普通"></van-tab>
         <van-tab title="特权"></van-tab>
       </van-tabs>
-      <van-swipe class="gift-swiper" lazy-render>
+      <van-swipe class="gift-swiper" lazy-render :loop="false">
         <van-swipe-item v-for="i in Math.ceil(gifts.length / 8)">
           <van-grid :column-num="4" :border="false">
-            <van-grid-item v-for="j in 8" class="gift-item"
-              :class="selectedGift == ((i - 1) * 8 + j - 1) ? 'active' : ''"
-              @click="onGiftSelected((i - 1) * 8 + j - 1)">
+            <van-grid-item v-for="j in 8" class="gift-item" :class="selectedGift == (i * 8 + j - 9) ? 'active' : ''"
+              @click="onGiftSelected(i * 8 + j - 9)">
               <template #default style="background: transparent;">
-                <div v-if="((i - 1) * 8 + j - 1) >= gifts.length" style="width: 100%; height: 0;"></div>
-                <div v-else>
-                  <van-image fit="cover" style="width: 4rem; height: 4rem;"
-                    :src="`//${commonStore.appConfig?.staticServer + gifts[(i - 1) * 8 + j - 1]?.snap}`" />
-                  <div class="gift-item-info">
-                    <div class="gift-item-name">
-                      {{ gifts[(i - 1) * 8 + j - 1]?.title }}
-                    </div>
-                    <div class="gift-item-price">
-                      {{ gifts[(i - 1) * 8 + j - 1]?.price }}
-                    </div>
-                  </div>
-                </div>
+                <gift-item v-if="(i * 8 + j - 9) < gifts.length" :gift="gifts[i * 8 + j - 9]" />
               </template>
             </van-grid-item>
           </van-grid>
@@ -58,16 +45,17 @@
             @click="onGiftCountSelect(i)" />
         </van-popover>
         <van-button size="small" type="primary" :text="$t('square.room.reward')" @click="reward"
-          style="margin:2px 0 0 -3px; border-top-left-radius: 0; border-bottom-left-radius: 0;" />
+          style="margin: 2px 0 0 -3px; border-top-left-radius: 0; border-bottom-left-radius: 0;" />
       </van-row>
     </van-popup>
   </span>
 </template>
 <script lang="ts" setup>
-import { showToast } from 'vant';
-import { onMounted, ref, watch } from 'vue';
-import { Chatroom } from '../../../models';
-import { useChatroomStore, useCommonStore } from '../../../store';
+import { showToast } from 'vant'
+import { onMounted, ref, watch } from 'vue'
+import { BizCode, BizFail, Chatroom, User } from '../../../models'
+import { useChatroomStore, useCommonStore } from '../../../store'
+import GiftItem from './GiftItem.vue'
 
 const commonStore = useCommonStore()
 const chatroomStore = useChatroomStore()
@@ -112,6 +100,7 @@ function onSeatClicked(uid: string) {
 }
 
 function onGiftSelected(idx: number) {
+  if (idx > gifts.value.length) return
   selectedGift.value = idx
 }
 
@@ -122,11 +111,23 @@ function onGiftCountSelect(count: number) {
 
 async function reward() {
   let giftId = gifts.value[selectedGift.value]._id
+  if (gifts.value[selectedGift.value].type == Chatroom.GiftType.VIP
+    && commonStore.profile.vipType != User.VIPType.SVIP) {
+    showToast('请先开通超级会员再使用特权礼物')
+    return
+  }
   if (giftId != null && selectedSeats.value.length > 0 && giftCount.value > 0) {
     try {
       await chatroomStore.reward(giftId, giftCount.value, selectedSeats.value)
     } catch (err) {
-      commonStore.showPurchase = true
+      if (typeof err == 'string') { showToast(err) }
+      else {
+        let fail = err as BizFail
+        if (fail.code == BizCode.FAIL) {
+          showToast(fail.msg)
+          commonStore.showPurchase = true
+        }
+      }
     } finally {
       showGiftPanel.value = false
     }
@@ -172,23 +173,6 @@ async function reward() {
 .gift-item {
   border: solid 2px #f39c1200;
   border-radius: 8px;
-}
-
-.gift-item-info {
-  width: 100%;
-  text-align: center;
-  font-size: 0.8rem;
-  color: #ecf0f1;
-}
-
-.gift-item-name {
-  margin-top: -0.4rem;
-}
-
-.gift-item-price {
-  font-size: 0.6rem;
-  color: #e67e22;
-  margin-top: -0.3rem;
 }
 
 .active {

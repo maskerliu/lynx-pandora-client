@@ -97,8 +97,8 @@ onMounted(async () => {
   Promise.all([commonStore.init(), imStore.init()]).then(() => {
     if (msgClient && msgClient.isConnected()) { msgClient.close() }
     msgClient.init(commonStore, imStore, iotStore, useChatroomStore())
-
-    router.replace("/mine")
+    // router.replace("/message/createRedPacket/ade283aa65f418819e6b4278d58ffbe2")
+    router.replace('/message')
   })
 })
 

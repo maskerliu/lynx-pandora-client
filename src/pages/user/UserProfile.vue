@@ -23,7 +23,7 @@
 import { UploaderFileListItem } from 'vant';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { CommonApi } from '../../models';
+import { UserApi } from '../../models';
 import { useCommonStore } from '../../store';
 
 const commonStore = useCommonStore()
@@ -64,13 +64,14 @@ async function onFileSelect(...args: string[]) {
 }
 
 async function saveProfile() {
-  await CommonApi.saveProfile(commonStore.profile)
+  await UserApi.saveProfile(commonStore.profile)
 }
 
 async function uploadAvatar() {
   if (avatar.value[0] != null && avatar.value[0].file != null) {
-    await CommonApi.uploadAvatar(avatar.value[0].file)
-    commonStore.profile = await CommonApi.getMyProfile()
+    await UserApi.saveProfile(null, avatar.value[0].file)
+    let profile = await UserApi.userProfile()
+    commonStore.profile = Object.assign(commonStore.profile, profile)
   }
 }
 

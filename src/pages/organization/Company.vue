@@ -16,7 +16,7 @@
 
         <van-cell :title="$t('company.operator.title') + ':'"
           :title-style="{ maxWidth: '5.8rem', color: '#57606f', textAlign: 'right' }" value=" "
-          v-if="commonStore.operator?.privileges.indexOf('3') != -1" is-link to="/iot/stuffMgr" />
+          v-if="commonStore.operator?.privileges.indexOf('3') != -1" is-link to="/organization/stuffMgr" />
         <van-button type="primary" @click="saveCompany" v-if="commonStore.operator?.privileges.indexOf('1') != -1"
           :text="company._id == null ? $t('company.base.submit') : $t('common.save')"
           style="width: calc(100% - 30px); margin: 15px;" />
@@ -78,15 +78,15 @@
 import { showNotify } from 'vant';
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { IOT, IOTApi } from '../../models';
+import { IOT, Organization, OrganizationApi } from '../../models';
 import { useCommonStore } from '../../store';
 
 const commonStore = useCommonStore()
 const i18n = useI18n()
 
-const company = ref<IOT.Company>({})
+const company = ref<Organization.Company>({ status: Organization.CompanyStatus.Verifing })
 const showRoleInfo = ref(false)
-const curRole = ref<IOT.Role>(null)
+const curRole = ref<Organization.Role>(null)
 
 const CompanyStatus = [
   { title: '创建中', color: '#3498db' },
@@ -95,7 +95,7 @@ const CompanyStatus = [
   { title: '注销', color: '#bdc3c7' }
 ]
 
-const AllPrivileges = ref<Map<string, IOT.Privilege>>(new Map())
+const AllPrivileges = ref<Map<string, Organization.Privilege>>(new Map())
 
 onMounted(async () => {
   if (commonStore.company != null) {
@@ -103,7 +103,7 @@ onMounted(async () => {
 
     commonStore.navbar.title = i18n.t('company.title')
     if (commonStore.operator.privileges.indexOf('2') != -1) {
-      company.value.roles = await IOTApi.getRoles(company.value._id)
+      company.value.roles = await OrganizationApi.getRoles(company.value._id)
     }
 
     company.value.privileges?.forEach(it => { AllPrivileges.value.set(it.id, it) })
@@ -118,12 +118,12 @@ async function saveCompany() {
   delete company.value.privileges
   delete company.value.ownerName
 
-  company.value.status = IOT.CompanyStatus.Verifing
-  await IOTApi.saveCompany(company.value)
+  company.value.status = Organization.CompanyStatus.Verifing
+  await OrganizationApi.saveCompany(company.value)
   await commonStore.updateUserInfo()
 }
 
-function editRole(role: IOT.Role) {
+function editRole(role: Organization.Role) {
   showRoleInfo.value = true
   if (role == null) {
     role = { cid: company.value._id, desc: '', name: '', privileges: [] }
@@ -132,19 +132,19 @@ function editRole(role: IOT.Role) {
 }
 
 async function deleteRole() {
-  await IOTApi.deleteRole(curRole.value._id)
+  await OrganizationApi.deleteRole(curRole.value._id)
   showNotify({ type: 'success', message: '删除成功', duration: 500 })
-  company.value.roles = await IOTApi.getRoles(commonStore.operator?.cid)
+  company.value.roles = await OrganizationApi.getRoles(commonStore.operator?.cid)
   curRole.value = {}
   showRoleInfo.value = false
 }
 
 async function saveRole() {
-  await IOTApi.saveRole(curRole.value)
+  await OrganizationApi.saveRole(curRole.value)
   showNotify({ type: 'success', message: '更新功', duration: 500 })
   curRole.value = {}
   showRoleInfo.value = false
-  company.value.roles = await IOTApi.getRoles(commonStore.operator?.cid)
+  company.value.roles = await OrganizationApi.getRoles(commonStore.operator?.cid)
 }
 
 function addPrivilege(privilege: string) {

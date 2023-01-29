@@ -58,7 +58,7 @@
   },
   "mine": {
     "needUpdateProfile": "请先更新您的个人资料",
-    "company": "公司",
+    "organization": "公司/工会",
     "createCompany": "尚未绑定公司，请去创建或联系管理员",
     "bindDevice": "绑定设备",
     "myChatrooms": "频道",
@@ -135,6 +135,17 @@
       "cleanTips": "确定删除聊天记录吗？",
       "cleanConfirm": "清空",
       "complain": "投诉"
+    },
+    "redpacket": {
+      "random": "拼手气红包",
+      "qutoa": "普通红包",
+      "count": "红包个数",
+      "countPlaceholder":"填写个数",
+      "eachAmount": "单个金额",
+      "totalAmount": "总金额",
+      "amountPlaceholder":"¥0.00",
+      "notePlaceholder": "恭喜发财，大吉大利",
+      "create": "塞钱进红包"
     }
   },
   "square": {

@@ -3,8 +3,14 @@
 import { defineStore } from 'pinia'
 import { NavBarProps } from 'vant'
 import { default as msgClient } from '../common/PahoMsgClient'
-import { Chatroom, ChatroomApi, Common, CommonApi, IOT, IOTApi, Payment, updateAccessToken, updateBaseDomain, User, VIP, VIPApi } from '../models'
-import { PaymentApi } from '../models/payment.api'
+import {
+  Chatroom, ChatroomApi,
+  Common, CommonApi,
+  Organization, OrganizationApi,
+  Payment, PaymentApi,
+  updateAccessToken, updateBaseDomain,
+  User, UserApi
+} from '../models'
 
 export type CommonState = {
   navbar: NavBarProps,
@@ -15,10 +21,10 @@ export type CommonState = {
   appConfig?: Common.AppConfig,
   locale: string,
   accessToken?: string,
-  profile?: User.Account & User.Profile & VIP.UserVIPInfo & Chatroom.UserPropInfo,
+  profile?: User.Account & User.Profile & User.UserVIPInfo & User.UserGradeInfo & Chatroom.UserPropInfo,
   wallet?: Payment.Wallet,
-  operator?: IOT.Operator,
-  company?: IOT.Company,
+  operator?: Organization.Operator,
+  company?: Organization.Company,
   sharePrefs: SharePref,
   forword?: any,
   showPurchase: boolean,
@@ -29,7 +35,7 @@ export type CommonAction = {
   updateUserInfo(): Promise<void>
   updateMyWallet(): Promise<void>
   updateMyProps(orders: Array<Chatroom.PropOrder>): void
-  updateVIP(vipType?: VIP.VIPType): void
+  updateMyVIP(order?: User.VIPOrder): void
   logout(): Promise<void>
 }
 
@@ -72,11 +78,23 @@ export const useCommonStore = defineStore<string, CommonState, {}, CommonAction>
     },
     async updateUserInfo() {
       updateAccessToken(this.accessToken)
-      this.profile = await CommonApi.getMyProfile()
-      this.wallet = await PaymentApi.myWallet()
-      this.operator = await IOTApi.getMyOperatorInfo()
-      if (this.operator) {
-        this.company = await IOTApi.getCompany(this.operator.cid)
+      this.profile = await UserApi.userProfile()
+      await this.updateMyWallet()
+
+      try {
+        let vip = await UserApi.myVIP()
+        this.updateMyVIP(vip)
+      } catch (err) {
+        console.log(err)
+      }
+
+      try {
+        this.operator = await OrganizationApi.operatorInfo()
+        if (this.operator) {
+          this.company = await OrganizationApi.getCompany(this.operator.cid)
+        }
+      } catch (err) {
+        console.log(err)
       }
 
       let propOrders = await ChatroomApi.myProps()
@@ -88,11 +106,6 @@ export const useCommonStore = defineStore<string, CommonState, {}, CommonAction>
         })
       })
       this.updateMyProps(dressupOrders)
-
-      let vip = await VIPApi.myVIP()
-      if (vip) {
-        this.updateVIP(vip.type)
-      }
     },
     async updateMyWallet() {
       this.wallet = await PaymentApi.myWallet()
@@ -112,8 +125,16 @@ export const useCommonStore = defineStore<string, CommonState, {}, CommonAction>
         }
       })
     },
-    updateVIP(vipType?: VIP.VIPType) {
-      this.profile = Object.assign(this.profile, { vipType })
+    updateMyVIP(order: User.VIPOrder) {
+      let vipInfo: User.UserVIPInfo = {
+        vipType: order.type,
+        vipId: order.vipId,
+        vipExpired: order.expired
+      }
+      this.profile = Object.assign(this.profile, vipInfo)
+    },
+    updateMyGrade() {
+      // let grade = await
     },
     async logout() {
       this.accessToken = null

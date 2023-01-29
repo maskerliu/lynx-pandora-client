@@ -13,6 +13,25 @@ export default createRouter({
       component: require('../pages/user/Login.vue').default
     },
     {
+      path: '/organization',
+      name: 'Organization',
+      redirect: '/organization/company',
+      children: [
+        {
+          path: 'company',
+          name: 'Company',
+          component: require('../pages/organization/Company.vue').default,
+          meta: { navBar: true }
+        },
+        {
+          path: 'stuffMgr',
+          name: 'StuffMgr',
+          component: require('../pages/organization/StuffMgr.vue').default,
+          meta: { navBar: true }
+        },
+      ]
+    },
+    {
       path: '/iot',
       name: 'IOT',
       redirect: '/iot/devices',
@@ -35,18 +54,7 @@ export default createRouter({
           component: require('../pages/iot/BindDevice.vue').default,
           meta: { navBar: true }
         },
-        {
-          path: 'company',
-          name: 'Company',
-          component: require('../pages/iot/Company.vue').default,
-          meta: { navBar: true }
-        },
-        {
-          path: 'stuffMgr',
-          name: 'StuffMgr',
-          component: require('../pages/iot/StuffMgr.vue').default,
-          meta: { navBar: true }
-        },
+
       ]
     },
     {
@@ -81,6 +89,18 @@ export default createRouter({
           path: 'sysMessages',
           name: 'SysMessages',
           component: require('../pages/message/SysMessages.vue').default,
+          meta: { navBar: true, tabBar: false },
+        },
+        {
+          path: 'interactMessages',
+          name: 'InteractMessages',
+          component: require('../pages/message/InteractMessages.vue').default,
+          meta: { navBar: true, tabBar: false },
+        },
+        {
+          path: 'createRedPacket/:sid',
+          name: 'CreateRedPacket',
+          component: require('../pages/message/CreateRedPacket.vue').default,
           meta: { navBar: true, tabBar: false },
         },
       ]

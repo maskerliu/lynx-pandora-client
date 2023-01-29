@@ -9,12 +9,21 @@
             :src="commonStore.profile ? `//${commonStore.appConfig?.staticServer + commonStore.profile?.avatar}` : ''" />
         </template>
         <template #value>
-          <div style="margin-left: 15px; text-align: left;" v-if="commonStore.profile">
-            <h3 :style="{ color: commonStore.profile.name == null ? '#d63031' : '#2d3436' }">
+          <div style="margin-left: 15px; text-align: left; font-size: 1.2rem;" v-if="commonStore.profile">
+            <span :style="{ color: commonStore.profile.name == null ? '#d63031' : '#2d3436' }">
               {{ commonStore.profile.name == null ? $t('mine.needUpdateProfile') : commonStore.profile.name }}
-            </h3>
+            </span>
+
+            <van-image width="2.4rem" style="margin: 0 10px;" fit="cover"
+              :src="`//${commonStore.appConfig?.staticServer + '/_res/f400c3653e96455f857587b89bd3e0ab.png'}`" />
+
+            <van-icon class="iconfont"
+              :class="commonStore.profile.vipType == User.VIPType.Normal ? 'icon-vip' : 'icon-svip'" size="1.2rem"
+              style="font-weight: bold;"
+              :style="{ color: commonStore.profile.vipType == User.VIPType.Normal ? '#bdc3c7' : '#c0910e' }"
+              v-if="commonStore.profile.vipType > -1" />
           </div>
-          <div style="margin-left: 15px; text-align: left;">
+          <div style="margin: 15px; text-align: left;">
             <van-tag plain type="primary" v-for="role in commonStore.operator?.fullRoles" style="margin-right: 15px;">
               {{ role.name }}
             </van-tag>
@@ -41,9 +50,10 @@
 </template>
 <script lang="ts" setup>
 import 'animate.css';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+import { User } from '../../models';
 import { useCommonStore } from '../../store';
 
 const i18n = useI18n()
@@ -68,7 +78,7 @@ onMounted(() => {
   userProfile.value.$el.addEventListener('animationend', () => { doShake.value = false })
 
   let group = [
-    { title: 'mine.company', icon: 'icon-company', color: '#3867d6', onClick: goCompany, value: commonStore.company ? commonStore.company.name : i18n.t('mine.createCompany') },
+    { title: 'mine.organization', icon: 'icon-organization', color: '#d35400', onClick: goComapny, value: commonStore.company ? commonStore.company.name : i18n.t('mine.createCompany') },
     { title: 'mine.bindDevice', icon: 'icon-zhongjiqi', color: '#3867d6', onClick: goBind },
   ] as Array<SettingItem>
   settings.value.push(group)
@@ -83,8 +93,8 @@ onMounted(() => {
 
   group = [
     { title: 'mine.myWallet', icon: 'icon-wallet', color: '#3498db', to: '/payment/myWallet' },
-    { title: 'mine.propStore', icon: 'icon-moment', color: '#FC427B', to: '/square/propStore' },
-    { title: 'mine.vip', icon: 'icon-vip', color: '#f39c12', to: '/mine/vip' },
+    { title: 'mine.propStore', icon: 'icon-prop-store', color: '#FC427B', to: '/square/propStore' },
+    { title: 'mine.vip', icon: 'icon-membership', color: '#f39c12', to: '/mine/vip' },
     { title: 'mine.grade', icon: 'icon-grade', color: '#8e44ad', to: '/mine/grade' },
   ] as Array<SettingItem>
   settings.value.push(group)
@@ -95,6 +105,10 @@ onMounted(() => {
   settings.value.push(group)
 })
 
+watch(() => commonStore.company, () => {
+  settings.value[0][0].value = commonStore.company ? commonStore.company.name : i18n.t('mine.createCompany')
+})
+
 function goBind() {
   if (commonStore.profile == null) {
     doShake.value = true
@@ -103,11 +117,11 @@ function goBind() {
   }
 }
 
-function goCompany() {
+function goComapny() {
   if (commonStore.profile == null) {
     doShake.value = true
   } else {
-    router.push('/iot/company')
+    router.push('/organization/company')
   }
 }
 

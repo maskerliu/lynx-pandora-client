@@ -1,12 +1,15 @@
 <template>
   <div class="feed-item" @click="gotoMoment">
     <van-row style="padding: 5px;">
-      <van-image :src="`//${commonStore.appConfig?.staticServer}${moment.avatar}`" width="2rem" height="2rem" round
-        radius="1rem" />
+      <van-image width="2rem" height="2rem" round radius="1rem"
+        :src="`//${commonStore.appConfig?.staticServer + moment.avatar}`" />
       <van-col class="item-info">
         <div class="item-title">
           <span> {{ moment.name }} - </span>
-          <span style="color: #bdc3c7; font-size: 0.7rem;">{{ moment.timestamp ? $d(new Date(moment.timestamp), 'short') : '' }}</span>
+          <span style="color: #bdc3c7; font-size: 0.7rem;">{{
+            moment.timestamp ? $d(new Date(moment.timestamp), 'short')
+              : ''
+          }}</span>
         </div>
         <div class="item-desc van-multi-ellipsis--l2">
           {{ moment.desc ? moment.desc : '' }}
@@ -15,7 +18,7 @@
     </van-row>
     <template v-if="moment.images?.length > 0">
       <img class="item-cover" fit="cover" @load="calcImageHeight" @error="calcImageHeight"
-        :src="`//${commonStore.appConfig?.staticServer}${moment.images[0]}`" />
+        :src="`//${commonStore.appConfig?.staticServer + moment.images[0]}`" />
     </template>
   </div>
 </template>

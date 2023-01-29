@@ -58,7 +58,7 @@
   },
   "mine": {
     "needUpdateProfile": "Please Update Your Profile First",
-    "company": "Company",
+    "organization": "Company/Union",
     "createCompany": "Create Your Company",
     "bindDevice": "Bind Device",
     "myChatrooms": "Channels",

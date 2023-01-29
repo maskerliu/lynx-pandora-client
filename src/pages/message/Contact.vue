@@ -22,7 +22,7 @@ import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { loadImage } from '../../common'
-import { CommonApi, IM, User } from '../../models'
+import { IM, User, UserApi } from '../../models'
 import { useCommonStore, useIMStore } from '../../store'
 
 const i18n = useI18n()
@@ -59,7 +59,7 @@ onMounted(async () => {
 })
 
 async function loadMore() {
-  let more = await CommonApi.getContact(++curPage)
+  let more = await UserApi.getContact(++curPage)
   contacts.value = contacts.value.concat(more)
 
   imStore.cacheUsers(contacts.value)

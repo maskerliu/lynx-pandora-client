@@ -18,7 +18,7 @@
                 v-for="room in myCollections" clickable @click="enterRoom(room.data as Chatroom.Room)">
                 <template #icon>
                   <van-image width="4rem" height="4rem" round radius="8px" style="margin-right: 15px;"
-                    :src="'//' + commonStore.appConfig?.staticServer + (item.data as Chatroom.Room).cover" />
+                    :src="`//${commonStore.appConfig?.staticServer + (item.data as Chatroom.Room).cover}`" />
                 </template>
               </van-cell>
             </template>

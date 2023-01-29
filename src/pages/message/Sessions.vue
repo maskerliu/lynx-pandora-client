@@ -2,7 +2,7 @@
   <van-col style="flex: 1; min-width: 375px;">
     <van-list v-model:loading="loading" :finished="finished"
       style="height: 100%; background-color: white; overflow-y: auto;">
-      <van-cell title="系统消息" label="10号机异常" center clickable to="/message/sysMessages">
+      <van-cell title="系统消息" label="平台违规整治通知" center clickable to="/message/sysMessages">
         <template #icon>
           <van-icon class="iconfont icon-notification" size="26" color="#4fc08d" style="margin: 10px 20px 10px 12px;" />
         </template>
@@ -12,9 +12,9 @@
         </template>
       </van-cell>
 
-      <van-cell title="互动消息" label="10号机异常" center clickable to="/message/sysMessages">
+      <van-cell title="互动消息" label="小奥特曼送你一朵小花花" center clickable to="/message/interactMessages">
         <template #icon>
-          <van-icon class="iconfont icon-notification" size="26" color="#4fc08d" style="margin: 10px 20px 10px 12px;" />
+          <van-icon class="iconfont icon-interact" size="26" color="#FC427B" style="margin: 10px 20px 10px 12px;" />
         </template>
         <template #value>
           <div style="font-size: 0.7rem;">10:23</div>
@@ -28,7 +28,7 @@
           @click="gotoSession(session.sid, session.title)">
           <template #icon>
             <van-image radius="5" fit="cover" width="3rem" height="3rem" style="margin-right: 15px;"
-              :src="'//' + commonStore.appConfig?.staticServer + session.thumb" />
+              :src="`//${ commonStore.appConfig?.staticServer + session.thumb}`" />
           </template>
           <template #value>
             <van-row justify="end">

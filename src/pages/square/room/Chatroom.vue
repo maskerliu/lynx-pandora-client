@@ -19,13 +19,16 @@
 
       <van-col>
         <template v-if="chatroomStore.curRoom?.owner == commonStore.profile?.uid">
-          <van-icon class="iconfont icon-info" size="20" color="white" style="padding: 5px; margin: 10px 0;"
+          <van-icon class="iconfont icon-info" size="20" color="white" style="padding: 5px; margin: 10px;"
             @click="showRoomInfo = true" />
         </template>
         <template v-else>
           <van-icon class="iconfont" :class="isStared ? 'icon-star-select' : 'icon-star'" size="20" color="#f39c12"
-            style="padding: 5px; margin: 10px 0;" @click="collectRoom" />
+            style="padding: 5px; margin: 10px;" @click="collectRoom" />
         </template>
+
+        <van-icon class="iconfont icon-minimize" size="20" color="white"
+          style="font-weight: bold; padding: 5px; margin: 10px 0;" />
 
         <van-icon class="iconfont icon-shut-down" size="20" color="white" style="padding: 5px; margin: 10px;"
           @click="leaveRoom" />
@@ -68,7 +71,7 @@
       <img ref="effectContainer" style="width: 100%; height: 100%; object-fit: cover;" />
     </div>
 
-    <chat-input-bar />
+    <room-input-bar />
   </van-col>
 </template>
 <script lang="ts" setup>
@@ -77,7 +80,7 @@ import { inject, onMounted, onUnmounted, ref, watch } from 'vue'
 import { Chatroom, ChatroomApi } from '../../../models'
 import { useChatroomStore, useCommonStore } from '../../../store'
 import { NavBack } from '../../components/misc'
-import ChatInputBar from './ChatInputBar.vue'
+import RoomInputBar from './RoomInputBar.vue'
 import ChatroomMessage from './ChatroomMessage.vue'
 import RoomInfo from './RoomInfo.vue'
 import SeatMgr from './SeatMgr.vue'
@@ -176,6 +179,10 @@ function handleSeatClick(seat: Chatroom.Seat) {
 async function collectRoom() {
   await ChatroomApi.collect(chatroomStore.curRoom._id)
   isStared.value = !isStared.value
+}
+
+async function minimize() {
+  // TODO
 }
 
 async function leaveRoom() {

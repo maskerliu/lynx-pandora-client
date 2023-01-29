@@ -4,6 +4,11 @@ export enum BizCode {
   ERROR = 1000,
 }
 
+export interface BizFail {
+  code: number
+  msg: string
+}
+
 export interface BizResponse<T> {
   code: number
   msg?: string

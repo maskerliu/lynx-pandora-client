@@ -88,7 +88,7 @@ async function sendMessage(type: Chatroom.MsgType) {
   height: 100px;
   overflow-y: auto;
   background: white;
-  padding: 10px;
+  padding: 0 10px;
   font-size: 0.9rem;
 }
 

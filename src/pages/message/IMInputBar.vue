@@ -1,6 +1,6 @@
 <template>
-  <van-field style="width: 100%; position: absolute; bottom: 0; background: white;" v-model="textInput" type="textarea" autosize rows="1"
-    center clearable>
+  <van-field style="width: 100%; position: absolute; bottom: 0; background: white;" v-model="textInput" type="textarea"
+    autosize rows="1" center clearable>
     <template #left-icon>
       <van-button round @touchstart.prevent="onVoice(true)" @touchend.prevent="onVoice(false)"
         @mousedown.prevent="onVoice(true)" @mouseup.prevent="onVoice(false)"
@@ -8,7 +8,7 @@
         <template #icon>
           <van-icon class="iconfont icon-voice" size="24" />
         </template>
-        <audio ref="audioRecord" autoplay></audio>
+        <audio ref="audioRecord"></audio>
       </van-button>
     </template>
     <template #right-icon>
@@ -28,24 +28,14 @@
         </template>
       </van-button>
 
-      <van-popover placement="top-end" v-model:show="showEmojiPanel" style="width: calc(100% - 30px);">
-        <van-tabs v-model:active="activeTab">
-          <van-tab title="Emoji">
-            <emoji-picker class="emoji-panel" v-model:emoji="emoji" />
-          </van-tab>
-          <van-tab title="标签 3">
-            <div class="emoji-panel"></div>
-          </van-tab>
-        </van-tabs>
+      <IMEmojiPanel />
 
-        <template #reference>
-          <van-button round style="width: 35px; height: 35px; margin-left: 10px;">
-            <template #icon>
-              <van-icon class="iconfont icon-emoji" size="24" />
-            </template>
-          </van-button>
+      <van-button round @click="gotoCreateRedPacket"
+        style="width: 35px; height: 35px; margin-left: 15px; position: relative; color: #e67e22">
+        <template #icon>
+          <van-icon class="iconfont icon-red-packet" size="22" />
         </template>
-      </van-popover>
+      </van-button>
 
       <van-popup v-model:show="showVoiceRecording">
         <van-icon class="iconfont icon-voice" size="24" style="padding: 50px;" />
@@ -60,8 +50,10 @@
 import { UploaderFileListItem } from 'vant'
 import { onMounted, ref, watch } from 'vue'
 import { IM } from '../../models'
+import router from '../../router'
 import { useCommonStore, useIMStore } from '../../store'
 import EmojiPicker from './EmojiPicker.vue'
+import IMEmojiPanel from './IMEmojiPanel.vue'
 
 const props = defineProps<{
   sid: string
@@ -92,7 +84,7 @@ onMounted(async () => {
 
   session = await imStore.session(props.sid.toString())
 
-  await initRecorder()
+  // await initRecorder()
 })
 
 watch(emoji, () => {
@@ -190,6 +182,10 @@ function onVoice(recording: boolean) {
   }
   else
     recorder.stop()
+}
+
+function gotoCreateRedPacket() {
+  router.push({ name: 'CreateRedPacket', params: { sid: props.sid } })
 }
 
 
