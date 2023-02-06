@@ -11,7 +11,7 @@
 </template>
 <script lang="ts" setup>
 import { showToast, UploaderFileListItem } from 'vant'
-import { inject, onMounted, onUnmounted, ref } from 'vue'
+import { inject, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Timeline, TimelineApi } from '../../../models'
 import { useCommonStore } from '../../../store'
@@ -33,8 +33,7 @@ onMounted(() => {
   }
 })
 
-
-onUnmounted(async () => {
+onBeforeUnmount(async () => {
   if (window.argus) {
     window.webApp.unRegister(onFileSelect.name)
   }
@@ -62,7 +61,7 @@ async function submitMoment() {
     showToast('请至少发布一张图片或说点什么')
     return
   }
-  
+
   await TimelineApi.momentPub(moment.value, imgs)
   navBack()
 }

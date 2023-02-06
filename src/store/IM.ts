@@ -1,3 +1,4 @@
+import { timeStamp } from 'console'
 import md5 from 'md5'
 import { defineStore } from 'pinia'
 import { useCommonStore } from '.'
@@ -6,6 +7,7 @@ import { messageRepo, sessionRepo } from '../common/im.repos'
 import { IM, User } from '../models'
 import { IMApi } from '../models/im.api'
 import { UserApi } from '../models/user.api'
+import emojis from '../pages/message/emojis'
 
 const notifyAudio = new Audio()
 
@@ -14,6 +16,7 @@ type SessionTmpSnap = { unread: number, snapshot: string, timestamp: number }
 export type IMState = {
   unread: number
   sid?: string
+  quoteMessage?: IM.Message
   _messages: Array<IM.Message>
   _emojis: Array<IM.IMEmoji>
   users: {},
@@ -28,10 +31,14 @@ export type IMAction = {
   updateSession(session: IM.Session, snap?: File): Promise<void>
   deleteSession(sid: string): Promise<void>
   myEmojis(): Promise<Array<IM.IMEmoji>>
+  reorderEmojis(emojiIds: string[]): Promise<Array<IM.IMEmoji>>
+  addCustomEmoji(file: File, emoji: IM.IMEmoji): Promise<Array<IM.IMEmoji>>
+  deleteEmojis(emojiIds: string[]): Promise<Array<IM.IMEmoji>>
   messages(sid: string, loadMore?: boolean): Promise<Array<IM.Message>>
+  deleteMessage(mid: string): Promise<void>
   cleanMessages(): void
   onMessageArrived(message: Array<IM.Message>): Promise<void>
-  sendMessage(message: IM.Message, file: File): Promise<void>
+  sendMessage(message: IM.Message, file?: File): Promise<void>
   user(uid: string): Promise<User.Profile>
   cacheUsers(users: Array<User.Profile>): void
   cleanCache(): Promise<void>
@@ -43,6 +50,7 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
     return {
       unread: 0,
       sid: null,
+      quoteMessage: null,
       _messages: [],
       _emojis: [],
       users: {},
@@ -119,6 +127,21 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
 
       return this._emojis
     },
+    async reorderEmojis(emojiIds: string[]) {
+      this._emojis = await IMApi.reorderEmojis(emojiIds)
+      return this._emojis
+    },
+    async addCustomEmoji(file: File, emoji: IM.IMEmoji) {
+      if (file) {
+        let result = await IMApi.addEmoji(file, emoji)
+        this._emojis.unshift(result)
+      }
+      return this._emojis
+    },
+    async deleteEmojis(emojiIds: string[]) {
+      this._emojis = await IMApi.delEmojis(emojiIds)
+      return this._emojis
+    },
     async messages(sid: string, loadMore?: boolean) {
       let opt: PouchDB.Find.FindRequest<any> = {
         selector: { sid, timestamp: {} },
@@ -142,7 +165,18 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
           this._messages = msgs.reverse()
         }
       }
+      let sysMsg: IM.Message = {
+        sid,
+        type: IM.MessageType.SYSTEM,
+        content: '',
+        timestamp: new Date().getTime()
+      }
+      this._messages.push(sysMsg)
       return this._messages
+    },
+    async deleteMessage(mid: string) {
+      await messageRepo.delete(mid)
+      this.updateMessages++
     },
     cleanMessages() {
       this._messages = []
@@ -155,7 +189,7 @@ export const useIMStore = defineStore<string, IMState, {}, IMAction>('IM', {
       let offlineMsgs = await IMApi.syncOfflineMessages()
       await this.bulkMessages(offlineMsgs)
     },
-    async sendMessage(message: IM.Message, file: File) {
+    async sendMessage(message: IM.Message, file?: File) {
 
       await IMApi.sendMsg(message, file)
 

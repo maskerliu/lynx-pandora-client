@@ -2,17 +2,16 @@
   <van-col style="flex: 1;">
     <van-cell-group title=" ">
       <van-row style="padding: 15px 0 10px 0;">
-        <div v-for="user in members" style="text-align: center; width: 3.5rem; margin-left: 15px;">
-          <van-image radius="5" fit="cover" width="3.5rem" height="3.5rem"
+        <div class="user-item" v-for="user in members">
+          <van-image radius="8" fit="cover" width="3.5rem" height="3.5rem"
             :src="`//${commonStore.appConfig?.staticServer + user.avatar}`" />
           <div class="van-ellipsis" style="font-size: 0.7rem; color: grey;">{{ user.name }}</div>
         </div>
-        <div style="text-align: center; width: 3.5rem; margin-left: 15px;">
-          <div style="width: 3rem; height: 3rem; border-radius: 8px; border: dashed 2px #bdc3c7; margin-top: 8px;"
-            @click="gotoContact">
-            <van-icon class="iconfont icon-add" size="30px" color="#bdc3c7" style="padding: 8px;" />
+        <div class="user-item">
+          <div class="btn-add" @click="gotoContact">
+            <van-icon class="iconfont icon-add" size="2rem" color="#bdc3c7" style="padding: 8px;" />
           </div>
-          <div class="van-ellipsis" style="font-size: 0.7rem; color: #bdc3c7;"></div>
+          <div class="van-ellipsis" style="font-size: 0.7rem; color: #bdc3c7; height: 1rem;"></div>
         </div>
       </van-row>
     </van-cell-group>
@@ -40,7 +39,7 @@
 
     <van-cell-group title=" ">
       <van-cell :title="$t('message.setting.cleanHistory')" is-link center @click="showCleanHistory = true" />
-      <van-cell :title="$t('message.setting.complain')" is-link center />
+      <van-cell :title="$t('message.setting.complain')" is-link center to="/common/complaint"/>
     </van-cell-group>
 
     <van-button v-if="session?.type == IM.SessionType.GROUP" type="danger" :text="$t('message.setting.quit')"
@@ -106,7 +105,6 @@ onMounted(async () => {
 
   for (let uid of session.value.members) {
     let profile = await imStore.user(uid)
-    console.log(profile.avatar)
     members.value.push(profile)
   }
 })
@@ -147,5 +145,21 @@ function gotoContact() {
 
 </script>
 <style scoped>
+.user-item {
+  text-align: center;
+  width: 3.5rem;
+  margin-left: 15px;
+}
 
+.btn-add {
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 8px;
+  border: dashed 2px #bdc3c7;
+  margin-top: 2px;
+}
+
+.btn-add:active {
+  background: #bdc3c7af;
+}
 </style>

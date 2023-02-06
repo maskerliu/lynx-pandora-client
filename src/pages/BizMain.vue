@@ -3,13 +3,14 @@
     <van-nav-bar class="animate__animated nav-bar"
       v-bind:class="showNavbar ? 'animate__fadeInDown' : 'animate__fadeOutUp'"
       v-bind:style="{background: `${commonStore.navbarBg}`, color: `${commonStore.navbarColor}`}"
-      :left-arrow="commonStore.navbar.leftArrow" @click-left="back">
+      :left-arrow="commonStore.navbar.leftArrow" @click-left="back" @click-right="onNavRightClicked">
       <template #title>
         <div v-bind:style="{ color: `${commonStore.navbarColor}` }">{{ commonStore.navbar.title }}</div>
       </template>
       <template #right>
-        <van-icon size="20" class="iconfont" v-bind:class="commonStore.navbar.rightText"
-          @click="commonStore.rightAction" />
+        <van-icon size="24" class="iconfont" v-bind:class="commonStore.navbar.rightText"
+          v-if="commonStore.navbar.rightText?.indexOf('icon') != -1" />
+        <span v-else>{{ commonStore.navbar.rightText }}</span>
       </template>
     </van-nav-bar>
 
@@ -144,6 +145,9 @@ function back() {
   router.back()
 }
 
+async function onNavRightClicked() {
+  await commonStore.rightAction()
+}
 </script>
 
 <style scoped>

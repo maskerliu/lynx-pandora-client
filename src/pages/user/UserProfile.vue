@@ -1,6 +1,6 @@
 <template>
   <van-col>
-    <van-cell-group title=" ">
+    <van-cell-group>
       <van-form label-align="right" label-width="5.5rem" colon>
         <van-field :label="$t('mine.profile.avatar')" input-align="right">
           <template #input>
@@ -13,7 +13,6 @@
           input-align="right" />
       </van-form>
 
-
       <van-button type="primary" @click="saveProfile" :text="$t('common.save')"
         style="width: calc(100% - 30px); margin: 15px;" />
     </van-cell-group>
@@ -21,7 +20,7 @@
 </template>
 <script lang="ts" setup>
 import { UploaderFileListItem } from 'vant';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { UserApi } from '../../models';
 import { useCommonStore } from '../../store';
@@ -43,7 +42,7 @@ onMounted(() => {
   }
 })
 
-onUnmounted(async () => {
+onBeforeUnmount(async () => {
   if (window.argus) {
     window.webApp.unRegister(onFileSelect.name)
   }

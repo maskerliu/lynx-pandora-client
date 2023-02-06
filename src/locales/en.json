@@ -114,7 +114,20 @@
     "title": "Message Center",
     "pin": "Pin",
     "unpin": "Unpin",
-    "session": {},
+    "session": {
+      "addEmoji": "add",
+      "delMsg": "Del",
+      "quote": "Quote",
+      "multiSelect": "Multi Sel",
+      "forward": "Forward"
+    },
+    "emojiMgr": {
+      "title": "Manage Your Emojis",
+      "mgr": "Manage",
+      "done": "Done",
+      "reorder": "Move To Front",
+      "remove": "Remove"
+    },
     "sys": {
       "title": "System Message"
     },

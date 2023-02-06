@@ -33,7 +33,6 @@ const inputBar = ref()
 
 onMounted(() => {
   // placeholder.value = props.metionedComment != null ? `回复 ${props.metionedComment.name}` : '评论'
-  console.log(inputBar.value)
 })
 
 watch(() => props.show, () => {

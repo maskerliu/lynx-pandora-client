@@ -5,12 +5,18 @@ export default createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/login'
+      redirect: '/iot'
     },
     {
-      path: '/login',
-      name: 'Login',
-      component: require('../pages/user/Login.vue').default
+      path: '/common',
+      children: [
+        {
+          path: 'complaint',
+          name: 'Complaint',
+          component: require('../pages/common/Complaint.vue').default,
+          meta: { navBar: true }
+        }
+      ]
     },
     {
       path: '/organization',
@@ -84,6 +90,18 @@ export default createRouter({
           name: 'Contact',
           component: require('../pages/message/Contact.vue').default,
           meta: { navBar: true, tabBar: false },
+        },
+        {
+          path: 'forward',
+          name: 'ForwardSelector',
+          component: require('../pages/message/ForwardSelector.vue').default,
+          meta: { navBar: true, tabBar: false }
+        },
+        {
+          path: 'emojiMgr',
+          name: 'IMEmojiMgr',
+          component: require('../pages/message/IMEmojiMgr.vue').default,
+          meta: { navBar: true }
         },
         {
           path: 'sysMessages',

@@ -23,7 +23,7 @@ export namespace IM {
   }
 
   export interface IMEmoji extends Common.DBDoc {
-    name: string
+    name?: string
     snap: string
     gif?: string
   }
@@ -41,11 +41,12 @@ export namespace IM {
 
   export interface Message extends Common.DBDoc {
     sid?: string // Seesion Id
-    uid: string
+    uid?: string
     timestamp: number
     sent?: number // 是否已发送 0: 发送中，-1:发送失败，1发送成功
     read?: boolean // 是否已读
     type: MessageType
+    snap?: string
     content?: any | RedPacketOrder
   }
 

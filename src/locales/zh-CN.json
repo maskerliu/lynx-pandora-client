@@ -114,7 +114,20 @@
     "title": "消息中心",
     "pin": "置顶",
     "unpin": "取消置顶",
-    "session": {},
+    "session": {
+      "addEmoji": "添加",
+      "delMsg": "删除",
+      "quote": "引用",
+      "multiSelect": "多选",
+      "forward": "转发"
+    },
+    "emojiMgr": {
+      "title": "表情包整理",
+      "mgr": "整理",
+      "done": "完成",
+      "reorder": "移动到最前面",
+      "remove": "移除"
+    },
     "sys": {
       "title": "系统消息"
     },
@@ -140,10 +153,10 @@
       "random": "拼手气红包",
       "qutoa": "普通红包",
       "count": "红包个数",
-      "countPlaceholder":"填写个数",
+      "countPlaceholder": "填写个数",
       "eachAmount": "单个金额",
       "totalAmount": "总金额",
-      "amountPlaceholder":"¥0.00",
+      "amountPlaceholder": "¥0.00",
       "notePlaceholder": "恭喜发财，大吉大利",
       "create": "塞钱进红包"
     }

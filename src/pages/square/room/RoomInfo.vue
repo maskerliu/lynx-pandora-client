@@ -57,8 +57,8 @@
 </template>
 <script lang="ts" setup>
 import { showToast, UploaderFileListItem } from 'vant';
-import { onMounted, onUnmounted, ref } from 'vue';
-import { Chatroom, CommonApi, User } from '../../../models';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { Chatroom, User, UserApi } from '../../../models';
 import { ChatroomApi } from '../../../models/chatroom.api';
 import { useChatroomStore, useCommonStore } from '../../../store';
 
@@ -100,7 +100,7 @@ onMounted(() => {
 
 })
 
-onUnmounted(async () => {
+onBeforeUnmount(async () => {
   if (window.argus) {
     window.webApp.unRegister(onFileSelect.name)
   }
@@ -122,7 +122,7 @@ async function onFileSelect(...args: string[]) {
 
 async function searchUser() {
   try {
-    let user = await CommonApi.searchUser(searchKey.value)
+    let user = await UserApi.searchUser(searchKey.value)
 
     if (roomInfo.value.displayMasters == null) roomInfo.value.displayMasters = []
     roomInfo.value.displayMasters.push(user)

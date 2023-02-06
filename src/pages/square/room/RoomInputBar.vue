@@ -70,6 +70,7 @@ watch(emoji, () => {
 })
 
 async function sendMessage(type: Chatroom.MsgType) {
+  if (textInput.value == null || textInput.value.length == 0) return
   await chatroomStore.sendMessage(textInput.value, type, commonStore.profile)
   textInput.value = null
 }

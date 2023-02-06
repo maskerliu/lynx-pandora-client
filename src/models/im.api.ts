@@ -9,14 +9,19 @@ export namespace IMApi {
     return get<Array<IM.IMEmoji>>(RemoteAPI.IM.BasePath + RemoteAPI.IM.MyEmojis)
   }
 
-  export function addEmoji(file: File) {
+  export function addEmoji(file: File, emoji: IM.IMEmoji) {
     let data = new FormData()
-    data.append('file', file)
+    if (file) data.append('file', file)
+    if (emoji) data.append('emoji', JSON.stringify(emoji))
     return formPost<string>(RemoteAPI.IM.BasePath + RemoteAPI.IM.EmojiAdd, data)
   }
 
-  export function delEmoji(eid: string) {
-    return post<string>(RemoteAPI.IM.BasePath + RemoteAPI.IM.EmojiDel, { eid })
+  export function reorderEmojis(emojiIds: string[]) {
+    return post<string>(RemoteAPI.IM.BasePath + RemoteAPI.IM.EmojiReorder, { emojiIds })
+  }
+
+  export function delEmojis(emojiIds: string[]) {
+    return post<string>(RemoteAPI.IM.BasePath + RemoteAPI.IM.EmojiDel, { emojiIds })
   }
 
   export function syncFrom(sid: string) {

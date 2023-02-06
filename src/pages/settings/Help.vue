@@ -22,7 +22,7 @@
 </template>
 <script lang="ts" setup>
 import { UploaderFileListItem } from 'vant';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useCommonStore } from '../../store';
 
@@ -41,7 +41,7 @@ onMounted(() => {
   }
 })
 
-onUnmounted(async () => {
+onBeforeUnmount(async () => {
   if (window.argus) {
     window.webApp.unRegister(onFileSelect.name)
   }

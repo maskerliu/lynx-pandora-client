@@ -2,15 +2,14 @@
   <div class="drag-ball" ref="dragBall" @touchstart.stop="touchStart" @touchmove.prevent.stop="touchMove"
     @touchend.stop="touchEnd" @mousedown.prevent.stop="touchStart" @mousemove.prevent.stop="touchMove"
     @mouseup.prevent.stop="touchEnd">
-    <van-popover v-model:show="showDebugPanel" :close-on-click-outside="false" theme="light" placement="left">
+    <van-popover v-model:show="showDebugPanel" :close-on-click-outside="true" theme="light" placement="left">
       <template #reference>
         <van-button plain hairline round style="width: 60px; height: 60px;">
           <van-icon class="iconfont icon-debug" name="bug" size="30" color="#e17055" />
         </van-button>
       </template>
-      <van-col style="width: calc(100vw - 100px); height: 300px; padding: 10px;">
-        <van-button plain block type="primary" size="small" text="Clear Local Data" @click="cleanLocalData"
-          style="margin-top: 15px;" />
+      <van-col style="width: calc(100vw - 100px); height: 300px; overflow-y: auto; padding: 10px;">
+        <van-button plain block type="primary" size="small" text="Clear Local Data" @click="cleanLocalData" />
 
         <van-button plain block type="primary" size="small" text="Clear Local DB" @click="cleanLocalDB"
           style="margin-top: 15px;" />

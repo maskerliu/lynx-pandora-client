@@ -55,6 +55,7 @@ onMounted(async () => {
 }
 
 #app {
+  font-family: Tahoma, 'Hiragino Sans GB', 'Microsoft Yahei', '微软雅黑', Arial, sans-serif;
   background: #f6f6f6;
   letter-spacing: 1px;
   -moz-user-select: none;
@@ -90,7 +91,7 @@ onMounted(async () => {
   --van-collapse-item-content-background: transparent;
   --van-tabs-card-height: 2.5rem;
   --van-popover-radius: 3px;
-  
+
 }
 
 /* .van-field__body {
@@ -102,7 +103,7 @@ onMounted(async () => {
 .full-row {
   width: 100%;
   height: 100%;
-  background: #eee;
+  background: #f8f8f8;
   overflow: hidden;
 }
 
@@ -117,5 +118,4 @@ onMounted(async () => {
 .bg-border:active {
   background: #5558;
 }
-
 </style>

@@ -31,7 +31,7 @@ import AmapViewer from '../components/AmapViewer.vue'
 const commonStore = useCommonStore()
 const i18n = useI18n()
 const device = ref<IOT.Device>({
-  lat: 32.1323, lng: 121.4232
+  deviceId: null, lat: 32.1323, lng: 121.4232
 })
 
 onMounted(() => {
@@ -56,7 +56,7 @@ async function bind() {
   await IOTApi.updateDevice(device.value)
   showNotify({ type: 'success', message: '绑定成功' })
 
-  device.value = { lat: 32.1323, lng: 121.4232 }
+  device.value = { deviceId: null, lat: 32.1323, lng: 121.4232 }
 }
 </script>
 <style scoped>

@@ -49,7 +49,7 @@
       left-icon="volume-o" :text="chatroomStore.curRoom?.notice" />
     <van-row :style="{ height: `calc(100% - ${offsetHeight}px)`, padding: '0 5px' }">
       <van-list ref="msgContainer" style="flex: 1; height: 100%; overflow-y: auto;">
-        <chatroom-message :message="item" v-for="item in chatroomStore.messages" />
+        <room-message :message="item" v-for="item in chatroomStore.messages" />
       </van-list>
       <van-col style="width: 100px; height: 200px; background: #1817177d; border-radius: 15px; color: #ecf0f1;">
         活动
@@ -81,7 +81,7 @@ import { Chatroom, ChatroomApi } from '../../../models'
 import { useChatroomStore, useCommonStore } from '../../../store'
 import { NavBack } from '../../components/misc'
 import RoomInputBar from './RoomInputBar.vue'
-import ChatroomMessage from './ChatroomMessage.vue'
+import RoomMessage from './RoomMessage.vue'
 import RoomInfo from './RoomInfo.vue'
 import SeatMgr from './SeatMgr.vue'
 import DianTaiSeatsPanel from './seats/DianTaiSeatsPanel.vue'

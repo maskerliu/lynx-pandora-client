@@ -5,8 +5,7 @@
       <van-list style="height: 100%; overflow-y: auto;" :loading="collectionLoading" :finished="collectionFinished"
         @load="getMyCollections">
         <template v-if="myCollections.length == 0">
-          <div
-            style="width:100%; height: 100%; margin-top: 50%; text-align: center; color: #bdc3c7; font-size: 0.7rem;">
+          <div class="empty-box">
             <van-icon class="iconfont icon-emptybox" size="50" />
             <div style="margin-top: 10px;">{{ $t('square.collectionEmptyTips') }}</div>
           </div>
@@ -14,8 +13,8 @@
         <template v-else>
           <template v-for="item in myCollections">
             <template v-if="item.type == Square.FeedType.Room">
-              <van-cell :title="(item.data as Chatroom.Room).title" :label="(item.data as Chatroom.Room).ownerName"
-                v-for="room in myCollections" clickable @click="enterRoom(room.data as Chatroom.Room)">
+              <van-cell :title="(item.data as Chatroom.Room).title" :label="(item.data as Chatroom.Room).notice"
+                v-for="room in myCollections" clickable center @click="enterRoom(room.data as Chatroom.Room)">
                 <template #icon>
                   <van-image width="4rem" height="4rem" round radius="8px" style="margin-right: 15px;"
                     :src="`//${commonStore.appConfig?.staticServer + (item.data as Chatroom.Room).cover}`" />
@@ -75,9 +74,6 @@ let originData: Array<Square.Feed> = []
 provide(CalcSquareFeedHeight, calcImageHeight)
 
 onMounted(async () => {
-  commonStore.navbar.title = i18n.t('square.title')
-  commonStore.navbar.leftArrow = false
-
   activeTab.value = 1
 
   nextTick(() => {
@@ -143,6 +139,15 @@ async function enterRoom(item: Chatroom.Room) {
 
 </script>
 <style lang="css">
+.empty-box {
+  width: 100%;
+  height: 100%;
+  margin-top: 50%;
+  text-align: center;
+  color: #bdc3c7;
+  font-size: 0.7rem;
+}
+
 .feed-container {
   width: calc(100% - 30px);
   height: 100%;

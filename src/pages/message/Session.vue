@@ -5,7 +5,8 @@
 
     <van-list ref="msgContainer" style="height: calc(100% - 60px); padding-bottom: 20px; overflow-y: auto">
       <van-pull-refresh v-model="loading" @refresh="onLoadingMore">
-        <message :message="message" v-for="message in messages" :key="message._id" @click="onMessageClicked(message)" />
+        <IMMessage :message="message" v-for="message in messages" :key="message._id"
+          @message-clicked="onMessageClicked(message)" />
       </van-pull-refresh>
     </van-list>
 
@@ -16,13 +17,13 @@
 </template>
 
 <script lang="ts" setup>
-import { showNotify } from 'vant'
+import { showImagePreview, showNotify } from 'vant'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { IM } from '../../models'
 import { useCommonStore, useIMStore } from '../../store'
 import IMInputBar from './IMInputBar.vue'
-import Message from './Message.vue'
+import IMMessage from './IMMessage.vue'
 import RedPacket from './RedPacket.vue'
 
 const router = useRouter()
@@ -62,12 +63,12 @@ watch(() => imStore.updateMessages, async () => {
   messages.value = await imStore.messages(sid)
   loading.value = false
   setTimeout(async () => {
-    scrollToBottom(true)
+    scrollToBottom(false)
   }, 200)
 })
 
 function scrollToBottom(smooth: boolean) {
-  msgContainer.value?.$el.scrollTo({ top: msgContainer.value.$el.scrollHeight, behavior: smooth ? 'smooth' : null })
+  msgContainer.value?.$el.scrollTo({ top: msgContainer.value.$el.scrollHeight, behavior: smooth ? 'smooth' : 'auto' })
   // msgContainer.value.$el.scrollTo({ top: msgContainer.value.$el.scrollHeight })
 }
 
@@ -91,6 +92,10 @@ async function onMessageClicked(message: IM.Message) {
     case IM.MessageType.RedPacket:
       showRedPacket.value = true
       redpacketOrder.value = message.content as IM.RedPacketOrder
+      break
+    case IM.MessageType.IMAGE:
+      if (message.content != null && message.content.length > 0)
+        showImagePreview({ images: [`//${commonStore.appConfig.staticServer + message.content}`], showIndex: false })
       break
   }
 }
