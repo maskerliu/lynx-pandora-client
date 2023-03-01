@@ -18,6 +18,8 @@ export namespace RemoteAPI {
     ProfileSave: '/profile/save',
     ProfileInfo: '/profile/info',
     ProfileSearch: '/profile/search',
+    GradeConfig: '/grade/config',
+    UserGrade: '/grade/info',
   }
 
   export const IOT = {

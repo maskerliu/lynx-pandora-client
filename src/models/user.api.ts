@@ -4,7 +4,7 @@ import { formPost, get, post } from './base.api'
 
 
 export namespace UserApi {
-  
+
   export function login(phone: string, verifyCode: string) {
     let data = new FormData()
     data.append('phone', phone)
@@ -43,5 +43,9 @@ export namespace UserApi {
 
   export function buyVIP(vipId: string) {
     return post<User.VIPOrder>(RemoteAPI.VIP.BasePath + RemoteAPI.VIP.Buy, {}, { vipId })
+  }
+
+  export function userGradeInfo() {
+    return post<User.UserGradeInfo>(RemoteAPI.User.BasePath + RemoteAPI.User.UserGrade)
   }
 }

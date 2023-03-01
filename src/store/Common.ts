@@ -31,7 +31,7 @@ export type CommonState = {
 }
 
 export type CommonAction = {
-  init(): Promise<void>
+  init(token?: string): Promise<void>
   updateUserInfo(): Promise<void>
   updateMyWallet(): Promise<void>
   updateMyProps(orders: Array<Chatroom.PropOrder>): void
@@ -65,19 +65,22 @@ export const useCommonStore = defineStore<string, CommonState, {}, CommonAction>
     }
   },
   actions: {
-    async init() {
+    async init(token?: string) {
       updateBaseDomain(SERVER_BASE_URL)
-      this.appConfig = await CommonApi.getAppConfig()
 
+      if (token) {
+        this.accessToken = token 
+      }
       if (this.accessToken == null) {
         this.needLogin = true
         return
       }
       updateAccessToken(this.accessToken)
+
+      this.appConfig = await CommonApi.getAppConfig()
       await this.updateUserInfo()
     },
     async updateUserInfo() {
-      updateAccessToken(this.accessToken)
       this.profile = await UserApi.userProfile()
       await this.updateMyWallet()
 
@@ -133,8 +136,9 @@ export const useCommonStore = defineStore<string, CommonState, {}, CommonAction>
       }
       this.profile = Object.assign(this.profile, vipInfo)
     },
-    updateMyGrade() {
-      // let grade = await
+    async updateMyGrade() {
+      let grade = await UserApi.userGradeInfo()
+      this.profile = Object.assign(this.profile, grade)
     },
     async logout() {
       this.accessToken = null

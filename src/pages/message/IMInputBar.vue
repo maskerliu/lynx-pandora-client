@@ -130,7 +130,6 @@ watch(showEmojiPanel, () => {
   }
   inputBar.value.$el.style.top = `calc(100% - ${height}px)`
   inputBar.value.$el.style.transition = `all 0.35s ease-out`
-  console.log(inputBar.value.$el.style.top)
 })
 
 watch(txtEmoji, () => {

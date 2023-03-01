@@ -92,8 +92,8 @@ watch(verifyCode, () => {
 
 async function login() {
   isLogining.value = true
-  commonStore.accessToken = await UserApi.login(phone.value.replaceAll(' ', ''), verifyCode.value)
-  await commonStore.updateUserInfo()
+  let token = await UserApi.login(phone.value.replaceAll(' ', ''), verifyCode.value)
+  await commonStore.init(token)
   input.value = ''
   verifyCode.value = ''
   phone.value = ''
